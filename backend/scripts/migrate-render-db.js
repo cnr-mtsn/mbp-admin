@@ -10,9 +10,10 @@ const { Pool } = pg;
  */
 
 // Use DATABASE_URL from environment (Render sets this automatically)
+// SSL is always required for Render databases
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || process.env.DB_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }
 });
 
 const migrateDatabase = async () => {

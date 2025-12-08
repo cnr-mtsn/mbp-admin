@@ -20,9 +20,10 @@ const __dirname = path.dirname(__filename);
  * 2. Run: node scripts/import-production-data.js
  */
 
+// SSL is always required for Render databases
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || process.env.DB_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }
 });
 
 const importData = async () => {

@@ -12,10 +12,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Apollo Server setup
+// Apollo Server setup with introspection and playground enabled
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  introspection: true, // Enable GraphQL introspection in production
+  plugins: [
+    // Enable GraphQL Playground in production
+    {
+      async serverWillStart() {
+        console.log('🎮 GraphQL Playground available at /graphql');
+      },
+    },
+  ],
 });
 
 // Context function to extract user from JWT token
@@ -35,14 +44,25 @@ await server.start();
 const allowedOrigins = [
   process.env.BILLING_URL,
   process.env.INVENTORY_URL,
-  process.env.BACKEND_URL
+  process.env.BACKEND_URL,
+  'https://studio.apollographql.com' // Allow Apollo Studio
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+
+    // Allow configured origins
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+
+    // In development, allow all localhost origins
+    if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true

@@ -1,0 +1,68 @@
+.container {
+  max-width: 42rem;
+}
+
+.form {
+  @apply flex flex-col;
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 640px) {
+  .form {
+    gap: var(--spacing-md);
+  }
+}
+
+.nameGrid {
+  @apply grid gap-4;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .nameGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.passwordSection {
+  border-top: var(--border);
+  padding-top: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.passwordTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-md);
+}
+
+.passwordHelp {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-lg);
+}
+
+.formActions {
+  @apply flex justify-end;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: var(--border);
+}
+
+@media (max-width: 640px) {
+  .formActions {
+    @apply flex-col;
+  }
+}
+
+.roleInfo {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-gray-100);
+  border-radius: var(--radius-md);
+}
+
+.roleText {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}

@@ -1,0 +1,70 @@
+.form {
+  @apply flex flex-col;
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 640px) {
+  .form {
+    gap: var(--spacing-md);
+  }
+}
+
+.sizeGrid {
+  @apply grid gap-4;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .sizeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formActions {
+  @apply flex justify-end;
+}
+
+@media (max-width: 640px) {
+  .formActions {
+    @apply justify-stretch;
+  }
+}
+
+.qrSection {
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-2xl);
+  border-top: var(--border);
+}
+
+.qrTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-md);
+}
+
+.qrCodeImage {
+  width: 16rem;
+  height: 16rem;
+  border: 2px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 640px) {
+  .qrCodeImage {
+    width: 12rem;
+    height: 12rem;
+  }
+}
+
+.printIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  margin-right: var(--spacing-sm);
+}
+
+.qrHelp {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+  margin-top: var(--spacing-sm);
+}

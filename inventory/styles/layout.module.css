@@ -1,0 +1,250 @@
+.wrapper {
+  @apply min-h-screen;
+  background-color: var(--color-gray-50);
+}
+
+.navContainer {
+  @apply flex justify-between py-2;
+}
+
+@media (max-width: 1024px) {
+  .nav {
+    @apply sticky top-0 left-0 right-0 z-50;
+  }
+  .navContainer {
+    height: auto;
+    @apply flex-col;
+  }
+}
+
+.navLeft {
+  @apply flex items-center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 1024px) {
+  .navLeft {
+    @apply w-full justify-between;
+    padding: 0;
+  }
+}
+
+/* Hamburger Button */
+.hamburgerButton {
+  @apply flex items-center justify-center;
+  border-radius: var(--radius-md);
+  border: none;
+  background-color: transparent;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: none;
+}
+
+.hamburgerButton:hover {
+  background-color: var(--color-gray-100);
+}
+
+.hamburgerIcon {
+  @apply w-8 h-8;
+}
+
+@media (max-width: 1024px) {
+  .hamburgerButton {
+    display: flex;
+  }
+}
+
+.logo {
+  @apply flex-shrink-0;
+}
+.logo img {
+  @apply dark:invert;
+}
+
+.logoText {
+  @apply text-xl font-bold m-0;
+  color: var(--color-gray-900);
+}
+
+@media (max-width: 640px) {
+  .logoText {
+    @apply text-lg;
+  }
+}
+
+.navLinks {
+  @apply flex gap-4;
+}
+
+/* Hide desktop nav links on mobile when hamburger menu is active */
+@media (max-width: 1024px) {
+  .navLinks {
+    display: none;
+  }
+  .hamburgerButton {
+    @apply absolute top-2 left-2;
+  }
+  .logo {
+    @apply mx-auto w-80;
+  }
+}
+
+.navRight {
+  @apply flex items-center gap-3;
+}
+
+@media (max-width: 1024px) {
+  .navRight {
+    @apply justify-end hidden;
+    padding: var(--spacing-sm) 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .navRight {
+    @apply gap-2;
+  }
+}
+
+.checkoutsLink {
+  @apply inline-flex items-center text-sm no-underline rounded-md;
+  gap: var(--spacing-xs);
+  color: var(--color-gray-700);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.checkoutsLink:hover {
+  background-color: var(--color-gray-100);
+}
+
+.checkoutsIcon {
+  @apply h-5 w-5;
+}
+
+@media (max-width: 640px) {
+  .checkoutsIcon {
+    @apply h-4 w-4;
+  }
+}
+
+.dropdownTrigger {
+  @apply text-sm flex items-center gap-2;
+  color: var(--color-gray-700);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.dropdownTrigger:hover {
+  background-color: var(--color-gray-100);
+}
+
+@media (max-width: 640px) {
+  .dropdownTrigger {
+    @apply text-xs;
+    padding: 2px var(--spacing-xs);
+  }
+}
+
+.dropdownIcon {
+  @apply h-4 w-4 inline-block;
+  margin-left: var(--spacing-xs);
+}
+
+@media (max-width: 640px) {
+  .dropdownIcon {
+    @apply h-3 w-3;
+  }
+}
+
+.dropdownItemIcon {
+  @apply h-4 w-4;
+}
+
+.divider {
+  border-top: var(--border);
+}
+
+.main {
+  max-width: 80rem;
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+  }
+}
+
+.pageTransition {
+  animation: pageFadeIn 320ms ease-in-out forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pageProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.pageProgressBar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-success) 100%);
+  animation: pageProgressSlide 1s ease-in-out infinite;
+}
+
+@keyframes pageProgressSlide {
+  0% {
+    transform: translateX(-30%);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(30%);
+  }
+}
+
+.mobileClock {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .mobileClock {
+    @apply flex flex-col items-end ml-auto absolute top-2 right-2;
+    color: var(--color-gray-700);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.mobileClockTime {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mobileClockDate {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}

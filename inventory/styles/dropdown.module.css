@@ -1,0 +1,59 @@
+.container {
+  position: relative;
+}
+
+.trigger {
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  min-width: 12rem;
+  background-color: var(--color-white);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+}
+
+.menuRight {
+  right: 0;
+}
+
+.menuLeft {
+  left: 0;
+}
+
+@media (max-width: 640px) {
+  .menu {
+    min-width: 10rem;
+  }
+}
+
+.item {
+  @apply w-full flex items-center text-sm;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--color-gray-700);
+  background-color: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.item:hover {
+  background-color: var(--color-gray-50);
+}
+
+@media (max-width: 640px) {
+  .item {
+    @apply text-xs;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}
+
+.itemIcon {
+  @apply flex items-center;
+}

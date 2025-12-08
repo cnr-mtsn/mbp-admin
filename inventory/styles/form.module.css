@@ -1,0 +1,23 @@
+.checkboxContainer {
+  @apply flex items-start;
+}
+
+.checkboxWrapper {
+  @apply flex items-center;
+  height: 1.25rem;
+}
+
+.checkboxLabel {
+  margin-left: var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+.checkboxLabelText {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+}
+
+.checkboxDescription {
+  color: var(--color-gray-500);
+  margin: 0;
+}

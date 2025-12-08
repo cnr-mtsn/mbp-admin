@@ -1,0 +1,123 @@
+.transactionList {
+  border-top: 1px solid var(--color-gray-200);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.transactionItem {
+  border-bottom: var(--border);
+}
+
+.transactionItem:last-child {
+  border-bottom: none;
+}
+
+.transactionLink {
+  @apply block no-underline;
+  transition: background-color var(--transition-fast);
+}
+
+.transactionLink:hover {
+  background-color: var(--color-gray-50);
+}
+
+.transactionContent {
+  @apply p-3;
+}
+
+@media (min-width: 768px) {
+  .transactionContent {
+    @apply p-4;
+  }
+}
+
+.transactionMain {
+  @apply flex items-center justify-between flex-wrap gap-3;
+}
+
+@media (min-width: 768px) {
+  .transactionMain {
+    @apply flex-nowrap;
+  }
+}
+
+.transactionInfo {
+  @apply flex-1 min-w-0;
+}
+
+.transactionProduct {
+  @apply text-sm font-medium overflow-hidden text-ellipsis whitespace-nowrap;
+  color: var(--color-primary);
+}
+
+@media (max-width: 640px) {
+  .transactionProduct {
+    @apply text-xs;
+  }
+}
+
+.transactionCategory {
+  @apply text-sm;
+  color: var(--color-gray-500);
+}
+
+@media (max-width: 640px) {
+  .transactionCategory {
+    @apply text-xs;
+  }
+}
+
+.transactionBadge {
+  @apply ml-4 flex-shrink-0;
+}
+
+@media (max-width: 640px) {
+  .transactionBadge {
+    @apply ml-0;
+  }
+}
+
+.badge {
+  @apply px-2 py-1 inline-flex text-xs font-semibold rounded-full;
+  line-height: 1.25;
+}
+
+@media (max-width: 640px) {
+  .badge {
+    font-size: 0.625rem;
+    @apply px-1.5 py-0.5;
+  }
+}
+
+.badgeCheckIn {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.badgeCheckOut {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.badgeDepleted {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.transactionDetails {
+  @apply mt-2 flex justify-between flex-wrap gap-2;
+}
+
+.transactionEmployee,
+.transactionDate {
+  @apply flex items-center text-sm;
+  color: var(--color-gray-500);
+}
+
+@media (max-width: 640px) {
+  .transactionEmployee,
+  .transactionDate {
+    @apply text-xs;
+  }
+}

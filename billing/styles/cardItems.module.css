@@ -1,0 +1,251 @@
+/* Card item header */
+.itemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.itemHeaderContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-500);
+  margin-bottom: 0.25rem;
+}
+
+.itemTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  line-height: 1.25;
+}
+
+.itemDescription {
+  color: var(--color-gray-500);
+  font-size: 0.875rem;
+}
+
+/* Card item tags/pills section */
+.itemTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.itemTag {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+/* Contact info section */
+.itemContact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.itemContactText {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+}
+
+/* Card item footer */
+.itemFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.itemFooterText {
+  color: var(--color-gray-500);
+  font-size: 0.875rem;
+}
+
+/* Dashboard card link */
+.dashboardCard {
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+}
+
+.dashboardCard:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.dashboardCardContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboardCardInfo {
+  /* Container for title/description */
+}
+
+.dashboardCardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-bottom: 0.25rem;
+}
+
+.dashboardCardDescription {
+  color: var(--color-gray-500);
+}
+
+.dashboardCardIcon {
+  font-size: 2.25rem;
+}
+
+/* Detail page sections */
+.detailSection {
+  /* Extends .card from globals */
+}
+
+.detailSectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-bottom: 1rem;
+}
+
+.detailList {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .detailList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.detailItem {
+  /* Individual detail item */
+}
+
+.detailLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+}
+
+.detailValue {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+}
+
+.detailLink {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-primary);
+}
+
+/* Line items */
+.lineItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.lineItem {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lineItemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.lineItemDescription {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.lineItemDetails {
+  color: var(--color-gray-500);
+  font-size: 0.875rem;
+}
+
+.lineItemAmount {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+/* Totals section */
+.totalsSection {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.totalRowFinal {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 24rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+}
+
+.totalLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+}
+
+.totalValue {
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+}
+
+.totalLabelFinal {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.totalValueFinal {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}

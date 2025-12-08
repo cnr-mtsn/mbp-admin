@@ -1,0 +1,16 @@
+.subtitle {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+}
+
+.form {
+  @apply flex flex-col;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 640px) {
+  .form {
+    gap: var(--spacing-sm);
+  }
+}

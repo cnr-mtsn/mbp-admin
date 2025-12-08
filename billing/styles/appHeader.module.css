@@ -1,0 +1,91 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgb(229 231 235);
+  background-color: rgb(255 255 255 / 0.9);
+}
+
+:global(.dark) .header {
+  border-bottom-color: rgb(30 41 59);
+  background-color: rgb(15 23 42 / 0.8);
+}
+
+.container {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo {
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.darkModeToggle {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.darkModeToggle:hover {
+  background-color: rgb(243 244 246);
+}
+
+:global(.dark) .darkModeToggle:hover {
+  background-color: rgb(30 41 59);
+}
+
+.welcomeText {
+  display: none;
+  font-size: 0.875rem;
+  color: rgb(107 114 128);
+}
+
+@media (min-width: 640px) {
+  .welcomeText {
+    display: inline;
+  }
+}
+
+:global(.dark) .welcomeText {
+  color: rgb(148 163 184);
+}

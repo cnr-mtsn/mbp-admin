@@ -1,0 +1,22 @@
+.scannerContainer {
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .scannerContainer {
+    max-width: 100%;
+  }
+}
+
+.helpText {
+  @apply text-center mt-4;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+}
+
+@media (max-width: 640px) {
+  .helpText {
+    font-size: var(--font-size-xs);
+  }
+}

@@ -1,0 +1,551 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Status Selector Styles */
+.status-selector-button {
+  background: rgba(255, 255, 255, 0.95);
+  color: inherit;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.status-dropdown-menu {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.status-option {
+  background: transparent;
+}
+
+.status-option[data-status="draft"] {
+  color: #6b7280;
+}
+
+.status-option[data-status="draft"]:hover:not([data-active="true"]) {
+  background: #f3f4f6;
+}
+
+.status-option[data-status="draft"][data-active="true"] {
+  background: #f3f4f6;
+}
+
+.status-option[data-status="sent"] {
+  color: #3b82f6;
+}
+
+.status-option[data-status="sent"]:hover:not([data-active="true"]) {
+  background: #dbeafe;
+}
+
+.status-option[data-status="sent"][data-active="true"] {
+  background: #dbeafe;
+}
+
+.status-option[data-status="paid"] {
+  color: #16a34a;
+}
+
+.status-option[data-status="paid"]:hover:not([data-active="true"]) {
+  background: #dcfce7;
+}
+
+.status-option[data-status="paid"][data-active="true"] {
+  background: #dcfce7;
+}
+
+.status-option[data-status="overdue"] {
+  color: #dc2626;
+}
+
+.status-option[data-status="overdue"]:hover:not([data-active="true"]) {
+  background: #fee2e2;
+}
+
+.status-option[data-status="overdue"][data-active="true"] {
+  background: #fee2e2;
+}
+
+/* Dark Mode Status Selector */
+@media (prefers-color-scheme: dark) {
+  .status-selector-button {
+    background: rgba(30, 41, 59, 0.7);
+    color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .status-dropdown-menu {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(40px) saturate(200%);
+    box-shadow:
+      0 12px 32px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .status-option[data-status="draft"] {
+    color: #9ca3af;
+  }
+
+  .status-option[data-status="draft"]:hover:not([data-active="true"]) {
+    background: rgba(107, 114, 128, 0.15);
+  }
+
+  .status-option[data-status="draft"][data-active="true"] {
+    background: rgba(107, 114, 128, 0.2);
+  }
+
+  .status-option[data-status="sent"] {
+    color: #60a5fa;
+  }
+
+  .status-option[data-status="sent"]:hover:not([data-active="true"]) {
+    background: rgba(59, 130, 246, 0.15);
+  }
+
+  .status-option[data-status="sent"][data-active="true"] {
+    background: rgba(59, 130, 246, 0.2);
+  }
+
+  .status-option[data-status="paid"] {
+    color: #4ade80;
+  }
+
+  .status-option[data-status="paid"]:hover:not([data-active="true"]) {
+    background: rgba(34, 197, 94, 0.15);
+  }
+
+  .status-option[data-status="paid"][data-active="true"] {
+    background: rgba(34, 197, 94, 0.2);
+  }
+
+  .status-option[data-status="overdue"] {
+    color: #f87171;
+  }
+
+  .status-option[data-status="overdue"]:hover:not([data-active="true"]) {
+    background: rgba(239, 68, 68, 0.15);
+  }
+
+  .status-option[data-status="overdue"][data-active="true"] {
+    background: rgba(239, 68, 68, 0.2);
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Colors */
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-light: #dbeafe;
+
+    --color-success: #16a34a;
+    --color-success-hover: #15803d;
+    --color-success-light: #dcfce7;
+
+    --color-danger: #dc2626;
+    --color-danger-hover: #b91c1c;
+    --color-danger-light: #fee2e2;
+
+    --color-warning: #ea580c;
+    --color-warning-light: #fed7aa;
+
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+
+    --color-white: #ffffff;
+    --color-black: #000000;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* Border Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
+
+    /* Borders */
+    --border-width: 1px;
+    --border-color: var(--color-gray-200);
+    --border: var(--border-width) solid var(--border-color);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+    /* Typography */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    /* Transitions */
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 200ms ease-in-out;
+    --transition-slow: 300ms ease-in-out;
+
+    /* Button Colors - Primary (Blue) */
+    --btn-primary-bg: rgb(59 130 246);
+    --btn-primary-text: rgb(255 255 255);
+    --btn-primary-border: rgb(59 130 246);
+    --btn-primary-hover-bg: rgb(37 99 235);
+
+    /* Button Colors - Secondary (Gray) */
+    --btn-secondary-bg: rgb(243 244 246);
+    --btn-secondary-text: rgb(31 41 55);
+    --btn-secondary-border: rgb(229 231 235);
+    --btn-secondary-hover-bg: rgb(229 231 235);
+
+    /* Status: Completed (Green) */
+    --status-completed-bg: #D1FAE5;
+    --status-completed-text: #065F46;
+    --status-completed-border: #065F46;
+
+    /* Status: In Progress (Blue) */
+    --status-in-progress-bg: #DBEAFE;
+    --status-in-progress-text: #1E40AF;
+    --status-in-progress-border: #1E40AF;
+
+    /* Status: Pending (Amber) */
+    --status-pending-bg: #FEF3C7;
+    --status-pending-text: #92400E;
+    --status-pending-border: #92400E;
+
+    /* Status: Paid (Green) */
+    --status-paid-bg: rgba(220, 252, 231, 0.739);
+    --status-paid-text: rgb(22 101 52);
+    --status-paid-border: rgb(22 101 52);
+
+    /* Status: Sent (Blue) */
+    --status-sent-bg: rgb(219 234 254);
+    --status-sent-text: rgb(30 64 175);
+    --status-sent-border: rgb(30 64 175);
+
+    /* Status: Overdue (Red) */
+    --status-overdue-bg: rgb(254 226 226);
+    --status-overdue-text: rgb(153 27 27);
+    --status-overdue-border: rgb(153 27 27);
+
+    /* Status: Draft (Gray) */
+    --status-draft-bg: rgb(243 244 246);
+    --status-draft-text: rgb(31 41 55);
+    --status-draft-border: rgb(31 41 55);
+
+    /* Status: Accepted (Green) */
+    --status-accepted-bg: rgb(220 252 231);
+    --status-accepted-text: rgb(22 101 52);
+    --status-accepted-border: rgb(22 101 52);
+
+    /* Status: Rejected (Red) */
+    --status-rejected-bg: rgb(254 226 226);
+    --status-rejected-text: rgb(153 27 27);
+    --status-rejected-border: rgb(153 27 27);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+
+      /* Dark mode colors */
+      --color-gray-50: #111827;
+      --color-gray-100: #1f2937;
+      --color-gray-200: #374151;
+      --color-gray-300: #4b5563;
+      --color-gray-400: #6b7280;
+      --color-gray-500: #9ca3af;
+      --color-gray-600: #d1d5db;
+      --color-gray-700: #e5e7eb;
+      --color-gray-800: #f3f4f6;
+      --color-gray-900: #f9fafb;
+
+      --color-white: #1f2937;
+      --color-black: #ffffff;
+
+      /* Adjusted borders for dark mode */
+      --border-color: var(--color-gray-200);
+
+      /* Adjusted shadows for dark mode */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+
+      /* Lighter primary colors for better contrast on dark backgrounds */
+      --color-primary: #3b82f6;
+      --color-primary-hover: #60a5fa;
+      --color-primary-light: #1e3a8a;
+
+      /* Adjusted success colors */
+      --color-success: #22c55e;
+      --color-success-hover: #4ade80;
+      --color-success-light: #14532d;
+
+      /* Adjusted danger colors */
+      --color-danger: #ef4444;
+      --color-danger-hover: #f87171;
+      --color-danger-light: #7f1d1d;
+
+      /* Adjusted warning colors */
+      --color-warning: #f97316;
+      --color-warning-light: #7c2d12;
+
+      /* Button Colors - Primary (Blue) - matches In Progress pill style */
+      --btn-primary-bg: rgba(59, 130, 246, 0.4);
+      --btn-primary-text: #BFDBFE;
+      --btn-primary-border: #BFDBFE;
+      --btn-primary-hover-bg: rgba(59, 130, 246, 0.6);
+
+      /* Button Colors - Secondary (Slate) - matches Draft pill style */
+      --btn-secondary-bg: rgb(30 41 59);
+      --btn-secondary-text: rgb(241 245 249);
+      --btn-secondary-border: rgb(71 85 105);
+      --btn-secondary-hover-bg: rgb(51 65 85);
+
+      /* Status: Completed (Green) */
+      --status-completed-bg: rgba(16, 185, 129, 0.4);
+      --status-completed-text: #A7F3D0;
+      --status-completed-border: #A7F3D0;
+
+      /* Status: In Progress (Blue) */
+      --status-in-progress-bg: rgba(59, 130, 246, 0.4);
+      --status-in-progress-text: #BFDBFE;
+      --status-in-progress-border: #BFDBFE;
+
+      /* Status: Pending (Amber) */
+      --status-pending-bg: rgba(245, 158, 11, 0.4);
+      --status-pending-text: #FCD34D;
+      --status-pending-border: #FCD34D;
+
+      /* Status: Paid (Green) */
+      --status-paid-bg: rgba(29, 127, 68, 0.4);
+      --status-paid-text: rgb(15, 226, 89);
+      --status-paid-border: rgb(15, 226, 89);
+
+      /* Status: Sent (Blue) */
+      --status-sent-bg: rgb(30 58 138 / 0.4);
+      --status-sent-text: rgb(191 219 254);
+      --status-sent-border: rgb(191 219 254);
+
+      /* Status: Overdue (Red) */
+      --status-overdue-bg: rgb(127 29 29 / 0.4);
+      --status-overdue-text: rgb(254 202 202);
+      --status-overdue-border: rgb(254 202 202);
+
+      /* Status: Draft (Gray) */
+      --status-draft-bg: rgb(59, 30, 53);
+      --status-draft-text: rgb(241 245 249);
+      --status-draft-border: rgb(241 245 249);
+
+      /* Status: Accepted (Green) */
+      --status-accepted-bg: rgb(20 83 45 / 0.4);
+      --status-accepted-text: rgb(187 247 208);
+      --status-accepted-border: rgb(187 247 208);
+
+      /* Status: Rejected (Red) */
+      --status-rejected-bg: rgb(127 29 29 / 0.4);
+      --status-rejected-text: rgb(254 202 202);
+      --status-rejected-border: rgb(254 202 202);
+    }
+  }
+
+  body {
+    @apply bg-gray-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  }
+
+  a {
+    @apply transition-colors;
+  }
+
+  /* Utility Classes */
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    height: 100%;
+  }
+  p.price {
+    @apply text-emerald-500 dark:text-emerald-300;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply font-medium py-2 px-4 rounded-lg transition-colors shadow-sm;
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border: 1px solid var(--btn-primary-border);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--btn-primary-hover-bg);
+  }
+
+  .btn-primary-sm {
+    @apply font-medium text-sm px-3 py-2 rounded-lg transition-colors shadow-sm;
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border: 1px solid var(--btn-primary-border);
+  }
+
+  .btn-primary-sm:hover {
+    background-color: var(--btn-primary-hover-bg);
+  }
+
+  .btn-secondary {
+    @apply font-medium py-2 px-4 rounded-lg transition-colors shadow-sm;
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid var(--btn-secondary-border);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--btn-secondary-hover-bg);
+  }
+
+  .btn-secondary-sm {
+    @apply font-medium text-sm px-3 py-2 rounded-lg transition-colors shadow-sm;
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid var(--btn-secondary-border);
+  }
+
+  .btn-secondary-sm:hover {
+    background-color: var(--btn-secondary-hover-bg);
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100;
+  }
+
+  .card {
+    @apply bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl shadow-md p-6 h-full;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+  }
+
+  a > .card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 12px 24px -4px rgba(0, 0, 0, 0.12),
+      0 8px 16px -8px rgba(0, 0, 0, 0.08),
+      0 0 0 1px rgba(59, 130, 246, 0.2),
+      0 4px 16px rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    a > .card:hover {
+      box-shadow:
+        0 12px 24px -4px rgba(0, 0, 0, 0.4),
+        0 8px 16px -8px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(59, 130, 246, 0.4),
+        0 4px 16px rgba(59, 130, 246, 0.5);
+      border-color: rgba(59, 130, 246, 0.6);
+    }
+  }
+
+  .surface-section {
+    @apply bg-white/80 dark:bg-slate-900/70 border border-gray-100 dark:border-slate-800 rounded-xl shadow-lg;
+  }
+
+  .pill {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 uppercase;
+  }
+
+  .pill-primary {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200 flex-shrink-0;
+  }
+
+  .muted {
+    @apply text-gray-600 dark:text-slate-400;
+  }
+
+  /* Navigation */
+  nav {
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    border-bottom: var(--border);
+  }
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-500);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--color-gray-700);
+  border-bottom-color: var(--color-gray-300);
+}
+
+.nav-link-active {
+  color: var(--color-gray-900);
+  border-bottom-color: var(--color-primary);
+}
+
+  /* Avatar */
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+  }
+}

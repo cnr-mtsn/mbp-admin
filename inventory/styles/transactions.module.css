@@ -1,0 +1,14 @@
+.header {
+  margin-bottom: var(--spacing-md);
+}
+
+.description {
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-xl);
+}
+
+.emptyState {
+  color: var(--color-gray-500);
+  text-align: center;
+  padding: var(--spacing-xl);
+}

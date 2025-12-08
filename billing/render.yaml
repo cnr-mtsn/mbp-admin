@@ -1,0 +1,20 @@
+# Render Blueprint for Billing App
+# This deploys the billing frontend and shares the backend/database with inventory app
+
+services:
+  # Billing Frontend (Next.js)
+  - type: web
+    name: billing-frontend
+    env: node
+    region: oregon
+    plan: starter # $7/month - change to 'free' for testing
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5174
+      - key: NEXT_PUBLIC_API_URL
+        value: https://paint-inventory-api.onrender.com/graphql
+        # Note: Uses the same backend API as inventory app

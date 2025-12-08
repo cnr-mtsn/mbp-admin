@@ -1,0 +1,51 @@
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.emptyState {
+  @apply text-center;
+  color: var(--color-gray-500);
+}
+
+.item {
+  padding: var(--spacing-md);
+  border-bottom: var(--border);
+}
+
+@media (max-width: 640px) {
+  .item {
+    padding: var(--spacing-sm);
+  }
+}
+
+.employeeName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.amount {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+  margin: 0;
+}
+
+.rightColumn {
+  margin-left: var(--spacing-md);
+  @apply flex flex-col items-end;
+}
+
+@media (max-width: 640px) {
+  .rightColumn {
+    margin-left: var(--spacing-sm);
+  }
+}
+
+.timestamp {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+  margin-top: var(--spacing-xs);
+}

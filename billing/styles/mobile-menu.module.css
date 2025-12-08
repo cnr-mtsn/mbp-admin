@@ -1,0 +1,200 @@
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Menu Container */
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 80%;
+  max-width: 320px;
+  background-color: var(--color-white);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s ease-out;
+}
+
+
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Header */
+.header {
+  @apply flex items-center justify-between;
+  padding: var(--spacing-sm);
+  border-bottom: var(--border);
+}
+
+.title {
+  @apply text-xl font-bold m-0;
+  color: var(--color-gray-900);
+}
+
+.closeButton {
+  @apply flex items-center justify-center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  border: none;
+  background-color: transparent;
+  color: var(--color-gray-500);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.closeButton:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.closeIcon {
+  @apply w-6 h-6;
+}
+
+/* Navigation */
+.nav {
+  @apply flex flex-col;
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md) 0;
+}
+
+.navLink {
+  @apply flex items-center no-underline;
+  padding: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-md);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+
+.navLink:hover {
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+}
+
+.navLink svg {
+  @apply w-5 h-5;
+  flex-shrink: 0;
+}
+
+.navLinkActive {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  border-left-color: var(--color-primary);
+}
+
+/* User Section */
+.userSection {
+  border-top: var(--border);
+  padding: var(--spacing-md);
+}
+
+.userInfo {
+  @apply flex items-center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.userAvatar {
+  @apply flex items-center justify-center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.userAvatar svg {
+  @apply w-6 h-6;
+}
+
+.userDetails {
+  @apply flex-1;
+}
+
+.userName {
+  @apply font-semibold;
+  color: var(--color-gray-900);
+  font-size: var(--font-size-base);
+}
+
+.userRole {
+  @apply text-sm;
+  color: var(--color-gray-500);
+  text-transform: capitalize;
+}
+
+.profileButton,
+.logoutButton {
+  @apply flex items-center w-full no-underline;
+  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: var(--spacing-xs);
+}
+
+.profileButton {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.profileButton:hover {
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-900);
+}
+
+.logoutButton {
+  background-color: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+}
+
+.logoutButton:hover {
+  background-color: var(--color-danger-light);
+}
+
+.buttonIcon {
+  @apply w-4 h-4;
+  flex-shrink: 0;
+}
+
+/* Responsive - Hide on desktop */
+@media (min-width: 1024px) {
+  .overlay,
+  .menu {
+    display: none;
+  }
+}

@@ -1,0 +1,180 @@
+/* Grid Layout */
+.grid {
+  @apply gap-4;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .grid {
+    @apply grid-cols-1 gap-3;
+  }
+}
+
+/* Card */
+.card {
+  @apply no-underline rounded-lg overflow-hidden;
+  background-color: var(--color-white);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+}
+
+/* Card Header */
+.cardHeader {
+  @apply flex items-center justify-between p-4;
+  border-bottom: var(--border);
+  background-color: var(--color-gray-50);
+}
+
+@media (max-width: 640px) {
+  .cardHeader {
+    @apply p-3;
+  }
+}
+
+.productType {
+  @apply font-semibold text-sm uppercase;
+  color: var(--color-gray-700);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .productType {
+    @apply text-xs;
+  }
+}
+
+/* Card Body */
+.cardBody {
+  @apply p-4 flex-1;
+}
+
+@media (max-width: 640px) {
+  .cardBody {
+    @apply p-3;
+  }
+}
+
+/* Main Info */
+.mainInfo {
+  @apply mb-4;
+}
+
+.brand {
+  @apply text-lg font-bold mb-1;
+  color: var(--color-gray-900);
+}
+
+@media (max-width: 640px) {
+  .brand {
+    @apply text-base;
+  }
+}
+
+.color {
+  @apply text-base font-medium mb-1;
+  color: var(--color-primary);
+}
+
+@media (max-width: 640px) {
+  .color {
+    @apply text-sm;
+  }
+}
+
+.colorCode {
+  @apply text-sm;
+  color: var(--color-gray-600);
+}
+
+@media (max-width: 640px) {
+  .colorCode {
+    @apply text-xs;
+  }
+}
+
+/* Details Grid */
+.detailsGrid {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .detailsGrid {
+    @apply gap-2;
+  }
+}
+
+.detailItem {
+  @apply flex flex-col;
+}
+
+.detailLabel {
+  @apply text-xs font-medium uppercase mb-1;
+  color: var(--color-gray-500);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .detailLabel {
+    font-size: 0.625rem;
+  }
+}
+
+.detailValue {
+  @apply text-sm font-semibold;
+  color: var(--color-gray-900);
+}
+
+@media (max-width: 640px) {
+  .detailValue {
+    @apply text-xs;
+  }
+}
+
+/* Card Footer */
+.cardFooter {
+  @apply flex items-center justify-between p-4;
+  border-top: var(--border);
+  background-color: var(--color-gray-50);
+}
+
+@media (max-width: 640px) {
+  .cardFooter {
+    @apply p-3 flex-col items-start gap-2;
+  }
+}
+
+.lastUpdated,
+.updateDate {
+  @apply flex items-center gap-2 text-xs;
+  color: var(--color-gray-600);
+}
+
+@media (max-width: 640px) {
+  .lastUpdated,
+  .updateDate {
+    font-size: 0.625rem;
+  }
+}
+
+.footerIcon {
+  @apply w-4 h-4;
+  color: var(--color-gray-400);
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .footerIcon {
+    @apply w-3 h-3;
+  }
+}

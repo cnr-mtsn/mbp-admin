@@ -1,0 +1,53 @@
+.header {
+  @apply flex justify-between items-center mb-6;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+  .header {
+    @apply mb-4;
+  }
+}
+
+.backLink {
+  @apply inline-flex items-center;
+}
+
+.backIcon {
+  @apply h-5 w-5 mr-1;
+}
+
+@media (max-width: 640px) {
+  .backIcon {
+    @apply h-4 w-4;
+  }
+}
+
+.mainGrid {
+  @apply grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-xl);
+}
+
+.contentGrid {
+  @apply grid gap-6;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .contentGrid {
+    @apply grid-cols-1 gap-4;
+  }
+}
+
+.actionsColumn {
+  @apply flex flex-col;
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+  .actionsColumn {
+    gap: var(--spacing-lg);
+  }
+}

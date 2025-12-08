@@ -5,7 +5,7 @@ import { onError } from '@apollo/client/link/error';
 // GraphQL endpoint
 const httpLink = createHttpLink({
   uri: process.env.NODE_ENV === 'production'
-    ? process.env.NEXT_PUBLIC_GRAPHQL_URL
+    ? process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_GRAPHQL_URL
     : 'http://localhost:4000/graphql',
 });
 

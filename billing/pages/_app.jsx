@@ -4,6 +4,7 @@ import { ApolloProvider } from '@apollo/client';
 import apolloClient from '../lib/apolloClient';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
+import SeoHead from '../components/SeoHead'
 
 // Pages that don't require authentication
 const publicPages = ['/login'];
@@ -61,6 +62,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ApolloProvider client={apolloClient}>
+      <SeoHead />
       {pageContent}
     </ApolloProvider>
   );

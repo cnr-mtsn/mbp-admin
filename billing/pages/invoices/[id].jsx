@@ -363,22 +363,9 @@ export default function InvoiceDetail() {
           }
         }}
         onClose={() => setShowEditModal(false)}
-        style={{
-          padding: 0,
-          border: 'none',
-          borderRadius: 'var(--radius-lg)',
-          maxWidth: '90vw',
-          width: '100%',
-          maxHeight: '90vh',
-          overflow: 'visible',
-          backgroundColor: 'transparent'
-        }}
+        className={styles.invoiceDialog}
       >
-        <div className="card" style={{
-          maxHeight: '90vh',
-          overflow: 'auto',
-          margin: 0
-        }}>
+        <div className={`card ${styles.dialogContent}`}>
           <h3 className={cardStyles.detailSectionTitle}>Edit Invoice</h3>
 
           {updateError && (

@@ -317,17 +317,8 @@ export default function JobDetail() {
 
       {/* Link Existing Invoices Modal */}
       {showLinkModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 50,
-          padding: '1rem'
-        }}>
-          <div className="card" style={{ maxWidth: '48rem', width: '100%', maxHeight: '80vh', overflow: 'auto' }}>
+        <div className={styles.modalOverlay}>
+          <div className={`card ${styles.modalContent} ${styles.modalContentSmall}`}>
             <h3 className={cardStyles.detailSectionTitle}>Link Existing Invoices</h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
               Select invoices to link to this job. Only invoices not already linked to a job are shown.
@@ -405,17 +396,8 @@ export default function JobDetail() {
 
       {/* Create New Invoice Modal */}
       {showCreateModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 50,
-          padding: '1rem'
-        }}>
-          <div className="card" style={{ maxWidth: '60rem', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+        <div className={styles.modalOverlay}>
+          <div className={`card ${styles.modalContent} ${styles.modalContentLarge}`}>
             <h3 className={cardStyles.detailSectionTitle}>Create New Invoice for Job</h3>
 
             {createError && (

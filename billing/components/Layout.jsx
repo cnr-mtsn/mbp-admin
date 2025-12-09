@@ -86,7 +86,7 @@ export default function Layout({ children }) {
                 className={styles.hamburgerButton}
                 aria-label="Open menu"
               >
-                <Icon name="hamburger-menu" classes={styles.hamburgerIcon} />
+                <Icon name="hamburger-menu" classes={styles.hamburgerIcon} size={12} />
               </button>
 
               <div className={styles.logo}>

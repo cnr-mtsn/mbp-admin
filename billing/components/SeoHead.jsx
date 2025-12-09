@@ -1,18 +1,18 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
-import { resolvePageTitle } from '../utils/seo';
+import { resolvePageTitle } from '../lib/utils/seo';
 
-const SITE_NAME = 'Matson Bros Inventory';
-const SITE_DESCRIPTION = 'Transform paint operations with QR check-ins, real-time availability dashboards, automated low-stock alerts, secure employee tracking, and enterprise-grade analytics in a single inventory platform.';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://inventory.matsonbrotherspainting.com';
+const SITE_NAME = 'Matson Bros Billing';
+const SITE_DESCRIPTION = 'Professional billing and invoicing system for Matson Brothers Painting. Manage customers, estimates, jobs, and invoices in one place.';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://billing.matsonbrotherspainting.com';
 const OG_IMAGE_PATH = '/og-image.png';
 
 export default function SeoHead() {
   const router = useRouter();
-  
+
   const pageTitle = useMemo(() => resolvePageTitle(router.pathname, router.query), [router.pathname, router.query]);
-  const safeTitle = pageTitle || 'Paint Inventory';
+  const safeTitle = pageTitle || 'Billing';
   const fullTitle = `${safeTitle} | ${SITE_NAME}`;
   const canonicalUrl = `${SITE_URL}${router.asPath || ''}`;
   const ogImageUrl = `${SITE_URL}${OG_IMAGE_PATH}`;
@@ -29,7 +29,7 @@ export default function SeoHead() {
       <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="apple-mobile-web-app-title" content="Matson Inventory" />
+      <meta name="apple-mobile-web-app-title" content="Matson Billing" />
 
       {/* Web App Manifest */}
       <link rel="manifest" href="/manifest.json" />

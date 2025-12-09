@@ -29,6 +29,11 @@ const capitalize = str => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export const capitalizeEachWord = str => {
+  if (typeof str !== 'string') return '';
+  return str.split(' ').map(word => capitalize(word)).join(' ');
+}
+
 export const getFullName = user => {
   if(!user) return ""
   if(user.first_name && user.last_name) return `${user.first_name} ${user.last_name}`

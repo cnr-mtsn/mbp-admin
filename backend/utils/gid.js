@@ -1,19 +1,12 @@
 const NAMESPACE = 'gid://matson-bros';
 
 /**
- * Convert UUID or integer to an integer string (13-16 digits)
- * For UUIDs: Uses first 13 hex characters and converts to base 10 (produces 13-16 digits)
- * For integers: Pads to at least 13 digits
- * @param {string|number} id - The UUID string or integer to convert
+ * Convert UUID to an integer string (13-16 digits)
+ * Uses first 13 hex characters and converts to base 10 (produces 13-16 digits)
+ * @param {string} id - The UUID string to convert
  * @returns {string} A 13-16 digit integer string
  */
 const uuidToInteger = (id) => {
-  // If it's already a number or numeric string, just pad it
-  if (typeof id === 'number' || /^\d+$/.test(id)) {
-    return id.toString().padStart(13, '0');
-  }
-
-  // Otherwise, treat as UUID
   // Remove hyphens from UUID
   const cleanUuid = id.replace(/-/g, '');
 
@@ -152,14 +145,13 @@ export const isGidType = (gid, expectedType) => {
 };
 
 /**
- * Extract UUID/integer from a GID for database queries
- * For UUID-based GIDs: Converts the GID's integer back to a hex prefix that can match UUIDs
- * For integer-based GIDs (like User): Returns the integer directly
+ * Extract UUID from a GID for database queries
+ * Converts the GID's integer back to a hex prefix that can match UUIDs
  * @param {string} gid - The Global ID
- * @returns {string} The hex prefix for UUID matching (13 characters) or integer
+ * @returns {string} The hex prefix for UUID matching (13 characters)
  */
 export const extractUuid = (gid) => {
-  // If it's not a GID, assume it's already a UUID/integer and return as-is (backward compatibility)
+  // If it's not a GID, assume it's already a UUID and return as-is (backward compatibility)
   if (!gid) {
     return gid;
   }
@@ -174,14 +166,9 @@ export const extractUuid = (gid) => {
     return gid.replace(/-/g, '');
   }
 
-  const { objectName, integerId } = parseGid(gid);
+  const { integerId } = parseGid(gid);
 
-  // For User type, the ID is already an integer, so just remove leading zeros
-  if (objectName === 'User') {
-    return parseInt(integerId, 10).toString();
-  }
-
-  // For other types (UUID-based), convert integer back to hex prefix
+  // All types use UUID-based IDs, convert integer back to hex prefix
   return integerToUuidPrefix(integerId);
 };
 

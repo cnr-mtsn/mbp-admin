@@ -428,7 +428,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
         {lineItems.map((item, index) => (
           <div key={index} style={{ marginBottom: '1.5rem' }}>
             <div className={styles.lineItemRow}>
-              <div className={styles.formGroup} style={{ flex: 2, position: 'relative' }}>
+              <div className={`${styles.formGroup} ${styles.lineItemName}`}>
                 <label className={styles.formLabel}>
                   Name {index === 0 && '*'}
                 </label>
@@ -468,7 +468,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
                 )}
               </div>
 
-              <div className={styles.formGroup} style={{ flex: 0.5 }}>
+              <div className={`${styles.formGroup} ${styles.lineItemQuantity}`}>
                 <label className={styles.formLabel}>Quantity</label>
                 <input
                   type="number"
@@ -481,7 +481,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
                 />
               </div>
 
-              <div className={styles.formGroup} style={{ flex: 0.5 }}>
+              <div className={`${styles.formGroup} ${styles.lineItemRate}`}>
                 <label className={styles.formLabel}>Rate</label>
                 <input
                   type="number"
@@ -494,7 +494,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
                 />
               </div>
 
-              <div className={styles.formGroup} style={{ flex: 0.5 }}>
+              <div className={`${styles.formGroup} ${styles.lineItemAmount}`}>
                 <label className={styles.formLabel}>Amount</label>
                 <input
                   type="number"
@@ -505,7 +505,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
                 />
               </div>
 
-              <div className={styles.formGroup} style={{ flex: 0.2 }}>
+              <div className={`${styles.formGroup} ${styles.lineItemDelete}`}>
                 <label className={styles.formLabel}>Delete</label>
                 <button
                   type="button"
@@ -522,6 +522,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
 
             {/* Description field below */}
             <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Description</label>
               <input
                 type="text"
                 className={styles.formInput}

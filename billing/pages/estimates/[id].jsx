@@ -200,16 +200,8 @@ export default function EstimateDetail() {
 
       {/* Accept Estimate Modal */}
       {showAcceptModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 50
-        }}>
-          <div className="card" style={{ maxWidth: '32rem', width: '100%', margin: '1rem' }}>
+        <div className={styles.modalOverlay}>
+          <div className={`card ${styles.modalContent}`} style={{ maxWidth: '32rem' }}>
             <h3 className={cardStyles.detailSectionTitle}>Accept Estimate & Create Job</h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
               This will create a new job from this estimate and generate invoices based on the selected payment schedule.

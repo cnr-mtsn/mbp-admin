@@ -10,14 +10,16 @@ export const authResolvers = {
         throw new Error('Not authenticated');
       }
 
-      // Extract UUID from GID if it's in GID format, otherwise use as-is for backward compatibility
-      const uuid = user.id.startsWith('gid://') ? extractUuid(user.id) : user.id;
-      // Remove dashes from UUID to match the database query format
-      const hexPrefix = uuid.replace(/-/g, '');
+      // Convert user.id to string to handle both string and object types
+      const userIdString = String(user.id);
 
+      // Extract UUID from GID if it's in GID format, otherwise use as-is for backward compatibility
+      const uuid = userIdString.startsWith('gid://') ? extractUuid(userIdString) : userIdString;
+
+      // Query the database directly by UUID (no need for partial matching)
       const result = await query(
-        `SELECT id, email, username, first_name, last_name, role, created_at FROM users WHERE REPLACE(id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
+        `SELECT id, email, username, first_name, last_name, role, created_at FROM users WHERE id = $1`,
+        [uuid]
       );
 
       if (result.rows.length === 0) {

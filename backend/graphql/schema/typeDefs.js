@@ -30,6 +30,8 @@ export const typeDefs = gql`
     zip: String
     created_at: String!
     updated_at: String!
+    invoices(first: Int): [Invoice!]
+    jobs(first: Int): [Job!]
   }
 
   type Estimate {
@@ -392,11 +394,11 @@ export const typeDefs = gql`
     estimate(id: ID!): Estimate
 
     # Jobs
-    jobs(filters: JobFilters, sortKey: String): [Job!]!
+    jobs(filters: JobFilters, sortKey: String, first: Int): [Job!]!
     job(id: ID!): Job
 
     # Invoices
-    invoices: [Invoice!]!
+    invoices(first: Int): [Invoice!]!
     invoice(id: ID!): Invoice
     unlinkedInvoices: [Invoice!]!
 

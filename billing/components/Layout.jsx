@@ -7,6 +7,7 @@ import { Dropdown, DropdownItem } from './ui';
 import MobileMenu from './MobileMenu';
 import styles from '../styles/layout.module.css';
 import MobileClock from './MobileClock'
+import Icon from './ui/Icon'
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -84,9 +85,7 @@ export default function Layout({ children }) {
                 className={styles.hamburgerButton}
                 aria-label="Open menu"
               >
-                <svg className={styles.hamburgerIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <Icon name="hamburger-menu" classes={styles.hamburgerIcon} />
               </button>
 
               <div className={styles.logo}>
@@ -122,19 +121,13 @@ export default function Layout({ children }) {
                   trigger={
                     <div className={styles.dropdownTrigger}>
                       <div className="avatar">{getInitials(user)}</div>
-                      <svg className={styles.dropdownIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
+                      <Icon name="chevron-down" classes={styles.dropdownItemIcon} />
                     </div>
                   }
                 >
                   <DropdownItem
                     onClick={handleLogout}
-                    icon={
-                      <svg className={styles.dropdownItemIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                    }
+                    icon={<Icon name="exit" classes={styles.dropdownItemIcon} />}
                   >
                     Logout
                   </DropdownItem>

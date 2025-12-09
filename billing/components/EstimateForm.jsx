@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import { GET_CUSTOMERS } from '../lib/graphql/queries';
 import { formatMoney } from '../lib/utils/helpers';
 import styles from '../styles/pages.module.css';
+import Icon from './ui/Icon'
 
 export default function EstimateForm({ initialData, onSubmit, onCancel, submitLabel = 'Create Estimate' }) {
   const { data: customersData } = useQuery(GET_CUSTOMERS, {
@@ -227,9 +228,7 @@ export default function EstimateForm({ initialData, onSubmit, onCancel, submitLa
                 disabled={lineItems.length === 1}
                 aria-label="Delete line item"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
+                <Icon name="delete" />
               </button>
             </div>
           </div>

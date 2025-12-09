@@ -6,6 +6,8 @@ import { extractUuid } from '../../lib/utils/gid';
 import { formatDate, formatMoney } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
+import Icon from '../../components/ui/Icon'
+import BackButton from '../../components/ui/BackButton'
 
 const statusStyles = {
   accepted: styles.statusAccepted,
@@ -49,8 +51,10 @@ export default function Estimates() {
           <h2 className={styles.pageTitle}>Estimates</h2>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <Link href="/estimates/new" className="btn-primary">Create New Estimate</Link>
-          <Link href="/" className="btn-secondary">Back to Dashboard</Link>
+          <Link href="/estimates/new" className="btn-primary">
+            <Icon name="add" />        
+          </Link>
+          <BackButton href="/" classes="btn-secondary" title="Back to Dashboard" />
         </div>
       </div>
 

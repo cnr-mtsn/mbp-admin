@@ -26,11 +26,19 @@
   font-weight: 600;
   color: var(--color-gray-900);
   line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.5rem;
 }
 
 .itemDescription {
   color: var(--color-gray-500);
   font-size: 0.875rem;
+  line-height: 1.25rem;
+  min-height: 1.25rem;
 }
 
 /* Card item tags/pills section */
@@ -59,6 +67,7 @@
 }
 
 .itemContactText {
+  @apply flex items-center gap-1;
   font-size: 0.875rem;
   color: var(--color-gray-500);
 }
@@ -174,6 +183,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-height: 180px;
+  height: 100%;
 }
 
 .lineItemHeader {

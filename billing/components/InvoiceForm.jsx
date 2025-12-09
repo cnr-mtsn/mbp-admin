@@ -3,6 +3,7 @@ import { useQuery, useLazyQuery } from '@apollo/client';
 import { GET_CUSTOMERS, SEARCH_SERVICES } from '../lib/graphql/queries';
 import { formatMoney } from '../lib/utils/helpers';
 import styles from '../styles/pages.module.css';
+import Icon from './ui/Icon'
 
 const WHITE_OAKS_SERVICE_NAME = 'White Oaks Painting';
 const MIKE_PARKER_NAME = 'Mike Parker';
@@ -484,9 +485,7 @@ export default function InvoiceForm({ initialData, jobId, onSubmit, onCancel, su
                   disabled={lineItems.length === 1}
                   aria-label="Delete line item"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                  </svg>
+                  <Icon name="delete" />
                 </button>
               </div>
             </div>

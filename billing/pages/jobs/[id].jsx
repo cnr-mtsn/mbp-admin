@@ -9,19 +9,16 @@ import { formatDate, formatMoney } from '../../lib/utils/helpers';
 import InvoiceForm from '../../components/InvoiceForm';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
+import InvoiceCard from '../../components/invoice/InvoiceCard'
+import InvoicesGrid from '../../components/invoice/InvoicesGrid'
+import Icon from '../../components/ui/Icon'
+import BackButton from '../../components/ui/BackButton'
 
 const jobStatusStyles = {
   completed: styles.statusCompleted,
   in_progress: styles.statusInProgress,
   pending: styles.statusPending,
   paid: styles.statusPaid,
-};
-
-const invoiceStatusStyles = {
-  paid: styles.statusPaid,
-  sent: styles.statusSent,
-  overdue: styles.statusOverdue,
-  draft: styles.statusDraft,
 };
 
 export default function JobDetail() {
@@ -155,7 +152,7 @@ export default function JobDetail() {
           </div>
           {job.description && <p className={styles.pageSubtitle}>{job.description}</p>}
         </div>
-        <Link href="/jobs" className="btn-secondary">Back to Jobs</Link>
+        <BackButton href="/jobs" title="Back to Jobs" />
       </div>
 
       <div className={styles.detailGrid}>
@@ -267,52 +264,25 @@ export default function JobDetail() {
             <p className={cardStyles.itemDescription}>Payment schedule across this job</p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button onClick={() => setShowCreateModal(true)} className="btn-primary-sm">
-              + Add Invoice
+            <button 
+              title="Create New Invoice"
+              onClick={() => setShowCreateModal(true)} 
+              className="btn-primary-sm"
+            >
+              <Icon name="add" size={10}/>
             </button>
-            <button onClick={() => setShowLinkModal(true)} className="btn-secondary-sm">
-              Link Existing
+            <button 
+              title="Link Existing Invoice(s)"
+              onClick={() => setShowLinkModal(true)} 
+              className="btn-secondary-sm"
+            >
+              <Icon name="link" size={10} />
             </button>
           </div>
         </div>
 
-        {invoices.length > 0 && (
-          <div className={styles.cardGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-            {invoices.map((invoice) => {
-              const invoiceClass = invoiceStatusStyles[invoice.status] || invoiceStatusStyles.draft;
-              return (
-                <div key={invoice.id} className={cardStyles.lineItem}>
-                  <div className={cardStyles.itemHeader}>
-                    <div className={cardStyles.itemHeaderContent}>
-                      <p className={cardStyles.itemLabel}>Invoice</p>
-                      <h4 className={cardStyles.itemTitle}>{invoice.title}</h4>
-                      <p className={cardStyles.itemDescription}>{invoice.payment_stage || 'Payment stage'}</p>
-                    </div>
-                    <span className={`pill ${invoiceClass}`}>{invoice.status}</span>
-                  </div>
+        <InvoicesGrid invoices={invoices} />
 
-                  <div className={cardStyles.itemFooter}>
-                    <div>
-                      <p className={cardStyles.itemTitle}>{formatMoney(invoice.total || 0)}</p>
-                      {invoice.due_date && (
-                        <p className={cardStyles.itemDescription}>Due {formatDate(invoice.due_date)}</p>
-                      )}
-                    </div>
-                    <Link href={`/invoices/${extractUuid(invoice.id)}`} className="btn-primary-sm">
-                      View
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {invoices.length === 0 && (
-          <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>
-            No invoices for this job yet. Create one or link existing invoices.
-          </p>
-        )}
       </div>
 
       {/* Link Existing Invoices Modal */}

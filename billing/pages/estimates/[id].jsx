@@ -8,6 +8,7 @@ import { formatDate, formatMoney } from '../../lib/utils/helpers';
 import { extractUuid } from '../../lib/utils/gid';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
+import BackButton from '../../components/ui/BackButton'
 
 const statusStyles = {
   accepted: styles.statusAccepted,
@@ -104,7 +105,7 @@ export default function EstimateDetail() {
               Accept & Create Job
             </button>
           )}
-          <Link href="/estimates" className="btn-secondary">Back to Estimates</Link>
+          <BackButton href="/estimates" classes="btn-secondary" title="Back to Estimates" />
         </div>
       </div>
 

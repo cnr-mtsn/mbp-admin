@@ -3,6 +3,7 @@ import { useQuery, useLazyQuery } from '@apollo/client';
 import { GET_CUSTOMERS, GET_UNLINKED_INVOICES, SEARCH_SERVICES } from '../lib/graphql/queries';
 import { formatMoney } from '../lib/utils/helpers';
 import styles from '../styles/pages.module.css';
+import Icon from './ui/Icon'
 
 const WHITE_OAKS_SERVICE_NAME = 'White Oaks Painting';
 const MIKE_PARKER_NAME = 'Mike Parker';
@@ -513,9 +514,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
                   className={styles.formInputButton}
                   disabled={lineItems.length === 1}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                  </svg>
+                  <Icon name="delete" />
                 </button>
               </div>
             </div>

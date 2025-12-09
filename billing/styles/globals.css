@@ -363,12 +363,12 @@
       --status-pending-border: #FCD34D;
 
       /* Status: Paid (Green) */
-      --status-paid-bg: rgba(29, 127, 68, 0.4);
+      --status-paid-bg: rgba(80, 164, 113, 0.5);
       --status-paid-text: rgb(15, 226, 89);
       --status-paid-border: rgb(15, 226, 89);
 
       /* Status: Sent (Blue) */
-      --status-sent-bg: rgb(30 58 138 / 0.4);
+      --status-sent-bg: rgba(107, 136, 214, 0.5);
       --status-sent-text: rgb(191 219 254);
       --status-sent-border: rgb(191 219 254);
 
@@ -378,7 +378,7 @@
       --status-overdue-border: rgb(254 202 202);
 
       /* Status: Draft (Gray) */
-      --status-draft-bg: rgb(59, 30, 53);
+      --status-draft-bg: rgba(152, 152, 152, 0.5);
       --status-draft-text: rgb(241 245 249);
       --status-draft-border: rgb(241 245 249);
 

@@ -30,7 +30,7 @@ export const GET_CUSTOMERS = gql`
 `;
 
 export const GET_CUSTOMER = gql`
-  query GetCustomer($id: ID!) {
+  query GetCustomer($id: ID!, $jobsFirst: Int, $invoicesFirst: Int) {
     customer(id: $id) {
       id
       name
@@ -42,6 +42,42 @@ export const GET_CUSTOMER = gql`
       zip
       created_at
       updated_at
+      jobs(first: $jobsFirst) {
+        id
+        customer_id
+        customer {
+          id
+          name
+        }
+        title
+        description
+        address
+        city
+        state
+        total_amount
+        payment_schedule
+        status
+        start_date
+        amount_paid
+        created_at
+      }
+      invoices(first: $invoicesFirst) {
+        id
+        customer_id
+        job {
+          id
+          title
+        }
+        title
+        description
+        total
+        payment_stage
+        percentage
+        status
+        due_date
+        paid_date
+        created_at
+      }
     }
   }
 `;
@@ -99,8 +135,8 @@ export const GET_ESTIMATE = gql`
 
 // Job Queries
 export const GET_JOBS = gql`
-  query GetJobs($filters: JobFilters, $sortKey: String) {
-    jobs(filters: $filters, sortKey: $sortKey) {
+  query GetJobs($filters: JobFilters, $sortKey: String, $first: Int) {
+    jobs(filters: $filters, sortKey: $sortKey, first: $first) {
       id
       customer_id
       customer {
@@ -175,8 +211,8 @@ export const GET_JOB = gql`
 
 // Invoice Queries
 export const GET_INVOICES = gql`
-  query GetInvoices {
-    invoices {
+  query GetInvoices($first: Int) {
+    invoices(first: $first) {
       id
       customer_id
       customer {

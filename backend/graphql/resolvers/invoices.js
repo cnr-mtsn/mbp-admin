@@ -10,10 +10,14 @@ const requireAuth = (user) => {
 
 export const invoiceResolvers = {
   Query: {
-    invoices: async (_, __, { user }) => {
+    invoices: async (_, { first }, { user }) => {
       requireAuth(user);
+      const limitClause = first ? `LIMIT $1` : '';
+      const queryParams = first ? [first] : [];
+
       const result = await query(
-        'SELECT * FROM invoices ORDER BY created_at DESC'
+        `SELECT * FROM invoices ORDER BY created_at DESC ${limitClause}`,
+        queryParams
       );
       return toGidFormatArray(result.rows, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] }).map(row => ({
         ...row,

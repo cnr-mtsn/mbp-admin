@@ -1,31 +1,30 @@
-import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { useQuery } from '@apollo/client';
-import { GET_CUSTOMER, GET_INVOICES } from '../../lib/graphql/queries';
-import { toGid, extractUuid } from '../../lib/utils/gid';
+import { useState } from 'react';
+import { GET_CUSTOMER } from '../../lib/graphql/queries';
+import { toGid } from '../../lib/utils/gid';
 import { formatDate, formatMoney } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
-
-const statusStyles = {
-  paid: styles.statusPaid,
-  sent: styles.statusSent,
-  overdue: styles.statusOverdue,
-  draft: styles.statusDraft,
-};
+import InvoicesGrid from '../../components/invoice/InvoicesGrid'
+import JobsGrid from '../../components/jobs/JobsGrid'
+import BackButton from '../../components/ui/BackButton'
 
 export default function CustomerDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [jobsToShow, setJobsToShow] = useState(10);
+  const [invoicesToShow, setInvoicesToShow] = useState(10);
 
-  const { data, loading, error } = useQuery(GET_CUSTOMER, {
-    variables: { id: id ? toGid('Customer', id) : null },
+  const { data, loading, error, fetchMore } = useQuery(GET_CUSTOMER, {
+    variables: {
+      id: id ? toGid('Customer', id) : null,
+      jobsFirst: jobsToShow,
+      invoicesFirst: invoicesToShow,
+    },
     skip: !id,
+    notifyOnNetworkStatusChange: false,
   });
-
-  const { data: invoicesData, loading: invoicesLoading } = useQuery(GET_INVOICES);
 
   if (loading) {
     return (
@@ -62,18 +61,52 @@ export default function CustomerDetail() {
 
   // Filter invoices for this customer
   const customerId = toGid('Customer', id);
-  const allInvoices = invoicesData?.invoices || [];
+  const allInvoices = customer?.invoices || [];
   const customerInvoices = allInvoices.filter(invoice => invoice.customer_id === customerId);
 
-  // Apply status filter
-  const filteredInvoices = statusFilter === 'all'
-    ? customerInvoices
-    : customerInvoices.filter(invoice => invoice.status === statusFilter);
+  // Get customer jobs
+  const customerJobs = customer?.jobs || [];
 
   // Calculate total unpaid balance for this customer
   const unpaidBalance = customerInvoices
     .filter(invoice => invoice.status === 'sent')
     .reduce((sum, invoice) => sum + (parseFloat(invoice.total) || 0), 0);
+
+  // Handle load more for jobs
+  const handleLoadMoreJobs = () => {
+    const scrollPosition = window.scrollY;
+    const newJobsToShow = jobsToShow + 10;
+    setJobsToShow(newJobsToShow);
+    fetchMore({
+      variables: {
+        jobsFirst: newJobsToShow,
+        invoicesFirst: invoicesToShow,
+      },
+    }).then(() => {
+      // Restore scroll position after data is loaded
+      window.scrollTo(0, scrollPosition);
+    });
+  };
+
+  // Handle load more for invoices
+  const handleLoadMoreInvoices = () => {
+    const scrollPosition = window.scrollY;
+    const newInvoicesToShow = invoicesToShow + 10;
+    setInvoicesToShow(newInvoicesToShow);
+    fetchMore({
+      variables: {
+        jobsFirst: jobsToShow,
+        invoicesFirst: newInvoicesToShow,
+      },
+    }).then(() => {
+      // Restore scroll position after data is loaded
+      window.scrollTo(0, scrollPosition);
+    });
+  };
+
+  // Determine if there are more items to load
+  const hasMoreJobs = customerJobs.length === jobsToShow;
+  const hasMoreInvoices = customerInvoices.length === invoicesToShow;
 
   return (
     <div className={styles.pageContainer}>
@@ -82,9 +115,7 @@ export default function CustomerDetail() {
           <p className={styles.pageLabel}>Customer</p>
           <h2 className={styles.pageTitle}>{customer.name}</h2>
         </div>
-        <Link href="/customers" className="btn-secondary">
-          Back to Customers
-        </Link>
+        <BackButton href="/customers" classes="btn-secondary" title="Back to all customers" />
       </div>
 
       <div className={`card ${cardStyles.detailSection}`}>
@@ -140,13 +171,43 @@ export default function CustomerDetail() {
         </dl>
       </div>
 
+      {/* Jobs Section */}
+      <div style={{ marginTop: '3rem' }}>
+        <h3 className={cardStyles.detailSectionTitle} style={{ marginBottom: '1.5rem' }}>
+          Jobs
+        </h3>
+
+        {!loading && customerJobs.length > 0 && (
+          <JobsGrid
+            jobs={customerJobs}
+            showFilters={true}
+            showSort={true}
+            onLoadMore={handleLoadMoreJobs}
+            hasMore={hasMoreJobs}
+            loading={loading}
+          />
+        )}
+
+        {loading && (
+          <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
+            <p className="muted">Loading jobs...</p>
+          </div>
+        )}
+
+        {!loading && customerJobs.length === 0 && (
+          <div className={`card ${styles.emptyState}`}>
+            <p className="muted">No jobs for this customer yet.</p>
+          </div>
+        )}
+      </div>
+
       {/* Invoices Section */}
       <div style={{ marginTop: '3rem' }}>
         <h3 className={cardStyles.detailSectionTitle} style={{ marginBottom: '1.5rem' }}>
           Invoices
         </h3>
 
-        {!invoicesLoading && customerInvoices.length > 0 && (
+        {!loading && customerInvoices.length > 0 && (
           <>
             {/* Total Unpaid Balance */}
             {unpaidBalance > 0 && (
@@ -162,104 +223,22 @@ export default function CustomerDetail() {
               </div>
             )}
 
-            {/* Status Filters */}
-            <div style={{
-              display: 'flex',
-              gap: '0.75rem',
-              marginBottom: '1.5rem',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                onClick={() => setStatusFilter('all')}
-                className={statusFilter === 'all' ? 'btn-primary' : 'btn-secondary'}
-              >
-                All ({customerInvoices.length})
-              </button>
-              <button
-                onClick={() => setStatusFilter('paid')}
-                className={statusFilter === 'paid' ? 'btn-primary' : 'btn-secondary'}
-              >
-                Paid ({customerInvoices.filter(i => i.status === 'paid').length})
-              </button>
-              <button
-                onClick={() => setStatusFilter('sent')}
-                className={statusFilter === 'sent' ? 'btn-primary' : 'btn-secondary'}
-              >
-                Sent ({customerInvoices.filter(i => i.status === 'sent').length})
-              </button>
-              <button
-                onClick={() => setStatusFilter('draft')}
-                className={statusFilter === 'draft' ? 'btn-primary' : 'btn-secondary'}
-              >
-                Draft ({customerInvoices.filter(i => i.status === 'draft').length})
-              </button>
-            </div>
-
-            {/* Invoices Grid */}
-            <div className={styles.cardGrid}>
-              {filteredInvoices.map((invoice) => {
-                const statusClass = statusStyles[invoice.status] || statusStyles.draft;
-                return (
-                  <Link href={`/invoices/${extractUuid(invoice.id)}`} key={invoice.id}>
-                    <div className="card">
-                      <div className={cardStyles.itemHeader}>
-                        <div className={cardStyles.itemHeaderContent}>
-                          <p className={cardStyles.itemLabel}>Invoice</p>
-                          <h3 className={cardStyles.itemTitle}>{invoice.title}</h3>
-                          <p className={cardStyles.itemDescription}>{invoice.description || 'No description'}</p>
-                        </div>
-                        <span className={`pill ${statusClass}`}>{invoice.status}</span>
-                      </div>
-
-                      <div className={cardStyles.itemTags}>
-                        <span className={cardStyles.itemTag}>
-                          {invoice.payment_stage || 'Payment stage'}
-                        </span>
-                        {invoice.percentage && (
-                          <span className={cardStyles.itemTag}>
-                            {invoice.percentage}%
-                          </span>
-                        )}
-                        {invoice.job?.title && (
-                          <span className={cardStyles.itemTag}>
-                            {invoice.job.title}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className={cardStyles.itemFooter}>
-                        <div>
-                          <p className={cardStyles.itemTitle}>{formatMoney(invoice.total || 0)}</p>
-                          <p className={cardStyles.itemDescription}>
-                            {invoice.due_date ? `Due ${formatDate(invoice.due_date)}` : 'No due date'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {filteredInvoices.length === 0 && (
-              <div className={`card ${styles.emptyState}`}>
-                <p className="muted">
-                  {statusFilter === 'all'
-                    ? 'No invoices found'
-                    : `No ${statusFilter} invoices found`}
-                </p>
-              </div>
-            )}
+            <InvoicesGrid
+              invoices={customerInvoices}
+              onLoadMore={handleLoadMoreInvoices}
+              hasMore={hasMoreInvoices}
+              loading={loading}
+            />
           </>
         )}
 
-        {invoicesLoading && (
+        {loading && (
           <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
             <p className="muted">Loading invoices...</p>
           </div>
         )}
 
-        {!invoicesLoading && customerInvoices.length === 0 && (
+        {!loading && customerInvoices.length === 0 && (
           <div className={`card ${styles.emptyState}`}>
             <p className="muted">No invoices for this customer yet.</p>
           </div>

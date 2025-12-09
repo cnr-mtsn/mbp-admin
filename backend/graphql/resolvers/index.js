@@ -35,6 +35,7 @@ export const resolvers = {
     ...productResolvers.Mutation,
     ...transactionResolvers.Mutation,
   },
+  Customer: customerResolvers.Customer,
   Job: jobResolvers.Job,
   Invoice: invoiceResolvers.Invoice,
   Estimate: estimateResolvers.Estimate,

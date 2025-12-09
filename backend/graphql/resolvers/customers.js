@@ -8,6 +8,55 @@ const requireAuth = (user) => {
 };
 
 export const customerResolvers = {
+  Customer: {
+    invoices: async (parent, { first }, { user }) => {
+      requireAuth(user);
+      const customerId = extractUuid(parent.id);
+
+      const limitClause = first ? `LIMIT $2` : '';
+      const queryParams = first ? [`${customerId}%`, first] : [`${customerId}%`];
+
+      const result = await query(
+        `SELECT * FROM invoices
+         WHERE REPLACE(customer_id::text, '-', '') LIKE $1
+         ORDER BY created_at DESC
+         ${limitClause}`,
+        queryParams
+      );
+
+      return result.rows.map(row => ({
+        ...row,
+        id: toGid('Invoice', row.id),
+        customer_id: toGid('Customer', row.customer_id),
+        job_id: row.job_id ? toGid('Job', row.job_id) : null,
+        estimate_id: row.estimate_id ? toGid('Estimate', row.estimate_id) : null,
+      }));
+    },
+
+    jobs: async (parent, { first }, { user }) => {
+      requireAuth(user);
+      const customerId = extractUuid(parent.id);
+
+      const limitClause = first ? `LIMIT $2` : '';
+      const queryParams = first ? [`${customerId}%`, first] : [`${customerId}%`];
+
+      const result = await query(
+        `SELECT * FROM jobs
+         WHERE REPLACE(customer_id::text, '-', '') LIKE $1
+         ORDER BY created_at DESC
+         ${limitClause}`,
+        queryParams
+      );
+
+      return result.rows.map(row => ({
+        ...row,
+        id: toGid('Job', row.id),
+        customer_id: toGid('Customer', row.customer_id),
+        estimate_id: row.estimate_id ? toGid('Estimate', row.estimate_id) : null,
+      }));
+    },
+  },
+
   Query: {
     customers: async (_, { first = 25, sortKey = 'name' }, { user }) => {
       requireAuth(user);

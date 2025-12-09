@@ -76,6 +76,11 @@ app.use(cors({
       return callback(null, true);
     }
 
+    // Allow all ngrok URLs in development
+    if (process.env.NODE_ENV !== 'production' && origin.includes('ngrok-free.app')) {
+      return callback(null, true);
+    }
+
     // Log rejected origins to help debug
     console.warn('❌ CORS rejected origin:', origin);
     console.warn('   Allowed origins:', normalizedAllowedOrigins.join(', '));

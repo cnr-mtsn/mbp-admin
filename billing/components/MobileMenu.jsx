@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import styles from '../styles/mobile-menu.module.css';
 import { getInitials } from '../lib/utils/helpers';
 import { isActivePath } from '../lib/utils/navigation';
+import Icon from './ui/Icon'
 
 export default function MobileMenu({ isOpen, onClose, user, onLogout, navLinks }) {
   const router = useRouter();
@@ -45,9 +46,7 @@ export default function MobileMenu({ isOpen, onClose, user, onLogout, navLinks }
         <div className={styles.header}>
           <h2 className={styles.title}>MBP Billing</h2>
           <button onClick={onClose} className={styles.closeButton} aria-label="Close menu">
-            <svg className={styles.closeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <Icon name="close" classes={styles.closeIcon} />
           </button>
         </div>
 
@@ -83,9 +82,7 @@ export default function MobileMenu({ isOpen, onClose, user, onLogout, navLinks }
         </nav>
 
         <button onClick={onLogout} className={styles.logoutButton}>
-          <svg className={styles.buttonIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
+          <Icon name="exit" classes={styles.buttonIcon} />
           Logout
         </button>
       </div>

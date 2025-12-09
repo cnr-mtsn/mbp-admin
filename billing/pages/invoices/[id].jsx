@@ -9,6 +9,7 @@ import { formatDate, formatMoney } from '../../lib/utils/helpers';
 import InvoiceForm from '../../components/InvoiceForm';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
+import BackButton from '../../components/ui/BackButton'
 
 const statusStyles = {
   paid: styles.statusPaid,
@@ -188,7 +189,7 @@ export default function InvoiceDetail() {
             <button onClick={() => setShowEditModal(true)} className="btn-secondary">
               Edit Invoice
             </button>
-            <Link href="/invoices" className="btn-secondary">Back to Invoices</Link>
+            <BackButton href="/invoices" classes="btn-secondary" title="Back to Invoices" />
           </div>
         </div>
       </div>

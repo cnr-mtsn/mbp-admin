@@ -10,7 +10,7 @@ const requireAuth = (user) => {
 
 export const jobResolvers = {
   Query: {
-    jobs: async (_, { filters, sortKey = 'created_at' }, { user }) => {
+    jobs: async (_, { filters, sortKey = 'created_at', first }, { user }) => {
       requireAuth(user);
 
       // Build WHERE clause based on filters
@@ -71,6 +71,12 @@ export const jobResolvers = {
           orderBy = 'j.created_at DESC';
       }
 
+      // Add LIMIT if first is provided
+      const limitClause = first ? `LIMIT $${paramCount + 1}` : '';
+      if (first) {
+        queryParams.push(first);
+      }
+
       const result = await query(
         `SELECT j.*,
                 (SELECT COUNT(*) FROM invoices WHERE job_id = j.id) as invoice_count,
@@ -78,7 +84,8 @@ export const jobResolvers = {
                 (SELECT SUM(total) FROM invoices WHERE job_id = j.id AND status = 'paid') as amount_paid
          FROM jobs j
          ${whereClause}
-         ORDER BY ${orderBy}`,
+         ORDER BY ${orderBy}
+         ${limitClause}`,
         queryParams
       );
       return toGidFormatArray(result.rows, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });

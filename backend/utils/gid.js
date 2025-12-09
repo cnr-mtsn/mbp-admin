@@ -7,8 +7,11 @@ const NAMESPACE = 'gid://matson-bros';
  * @returns {string} A 13-16 digit integer string
  */
 const uuidToInteger = (id) => {
+  // Ensure id is a string (PostgreSQL may return UUID objects)
+  const idStr = typeof id === 'string' ? id : String(id);
+
   // Remove hyphens from UUID
-  const cleanUuid = id.replace(/-/g, '');
+  const cleanUuid = idStr.replace(/-/g, '');
 
   // Take first 13 hex characters and convert to base 10
   // This gives us a number in the range of 0 to 4,503,599,627,370,495 (up to 16 digits)

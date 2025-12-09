@@ -44,7 +44,7 @@ await server.start();
 const allowedOrigins = [
   process.env.BILLING_URL,
   process.env.INVENTORY_URL,
-  process.env.BACKEND_URL,
+  process.env.RENDER_URL, // Render's default URL for internal requests
   'https://studio.apollographql.com' // Allow Apollo Studio
 ].filter(Boolean);
 
@@ -68,6 +68,11 @@ app.use(cors({
 
     // In development, allow all localhost origins
     if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+
+    // Allow all Render.com URLs (for internal Render requests and health checks)
+    if (origin.endsWith('.onrender.com')) {
       return callback(null, true);
     }
 

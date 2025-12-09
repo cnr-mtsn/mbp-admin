@@ -9,6 +9,8 @@ import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import InvoicesGrid from '../../components/invoice/InvoicesGrid'
 import BackButton from '../../components/ui/BackButton'
+import Loading from '../../components/ui/Loading'
+import Icon from '../../components/ui/Icon'
 
 const statusStyles = {
   paid: styles.statusPaid,
@@ -19,39 +21,42 @@ const statusStyles = {
 
 export default function Invoices() {
   const router = useRouter();
-  const [itemsToShow, setItemsToShow] = useState(10);
+  const [invoices, setInvoices] = useState([]);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const { data, loading, error, fetchMore } = useQuery(GET_INVOICES, {
     variables: {
-      first: itemsToShow,
+      first: 10,
+      offset: 0,
     },
     notifyOnNetworkStatusChange: false,
+    onCompleted: (data) => {
+      setInvoices(data?.invoices || []);
+    },
   });
 
-  const invoices = data?.invoices || [];
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const result = await fetchMore({
+        variables: {
+          first: 10,
+          offset: invoices.length,
+        },
+      });
 
-  const handleLoadMore = () => {
-    const scrollPosition = window.scrollY;
-    const newItemsToShow = itemsToShow + 10;
-    setItemsToShow(newItemsToShow);
-    fetchMore({
-      variables: {
-        first: newItemsToShow,
-      },
-    }).then(() => {
-      // Restore scroll position after data is loaded
-      window.scrollTo(0, scrollPosition);
-    });
+      setInvoices(prev => [...prev, ...(result.data?.invoices || [])]);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   if (loading && invoices.length === 0) {
     return (
-      <div className={styles.centerState}>
-        <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading invoices...</h1>
-        </div>
+      <div className="flex items-center justify-center h-[90vh] w-screen">
+        <Loading />
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -70,8 +75,8 @@ export default function Invoices() {
     .filter(invoice => invoice.status === 'sent')
     .reduce((sum, invoice) => sum + (parseFloat(invoice.total) || 0), 0);
 
-  // Determine if there are more items to load
-  const hasMore = invoices.length === itemsToShow;
+  // Determine if there are more items to load - check if we got exactly 10 items in the last fetch
+  const hasMore = (data?.invoices?.length === 10 || invoices.length % 10 === 0) && invoices.length > 0;
 
   return (
     <div className={styles.pageContainer}>
@@ -80,7 +85,12 @@ export default function Invoices() {
           <p className={styles.pageLabel}>Billing</p>
           <h2 className={styles.pageTitle}>Invoices</h2>
         </div>
-        <BackButton href="/" classes="btn-secondary" title="Back to Dashboard" />
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Link href="/payments/new" className="btn-primary">
+            <Icon name="money" size={10} />
+          </Link>
+          <BackButton href="/" classes="btn-secondary" title="Back to Dashboard" />
+        </div>
       </div>
 
       {/* Total Unpaid Balance */}
@@ -99,7 +109,7 @@ export default function Invoices() {
         invoices={invoices}
         onLoadMore={handleLoadMore}
         hasMore={hasMore}
-        loading={loading}
+        loading={loadingMore}
       />
     </div>
   );

@@ -58,35 +58,54 @@ export const customerResolvers = {
   },
 
   Query: {
-    customers: async (_, { first = 25, sortKey = 'name' }, { user }) => {
+    customers: async (_, { first = 25, sortKey = 'recent_invoice' }, { user }) => {
       requireAuth(user);
 
       // Build ORDER BY clause based on sortKey
       let orderBy;
+      let selectClause = `c.*,
+        COUNT(CASE WHEN i.status IN ('sent', 'unpaid', 'overdue') THEN 1 END) as open_invoice_count,
+        SUM(CASE WHEN i.status IN ('sent', 'unpaid', 'overdue') THEN i.total ELSE 0 END) as outstanding_balance`;
+      let fromClause = 'customers c LEFT JOIN invoices i ON c.id = i.customer_id';
+
       switch (sortKey) {
         case 'name':
-          orderBy = 'name ASC';
+          orderBy = 'c.name ASC';
           break;
         case 'email':
-          orderBy = 'email ASC NULLS LAST';
+          orderBy = 'c.email ASC NULLS LAST';
           break;
         case 'city':
-          orderBy = 'city ASC NULLS LAST';
+          orderBy = 'c.city ASC NULLS LAST';
           break;
         case 'created_at':
-          orderBy = 'created_at DESC';
+          orderBy = 'c.created_at DESC';
+          break;
+        case 'open_invoices':
+          // Sort by open invoice count (descending), then alphabetically for those with 0
+          orderBy = 'open_invoice_count DESC, c.name ASC';
+          break;
+        case 'recent_invoice':
+          // Join with invoices to get the most recent invoice date
+          selectClause = `c.*,
+            MAX(i.created_at) as latest_invoice_date,
+            COUNT(CASE WHEN i.status IN ('sent', 'unpaid', 'overdue') THEN 1 END) as open_invoice_count,
+            SUM(CASE WHEN i.status IN ('sent', 'unpaid', 'overdue') THEN i.total ELSE 0 END) as outstanding_balance`;
+          orderBy = 'latest_invoice_date DESC NULLS LAST, c.name ASC';
           break;
         default:
-          orderBy = 'name ASC'; // Default to name if invalid sortKey provided
+          orderBy = 'c.name ASC'; // Default to name if invalid sortKey provided
       }
 
-      const result = await query(
-        `SELECT * FROM customers ORDER BY ${orderBy} LIMIT $1`,
-        [first]
-      );
+      // Always use GROUP BY since we're aggregating invoice data
+      const sqlQuery = `SELECT ${selectClause} FROM ${fromClause} GROUP BY c.id ORDER BY ${orderBy} LIMIT $1`;
+
+      const result = await query(sqlQuery, [first]);
       return result.rows.map(row => ({
         ...row,
         id: toGid('Customer', row.id),
+        open_invoice_count: parseInt(row.open_invoice_count) || 0,
+        outstanding_balance: parseFloat(row.outstanding_balance) || 0,
       }));
     },
 

@@ -5,19 +5,20 @@ import { GET_CUSTOMERS } from '../../lib/graphql/queries';
 import styles from '../../styles/pages.module.css';
 import CustomersGrid from '../../components/customers/CustomersGrid'
 import BackButton from '../../components/ui/BackButton'
+import Loading from '../../components/ui/Loading'
 
 export default function Customers() {
   const router = useRouter();
 
   const { data, loading, error } = useQuery(GET_CUSTOMERS, {
-    variables: { sortKey: 'name' }
+    variables: { sortKey: 'open_invoices' }
   });
 
   if (loading) {
     return (
       <div className={styles.centerState}>
         <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading customers...</h1>
+          <Loading />
         </div>
       </div>
     );

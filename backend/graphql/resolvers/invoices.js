@@ -10,13 +10,26 @@ const requireAuth = (user) => {
 
 export const invoiceResolvers = {
   Query: {
-    invoices: async (_, { first }, { user }) => {
+    invoices: async (_, { first, offset }, { user }) => {
       requireAuth(user);
-      const limitClause = first ? `LIMIT $1` : '';
-      const queryParams = first ? [first] : [];
+
+      let limitOffsetClause = '';
+      const queryParams = [];
+      let paramCount = 0;
+
+      if (first) {
+        paramCount++;
+        limitOffsetClause += `LIMIT $${paramCount}`;
+        queryParams.push(first);
+      }
+      if (offset) {
+        paramCount++;
+        limitOffsetClause += ` OFFSET $${paramCount}`;
+        queryParams.push(offset);
+      }
 
       const result = await query(
-        `SELECT * FROM invoices ORDER BY created_at DESC ${limitClause}`,
+        `SELECT * FROM invoices ORDER BY created_at DESC ${limitOffsetClause}`,
         queryParams
       );
       return toGidFormatArray(result.rows, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] }).map(row => ({

@@ -24,6 +24,18 @@ const server = new ApolloServer({
         console.log('🎮 GraphQL Playground available at /graphql');
       },
     },
+    // Add artificial delay in development to see loading states
+    {
+      async requestDidStart() {
+        return {
+          async willSendResponse() {
+            if (process.env.NODE_ENV === 'development') {
+              await new Promise(resolve => setTimeout(resolve, 800));
+            }
+          },
+        };
+      },
+    },
   ],
 });
 

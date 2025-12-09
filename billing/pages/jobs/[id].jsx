@@ -13,6 +13,7 @@ import InvoiceCard from '../../components/invoice/InvoiceCard'
 import InvoicesGrid from '../../components/invoice/InvoicesGrid'
 import Icon from '../../components/ui/Icon'
 import BackButton from '../../components/ui/BackButton'
+import Loading from '../../components/ui/Loading'
 
 const jobStatusStyles = {
   completed: styles.statusCompleted,
@@ -65,7 +66,7 @@ export default function JobDetail() {
     return (
       <div className={styles.centerState}>
         <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading job...</h1>
+          <Loading />
         </div>
       </div>
     );
@@ -152,7 +153,14 @@ export default function JobDetail() {
           </div>
           {job.description && <p className={styles.pageSubtitle}>{job.description}</p>}
         </div>
-        <BackButton href="/jobs" title="Back to Jobs" />
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {job.status !== 'paid' && invoices.some(inv => inv.status !== 'paid') && (
+            <Link href="/payments/new" className="btn-primary">
+              Record Payment
+            </Link>
+          )}
+          <BackButton href="/jobs" title="Back to Jobs" />
+        </div>
       </div>
 
       <div className={styles.detailGrid}>

@@ -1,0 +1,24 @@
+/* Circular Fade Dots */
+.circlesFade {
+    @apply flex items-center justify-center gap-[10px] my-[20px] mx-auto;
+}
+.circlesFade div {
+    @apply inline-block h-4 w-4 bg-gray-300 dark:bg-gray-600 rounded-full;
+    border-radius: 50%;
+    opacity: 0.2;
+    animation: fade 1s infinite ease-in-out;
+}
+.circlesFade div:nth-child(1) { 
+    animation-delay: 0s; 
+}
+.circlesFade div:nth-child(2) { 
+    animation-delay: 200ms; 
+}
+.circlesFade div:nth-child(3) { 
+    animation-delay: 400ms; 
+}
+
+@keyframes fade {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}

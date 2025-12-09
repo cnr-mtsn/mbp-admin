@@ -143,14 +143,14 @@ export default function JobsGrid({ jobs, showFilters = true, showSort = true, on
                     {/* Show More Button */}
                     {hasMore && onLoadMore && (
                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-                            <button
-                                onClick={onLoadMore}
-                                className="btn-primary"
-                                disabled={loading}
-                                style={{ opacity: loading ? 0.5 : 1 }}
-                            >
-                                {loading ? 'Loading...' : 'Show More'}
-                            </button>
+                            {loading ? <Loading /> : (
+                                <button
+                                    onClick={onLoadMore}
+                                    className="btn-primary"
+                                >
+                                    Show More
+                                </button>
+                            )}
                         </div>
                     )}
                 </>

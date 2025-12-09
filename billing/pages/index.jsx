@@ -2,38 +2,23 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useQuery } from '@apollo/client';
-import { ME } from '../lib/graphql/queries';
+import { GET_DASHBOARD_ANALYTICS } from '../lib/graphql/queries';
+import { formatMoney, formatDate } from '../lib/utils/helpers';
+import { extractUuid } from '../lib/utils/gid';
 import styles from '../styles/pages.module.css';
 import cardStyles from '../styles/cardItems.module.css';
+import Loading from '../components/ui/Loading';
+import Icon from '../components/ui/Icon';
 
 export default function Dashboard() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
 
-  const { data, loading, error } = useQuery(ME);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        setUser(JSON.parse(userStr));
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (data?.me) {
-      setUser(data.me);
-      localStorage.setItem('user', JSON.stringify(data.me));
-    }
-  }, [data]);
+  const { data, loading, error } = useQuery(GET_DASHBOARD_ANALYTICS);
 
   if (loading) {
     return (
-      <div className={styles.centerState}>
-        <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading...</h1>
-        </div>
+      <div className="flex items-center justify-center h-[90vh] w-screen">
+        <Loading />
       </div>
     );
   }
@@ -49,50 +34,193 @@ export default function Dashboard() {
     );
   }
 
+  const analytics = data?.dashboardAnalytics;
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className={styles.pageContainer}>
       <h2 className={styles.pageTitle}>Dashboard</h2>
 
-      <div className={styles.dashboardGrid}>
-        <Link href="/customers" className={`card ${cardStyles.dashboardCard}`}>
-          <div className={cardStyles.dashboardCardContent}>
-            <div className={cardStyles.dashboardCardInfo}>
-              <h3 className={cardStyles.dashboardCardTitle}>Customers</h3>
-              <p className={cardStyles.dashboardCardDescription}>Manage customers</p>
-            </div>
-            <div className={cardStyles.dashboardCardIcon}>👥</div>
+      {/* Key Metrics */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <Icon name="dollar-sign" size={5} />
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{currentYear} Revenue</p>
           </div>
-        </Link>
+          <p style={{ fontSize: '1.875rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+            {formatMoney(analytics.total_revenue)}
+          </p>
+        </div>
 
-        <Link href="/jobs" className={`card ${cardStyles.dashboardCard}`}>
-          <div className={cardStyles.dashboardCardContent}>
-            <div className={cardStyles.dashboardCardInfo}>
-              <h3 className={cardStyles.dashboardCardTitle}>Jobs</h3>
-              <p className={cardStyles.dashboardCardDescription}>Track active jobs</p>
-            </div>
-            <div className={cardStyles.dashboardCardIcon}>🏗️</div>
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <Icon name="clock" size={5} />
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Outstanding</p>
           </div>
-        </Link>
+          <p style={{ fontSize: '1.875rem', fontWeight: '600', color: 'var(--status-sent-text)' }}>
+            {formatMoney(analytics.outstanding_balance)}
+          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+            {analytics.open_invoices_count} open invoice{analytics.open_invoices_count !== 1 ? 's' : ''}
+          </p>
+        </div>
 
-        <Link href="/estimates" className={`card ${cardStyles.dashboardCard}`}>
-          <div className={cardStyles.dashboardCardContent}>
-            <div className={cardStyles.dashboardCardInfo}>
-              <h3 className={cardStyles.dashboardCardTitle}>Estimates</h3>
-              <p className={cardStyles.dashboardCardDescription}>Create estimates</p>
-            </div>
-            <div className={cardStyles.dashboardCardIcon}>📋</div>
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <Icon name="alert-circle" size={5} />
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Overdue</p>
           </div>
-        </Link>
+          <p style={{ fontSize: '1.875rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+            {formatMoney(analytics.overdue_balance)}
+          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+            {analytics.overdue_invoices_count} overdue invoice{analytics.overdue_invoices_count !== 1 ? 's' : ''}
+          </p>
+        </div>
 
-        <Link href="/invoices" className={`card ${cardStyles.dashboardCard}`}>
-          <div className={cardStyles.dashboardCardContent}>
-            <div className={cardStyles.dashboardCardInfo}>
-              <h3 className={cardStyles.dashboardCardTitle}>Invoices</h3>
-              <p className={cardStyles.dashboardCardDescription}>Manage invoices</p>
-            </div>
-            <div className={cardStyles.dashboardCardIcon}>💰</div>
+        <div className="card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <Icon name="briefcase" size={5} />
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Active Jobs</p>
           </div>
-        </Link>
+          <p style={{ fontSize: '1.875rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+            {analytics.in_progress_jobs_count}
+          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+            {analytics.pending_jobs_count} pending
+          </p>
+        </div>
+      </div>
+
+      {/* Recent Activity Sections */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
+
+        {/* Recent Jobs */}
+        {analytics.recent_jobs.length > 0 && (
+          <div className="card" style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Active Jobs</h3>
+              <Link href="/jobs" style={{ fontSize: '0.875rem', color: 'var(--primary)' }}>
+                View all →
+              </Link>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {analytics.recent_jobs.map(job => (
+                <Link
+                  key={job.id}
+                  href={`/jobs/${extractUuid(job.id)}`}
+                  style={{
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid var(--border-color)',
+                    display: 'block',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--card-hover-bg)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.25rem' }}>
+                    <p style={{ fontWeight: '500', fontSize: '0.875rem' }}>{job.title}</p>
+                    <span className={`pill-${job.status}`} style={{ fontSize: '0.75rem' }}>
+                      {job.status.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{job.customer.name}</p>
+                  {job.total_amount && (
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                      {formatMoney(job.total_amount)}
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Overdue Invoices */}
+        {analytics.overdue_invoices.length > 0 && (
+          <div className="card" style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+                Overdue Invoices
+              </h3>
+              <Link href="/invoices" style={{ fontSize: '0.875rem', color: 'var(--primary)' }}>
+                View all →
+              </Link>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {analytics.overdue_invoices.map(invoice => (
+                <Link
+                  key={invoice.id}
+                  href={`/invoices/${extractUuid(invoice.id)}`}
+                  style={{
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid var(--status-overdue-border)',
+                    backgroundColor: 'var(--status-overdue-bg)',
+                    display: 'block',
+                    transition: 'opacity 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.25rem' }}>
+                    <p style={{ fontWeight: '500', fontSize: '0.875rem' }}>{invoice.title}</p>
+                    <p style={{ fontWeight: '600', fontSize: '0.875rem', color: 'var(--status-overdue-text)' }}>
+                      {formatMoney(invoice.total)}
+                    </p>
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{invoice.customer.name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--status-overdue-text)', marginTop: '0.25rem' }}>
+                    Due {formatDate(invoice.due_date)}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recent Payments */}
+        {analytics.recent_payments.length > 0 && (
+          <div className="card" style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Recent Payments</h3>
+              <Link href="/invoices" style={{ fontSize: '0.875rem', color: 'var(--primary)' }}>
+                View all →
+              </Link>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {analytics.recent_payments.map(payment => (
+                <Link
+                  key={payment.id}
+                  href={`/invoices/${extractUuid(payment.id)}`}
+                  style={{
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid var(--border-color)',
+                    display: 'block',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--card-hover-bg)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.25rem' }}>
+                    <p style={{ fontWeight: '500', fontSize: '0.875rem' }}>{payment.title}</p>
+                    <p style={{ fontWeight: '600', fontSize: '0.875rem', color: 'var(--status-paid-text)' }}>
+                      {formatMoney(payment.total)}
+                    </p>
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{payment.customer.name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                    Paid {formatDate(payment.paid_date)}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

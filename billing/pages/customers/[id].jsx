@@ -9,6 +9,7 @@ import cardStyles from '../../styles/cardItems.module.css';
 import InvoicesGrid from '../../components/invoice/InvoicesGrid'
 import JobsGrid from '../../components/jobs/JobsGrid'
 import BackButton from '../../components/ui/BackButton'
+import Loading from '../../components/ui/Loading'
 
 export default function CustomerDetail() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function CustomerDetail() {
     return (
       <div className={styles.centerState}>
         <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading customer...</h1>
+          <Loading />
         </div>
       </div>
     );
@@ -188,11 +189,7 @@ export default function CustomerDetail() {
           />
         )}
 
-        {loading && (
-          <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <p className="muted">Loading jobs...</p>
-          </div>
-        )}
+        {loading && <Loading />}
 
         {!loading && customerJobs.length === 0 && (
           <div className={`card ${styles.emptyState}`}>
@@ -232,11 +229,7 @@ export default function CustomerDetail() {
           </>
         )}
 
-        {loading && (
-          <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <p className="muted">Loading invoices...</p>
-          </div>
-        )}
+        {loading && <Loading />}
 
         {!loading && customerInvoices.length === 0 && (
           <div className={`card ${styles.emptyState}`}>

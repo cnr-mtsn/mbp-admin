@@ -10,7 +10,7 @@ const requireAuth = (user) => {
 
 export const jobResolvers = {
   Query: {
-    jobs: async (_, { filters, sortKey = 'created_at', first }, { user }) => {
+    jobs: async (_, { filters, sortKey = 'created_at', first, offset }, { user }) => {
       requireAuth(user);
 
       // Build WHERE clause based on filters
@@ -71,10 +71,17 @@ export const jobResolvers = {
           orderBy = 'j.created_at DESC';
       }
 
-      // Add LIMIT if first is provided
-      const limitClause = first ? `LIMIT $${paramCount + 1}` : '';
+      // Add LIMIT and OFFSET if provided
+      let limitOffsetClause = '';
       if (first) {
+        paramCount++;
+        limitOffsetClause += `LIMIT $${paramCount}`;
         queryParams.push(first);
+      }
+      if (offset) {
+        paramCount++;
+        limitOffsetClause += ` OFFSET $${paramCount}`;
+        queryParams.push(offset);
       }
 
       const result = await query(
@@ -85,7 +92,7 @@ export const jobResolvers = {
          FROM jobs j
          ${whereClause}
          ORDER BY ${orderBy}
-         ${limitClause}`,
+         ${limitOffsetClause}`,
         queryParams
       );
       return toGidFormatArray(result.rows, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });

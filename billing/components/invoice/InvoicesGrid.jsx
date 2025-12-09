@@ -1,6 +1,7 @@
 import InvoiceCard from "./InvoiceCard"
 import styles from '../../styles/pages.module.css';
 import { useState } from "react"
+import Loading from "../ui/Loading"
 
 export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, loading = false }) {
 
@@ -30,7 +31,6 @@ export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, lo
                     )
                 })}
             </div>
-
             {filteredInvoices.length === 0 ? (
                 <div className={`card ${styles.emptyState}`}>
                     <p className="muted">
@@ -46,14 +46,11 @@ export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, lo
                     {/* Show More Button */}
                     {hasMore && onLoadMore && (
                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-                            <button
-                                onClick={onLoadMore}
-                                className="btn-primary"
-                                disabled={loading}
-                                style={{ opacity: loading ? 0.5 : 1 }}
-                            >
-                                {loading ? 'Loading...' : 'Show More'}
-                            </button>
+                            {loading ? <Loading /> : (
+                                <button onClick={onLoadMore} className="btn-primary">
+                                    Show More
+                                </button>
+                            )}
                         </div>
                     )}
                 </>

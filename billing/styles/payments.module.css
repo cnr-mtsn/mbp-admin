@@ -1,0 +1,244 @@
+/* Payment Form Container */
+.formContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .formContainer {
+    padding: 1.5rem;
+  }
+}
+
+/* Payment Amount Input Section */
+.paymentAmountSection {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--card-bg) 100%);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  border: 2px solid var(--primary);
+  margin-bottom: 1rem;
+}
+
+.paymentAmountInput {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  width: 100%;
+  padding: 1rem;
+}
+
+.paymentAmountInput:focus {
+  outline: none;
+  border: none;
+}
+
+.paymentAmountLabel {
+  display: block;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+/* Remaining Balance Display */
+.remainingBalance {
+  text-align: center;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.remainingBalancePositive {
+  background-color: var(--status-sent-bg);
+  color: var(--status-sent-text);
+}
+
+.remainingBalanceZero {
+  background-color: var(--status-paid-bg);
+  color: var(--status-paid-text);
+}
+
+.remainingBalanceNegative {
+  background-color: var(--status-overdue-bg);
+  color: var(--status-overdue-text);
+}
+
+/* Invoice List */
+.invoiceList {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: var(--card-bg);
+}
+
+.invoiceItem {
+  padding: 1.25rem;
+  transition: background-color 0.2s;
+}
+
+.invoiceItem:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.invoiceItemSelected {
+  background-color: var(--card-hover-bg);
+}
+
+.invoiceItemContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.invoiceCheckbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.invoiceInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.invoiceTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.invoiceTotal {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.amountInputContainer {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.amountInputLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.amountInput {
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+/* Empty State */
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--card-bg);
+}
+
+.emptyStateText {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Total Amount Display */
+.totalContainer {
+  padding: 1.5rem;
+  background-color: var(--primary-bg);
+  border: 2px solid var(--primary);
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.totalContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totalLabel {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.totalAmount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Submit Section */
+.submitSection {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.submitButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+}
+
+.cancelButton {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+}

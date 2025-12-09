@@ -8,6 +8,7 @@ import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import Icon from '../../components/ui/Icon'
 import BackButton from '../../components/ui/BackButton'
+import Loading from '../../components/ui/Loading'
 
 const statusStyles = {
   accepted: styles.statusAccepted,
@@ -24,7 +25,7 @@ export default function Estimates() {
     return (
       <div className={styles.centerState}>
         <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading estimates...</h1>
+          <Loading />
         </div>
       </div>
     );
@@ -52,7 +53,7 @@ export default function Estimates() {
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <Link href="/estimates/new" className="btn-primary">
-            <Icon name="add" />        
+            <Icon name="add" size={10} />        
           </Link>
           <BackButton href="/" classes="btn-secondary" title="Back to Dashboard" />
         </div>

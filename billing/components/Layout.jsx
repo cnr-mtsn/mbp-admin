@@ -8,6 +8,7 @@ import MobileMenu from './MobileMenu';
 import styles from '../styles/layout.module.css';
 import MobileClock from './MobileClock'
 import Icon from './ui/Icon'
+import Loading from './ui/Loading'
 
 export default function Layout({ children }) {
   const router = useRouter();

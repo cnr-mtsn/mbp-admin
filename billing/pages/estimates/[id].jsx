@@ -9,6 +9,7 @@ import { extractUuid } from '../../lib/utils/gid';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton'
+import Loading from '../../components/ui/Loading'
 
 const statusStyles = {
   accepted: styles.statusAccepted,
@@ -47,7 +48,7 @@ export default function EstimateDetail() {
     return (
       <div className={styles.centerState}>
         <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading estimate...</h1>
+          <Loading />
         </div>
       </div>
     );

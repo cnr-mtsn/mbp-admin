@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { ME } from '../../lib/graphql/queries';
+import Loading from '../../components/ui/Loading'
 
 export default function Profile() {
   const { data, loading, error } = useQuery(ME);
@@ -22,7 +23,7 @@ export default function Profile() {
     return (
       <div className="page">
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading...</div>
+          <Loading />
         </div>
       </div>
     );

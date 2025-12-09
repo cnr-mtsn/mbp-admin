@@ -32,6 +32,8 @@ export const typeDefs = gql`
     updated_at: String!
     invoices(first: Int): [Invoice!]
     jobs(first: Int): [Job!]
+    open_invoice_count: Int
+    outstanding_balance: Float
   }
 
   type Estimate {
@@ -100,6 +102,28 @@ export const typeDefs = gql`
     status: String!
     created_at: String!
     updated_at: String!
+  }
+
+  type Payment {
+    id: ID!
+    customer_id: ID!
+    customer: Customer
+    payment_method: String!
+    total_amount: Float!
+    payment_date: String!
+    notes: String
+    invoices: [PaymentInvoice!]!
+    created_at: String!
+    updated_at: String!
+  }
+
+  type PaymentInvoice {
+    id: ID!
+    payment_id: ID!
+    invoice_id: ID!
+    invoice: Invoice
+    amount_applied: Float!
+    created_at: String!
   }
 
   type Service {
@@ -377,9 +401,41 @@ export const typeDefs = gql`
     role: String
   }
 
+  input PaymentInvoiceInput {
+    invoice_id: ID!
+    amount_applied: Float!
+  }
+
+  input RecordPaymentInput {
+    customer_id: ID!
+    payment_method: String!
+    total_amount: Float!
+    payment_date: String
+    notes: String
+    invoices: [PaymentInvoiceInput!]!
+  }
+
+  type DashboardAnalytics {
+    total_revenue: Float!
+    outstanding_balance: Float!
+    overdue_balance: Float!
+    in_progress_jobs_count: Int!
+    pending_jobs_count: Int!
+    completed_jobs_count: Int!
+    open_invoices_count: Int!
+    overdue_invoices_count: Int!
+    paid_invoices_count: Int!
+    recent_jobs: [Job!]!
+    overdue_invoices: [Invoice!]!
+    recent_payments: [Invoice!]!
+  }
+
   type Query {
     # Auth
     me: User
+
+    # Dashboard
+    dashboardAnalytics: DashboardAnalytics!
 
     # Users (admin)
     users(limit: Int, offset: Int): [User!]!
@@ -394,11 +450,11 @@ export const typeDefs = gql`
     estimate(id: ID!): Estimate
 
     # Jobs
-    jobs(filters: JobFilters, sortKey: String, first: Int): [Job!]!
+    jobs(filters: JobFilters, sortKey: String, first: Int, offset: Int): [Job!]!
     job(id: ID!): Job
 
     # Invoices
-    invoices(first: Int): [Invoice!]!
+    invoices(first: Int, offset: Int): [Invoice!]!
     invoice(id: ID!): Invoice
     unlinkedInvoices: [Invoice!]!
 
@@ -451,6 +507,9 @@ export const typeDefs = gql`
     updateInvoice(id: ID!, input: InvoiceUpdateInput!): Invoice!
     deleteInvoice(id: ID!): Boolean!
     sendInvoice(id: ID!): Boolean!
+
+    # Payments
+    recordPayment(input: RecordPaymentInput!): Payment!
 
     # Inventory - Products
     createProduct(input: ProductInput!): Product!

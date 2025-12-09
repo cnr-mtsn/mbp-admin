@@ -6,6 +6,8 @@ import { GET_JOBS } from '../../lib/graphql/queries';
 import styles from '../../styles/pages.module.css';
 import BackButton from '../../components/ui/BackButton'
 import JobsGrid from '../../components/jobs/JobsGrid';
+import Loading from '../../components/ui/Loading'
+import Icon from '../../components/ui/Icon'
 
 // Separate component for debounced search to prevent re-renders
 function DebouncedSearchInput({ value, onChange, placeholder, className }) {
@@ -43,17 +45,20 @@ function DebouncedSearchInput({ value, onChange, placeholder, className }) {
 export default function Jobs() {
   const router = useRouter();
   const [searchFilter, setSearchFilter] = useState('');
-  const [itemsToShow, setItemsToShow] = useState(10);
+  const [allJobs, setAllJobs] = useState([]);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const { data, loading, error, fetchMore } = useQuery(GET_JOBS, {
     variables: {
       sortKey: 'status',
-      first: itemsToShow,
+      first: 10,
+      offset: 0,
     },
     notifyOnNetworkStatusChange: false,
+    onCompleted: (data) => {
+      setAllJobs(data?.jobs || []);
+    },
   });
-
-  const allJobs = data?.jobs || [];
 
   // Client-side search filtering
   const filteredJobs = useMemo(() => {
@@ -67,33 +72,35 @@ export default function Jobs() {
     );
   }, [allJobs, searchFilter]);
 
-  const handleLoadMore = () => {
-    const scrollPosition = window.scrollY;
-    const newItemsToShow = itemsToShow + 10;
-    setItemsToShow(newItemsToShow);
-    fetchMore({
-      variables: {
-        first: newItemsToShow,
-      },
-    }).then(() => {
-      // Restore scroll position after data is loaded
-      window.scrollTo(0, scrollPosition);
-    });
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const result = await fetchMore({
+        variables: {
+          first: 10,
+          offset: allJobs.length,
+        },
+      });
+
+      setAllJobs(prev => [...prev, ...(result.data?.jobs || [])]);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
-  // Reset items to show when search changes
+  // Reset jobs when search changes
   useEffect(() => {
-    setItemsToShow(10);
-  }, [searchFilter]);
+    if (data?.jobs) {
+      setAllJobs(data.jobs);
+    }
+  }, [searchFilter, data]);
 
   if (loading && allJobs.length === 0) {
     return (
-      <div className={styles.centerState}>
-        <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading jobs...</h1>
-        </div>
+      <div className="flex items-center justify-center h-[90vh] w-screen">
+        <Loading />
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -107,8 +114,8 @@ export default function Jobs() {
     );
   }
 
-  // Determine if there are more items to load
-  const hasMore = allJobs.length === itemsToShow && !searchFilter;
+  // Determine if there are more items to load - check if we got exactly 10 items in the last fetch
+  const hasMore = (data?.jobs?.length === 10 || allJobs.length % 10 === 0) && !searchFilter && allJobs.length > 0;
 
   return (
     <div className={styles.pageContainer}>
@@ -118,7 +125,9 @@ export default function Jobs() {
           <h2 className={styles.pageTitle}>Jobs</h2>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <Link href="/jobs/new" className="btn-primary">Create New Job</Link>
+          <Link href="/jobs/new" className="btn-primary">
+            <Icon name="add" size={10} />
+          </Link>
           <BackButton href="/" classes="btn-secondary" />
         </div>
       </div>
@@ -146,7 +155,7 @@ export default function Jobs() {
         jobs={filteredJobs}
         onLoadMore={handleLoadMore}
         hasMore={hasMore}
-        loading={loading}
+        loading={loadingMore}
       />
     </div>
   );

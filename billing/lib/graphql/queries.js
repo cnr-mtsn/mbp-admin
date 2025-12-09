@@ -12,6 +12,58 @@ export const ME = gql`
   }
 `;
 
+// Dashboard Queries
+export const GET_DASHBOARD_ANALYTICS = gql`
+  query GetDashboardAnalytics {
+    dashboardAnalytics {
+      total_revenue
+      outstanding_balance
+      overdue_balance
+      in_progress_jobs_count
+      pending_jobs_count
+      completed_jobs_count
+      open_invoices_count
+      overdue_invoices_count
+      paid_invoices_count
+      recent_jobs {
+        id
+        title
+        customer_id
+        customer {
+          id
+          name
+        }
+        status
+        total_amount
+        created_at
+      }
+      overdue_invoices {
+        id
+        title
+        customer_id
+        customer {
+          id
+          name
+        }
+        total
+        due_date
+        status
+      }
+      recent_payments {
+        id
+        title
+        customer_id
+        customer {
+          id
+          name
+        }
+        total
+        paid_date
+      }
+    }
+  }
+`;
+
 // Customer Queries
 export const GET_CUSTOMERS = gql`
   query GetCustomers($sortKey: String) {
@@ -25,6 +77,8 @@ export const GET_CUSTOMERS = gql`
       state
       zip
       created_at
+      open_invoice_count
+      outstanding_balance
     }
   }
 `;
@@ -135,8 +189,8 @@ export const GET_ESTIMATE = gql`
 
 // Job Queries
 export const GET_JOBS = gql`
-  query GetJobs($filters: JobFilters, $sortKey: String, $first: Int) {
-    jobs(filters: $filters, sortKey: $sortKey, first: $first) {
+  query GetJobs($filters: JobFilters, $sortKey: String, $first: Int, $offset: Int) {
+    jobs(filters: $filters, sortKey: $sortKey, first: $first, offset: $offset) {
       id
       customer_id
       customer {
@@ -211,8 +265,8 @@ export const GET_JOB = gql`
 
 // Invoice Queries
 export const GET_INVOICES = gql`
-  query GetInvoices($first: Int) {
-    invoices(first: $first) {
+  query GetInvoices($first: Int, $offset: Int) {
+    invoices(first: $first, offset: $offset) {
       id
       customer_id
       customer {

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { extractUuid } from "../../lib/utils/gid"
-import { formatDate } from "../../lib/utils/helpers"
+import { formatDate, formatMoney } from "../../lib/utils/helpers"
 
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -11,6 +11,9 @@ export default function CustomerCard({ customer }) {
 
     const phone = customer.phone || null;
     const location = customer.city && customer.state ? `${customer.city}, ${customer.state}` : null;
+    const hasOpenInvoices = customer.open_invoice_count > 0;
+    const outstandingBalance = customer.outstanding_balance || 0;
+
     return (
         <Link href={`/customers/${extractUuid(customer.id)}`} style={{ height: '100%' }}>
             <div key={customer.id} className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '200px' }}>
@@ -32,6 +35,16 @@ export default function CustomerCard({ customer }) {
                     {location && <p className={cardStyles.itemContactText}>
                         <Icon name="map-pin" size={6} /> {location}
                     </p>}
+                    {hasOpenInvoices && (
+                        <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
+                            <Icon name="file-text" size={6} /> {customer.open_invoice_count} open invoice{customer.open_invoice_count !== 1 ? 's' : ''}
+                        </p>
+                    )}
+                    {outstandingBalance > 0 && (
+                        <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
+                            <Icon name="dollar-sign" size={6} /> {formatMoney(outstandingBalance)} outstanding
+                        </p>
+                    )}
                 </div>
 
                 <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>

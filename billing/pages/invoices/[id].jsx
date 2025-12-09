@@ -10,6 +10,8 @@ import InvoiceForm from '../../components/InvoiceForm';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton'
+import Loading from '../../components/ui/Loading'
+import Icon from '../../components/ui/Icon'
 
 const statusStyles = {
   paid: styles.statusPaid,
@@ -126,7 +128,7 @@ export default function InvoiceDetail() {
     return (
       <div className={styles.centerState}>
         <div className={styles.stateContent}>
-          <h1 className={styles.stateTitle}>Loading invoice...</h1>
+          <Loading />
         </div>
       </div>
     );
@@ -179,15 +181,21 @@ export default function InvoiceDetail() {
         <div className="flex flex-col items-end gap-4 h-full justify-between">
           <span className={`pill ${statusClass} mt-4`}>{invoice.status}</span>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {invoice.status !== 'paid' && (
+              <Link href="/payments/new" className="btn-secondary" title="Record Payment">
+                <Icon name="money" size={10} />
+              </Link>
+            )}
             <button
               onClick={handleSendInvoice}
-              className="btn-primary"
+              className="btn-secondary"
               disabled={sendingInvoice}
+              title="Send Invoice"
             >
-              {sendingInvoice ? 'Sending...' : 'Send Invoice'}
+              <Icon name="send" size={10} />
             </button>
-            <button onClick={() => setShowEditModal(true)} className="btn-secondary">
-              Edit Invoice
+            <button onClick={() => setShowEditModal(true)} className="btn-secondary" title="Edit Invoice">
+              <Icon name="edit" size={10} />
             </button>
             <BackButton href="/invoices" classes="btn-secondary" title="Back to Invoices" />
           </div>

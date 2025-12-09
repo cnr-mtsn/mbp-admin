@@ -48,13 +48,21 @@ const allowedOrigins = [
   'https://studio.apollographql.com' // Allow Apollo Studio
 ].filter(Boolean);
 
+console.log('🔒 CORS allowed origins:', allowedOrigins);
+
+// Normalize URLs by removing trailing slashes for comparison
+const normalizeUrl = (url) => url?.replace(/\/$/, '');
+const normalizedAllowedOrigins = allowedOrigins.map(normalizeUrl);
+
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
 
-    // Allow configured origins
-    if (allowedOrigins.includes(origin)) {
+    const normalizedOrigin = normalizeUrl(origin);
+
+    // Allow configured origins (with normalized comparison)
+    if (normalizedAllowedOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
@@ -62,6 +70,10 @@ app.use(cors({
     if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
       return callback(null, true);
     }
+
+    // Log rejected origins to help debug
+    console.warn('❌ CORS rejected origin:', origin);
+    console.warn('   Allowed origins:', normalizedAllowedOrigins.join(', '));
 
     return callback(new Error('Not allowed by CORS'));
   },

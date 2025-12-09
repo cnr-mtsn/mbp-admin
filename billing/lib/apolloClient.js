@@ -39,7 +39,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.href = '/account/ogin';
         }
       }
     });
@@ -52,7 +52,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (networkError.statusCode === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.href = '/account/login';
     }
   }
 });

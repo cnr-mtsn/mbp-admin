@@ -7,10 +7,10 @@ import '../styles/globals.css';
 import SeoHead from '../components/SeoHead'
 
 // Pages that don't require authentication
-const publicPages = ['/login'];
+const publicPages = ['/account/login', '/account/register'];
 
 // Pages that don't use the main layout
-const noLayoutPages = ['/login'];
+const noLayoutPages = ['/account/login', '/account/register'];
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -42,10 +42,10 @@ function MyApp({ Component, pageProps }) {
     const isPublicPage = publicPages.includes(router.pathname);
 
     if (!token && !isPublicPage) {
-      router.push('/login');
+      router.push('/account/login');
     }
 
-    if (token && router.pathname === '/login') {
+    if (token && router.pathname === '/account/login') {
       router.push('/');
     }
   }, [router.pathname]);

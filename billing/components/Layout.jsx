@@ -51,7 +51,7 @@ export default function Layout({ children }) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsMobileMenuOpen(false);
-    router.push('/login');
+    router.push('/account/login');
   };
 
   const fullName = getFullName(user);

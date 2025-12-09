@@ -1,0 +1,142 @@
+.container {
+  @apply min-h-screen flex flex-col items-center justify-center;
+  background-color: var(--color-gray-50);
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+}
+
+.logo {
+  transition: all var(--transition-normal);
+  @apply dark:invert my-0 mx-auto w-auto;
+}
+
+@media (max-width: 640px) {
+  .logo {
+    height: 12rem;
+  }
+}
+
+.formWrapper {
+  max-width: 28rem;
+  width: 100%;
+  @apply flex flex-col;
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 640px) {
+  .formWrapper {
+    gap: var(--spacing-lg);
+  }
+}
+
+.header {
+  margin-top: var(--spacing-lg);
+  text-align: center;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+}
+
+@media (max-width: 640px) {
+  .header {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+.form {
+  @apply mt-8 flex flex-col;
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 640px) {
+  .form {
+    @apply mt-4;
+    gap: var(--spacing-md);
+  }
+}
+
+.errorAlert {
+  @apply rounded-md p-4;
+  background-color: var(--color-danger-light);
+  border: var(--border-width) solid var(--color-danger);
+}
+
+.errorText {
+  @apply text-sm;
+  color: var(--color-danger);
+}
+
+.inputGroup {
+  @apply flex flex-col;
+  gap: var(--spacing-md);
+}
+
+.nameGrid {
+  @apply grid gap-4;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 640px) {
+  .nameGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.label {
+  @apply block text-sm font-medium mb-1;
+  color: var(--color-gray-700);
+}
+
+.input {
+  @apply block w-full;
+  appearance: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border);
+  background-color: var(--color-white);
+  color: var(--color-gray-900);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.submitButton {
+  @apply relative w-full flex justify-center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  color: var(--color-white);
+  background-color: var(--color-primary);
+  transition: background-color var(--transition-fast);
+}
+
+.submitButton:not(:disabled) {
+  cursor: pointer;
+}
+
+.submitButton:not(:disabled):hover {
+  background-color: var(--color-primary-hover);
+}
+
+.submitButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.loginLink {
+  @apply text-center;
+}
+
+.loginLink a {
+  @apply font-medium no-underline;
+  color: var(--color-primary);
+}
+
+.loginLink a:hover {
+  color: var(--color-primary-hover);
+}

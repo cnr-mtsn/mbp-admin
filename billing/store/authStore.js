@@ -1,56 +1,97 @@
 import { create } from 'zustand';
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+import { authAPI } from '../api/client';
 
 export const useAuthStore = create((set) => ({
   user: null,
   token: null,
-  isLoading: true,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+  isHydrated: false,
 
-  initialize: async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const response = await axios.get(`${API_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        set({ user: response.data.user, token, isLoading: false });
-      } catch (error) {
-        localStorage.removeItem('token');
-        set({ user: null, token: null, isLoading: false });
+  // Hydrate from localStorage (client-side only)
+  hydrate: () => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+
+      set({
+        user,
+        token,
+        isAuthenticated: !!token,
+        isHydrated: true,
+      });
+    }
+  },
+
+  login: async (credentials) => {
+    console.log("Login with credentials:", credentials);
+    set({ isLoading: true, error: null });
+    try {
+      const response = await authAPI.login(credentials);
+      const { token, user } = response.data;
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
       }
-    } else {
-      set({ isLoading: false });
+
+      set({
+        user,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Login failed';
+      set({ isLoading: false, error: errorMessage });
+      return { success: false, error: errorMessage };
     }
   },
 
-  login: async (email, password) => {
+  register: async (userData) => {
+    set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-      const { user, token } = response.data;
-      localStorage.setItem('token', token);
-      set({ user, token });
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.response?.data?.error || 'Login failed' };
-    }
-  },
+      const response = await authAPI.register(userData);
+      const { token, user } = response.data;
 
-  register: async (email, password, name) => {
-    try {
-      const response = await axios.post(`${API_URL}/auth/register`, { email, password, name });
-      const { user, token } = response.data;
-      localStorage.setItem('token', token);
-      set({ user, token });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
+      set({
+        user,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.response?.data?.error || 'Registration failed' };
+      const errorMessage = error.response?.data?.error || 'Registration failed';
+      set({ isLoading: false, error: errorMessage });
+      return { success: false, error: errorMessage };
     }
   },
 
   logout: () => {
-    localStorage.removeItem('token');
-    set({ user: null, token: null });
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      error: null,
+    });
   },
+
+  clearError: () => set({ error: null }),
 }));

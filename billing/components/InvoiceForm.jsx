@@ -457,10 +457,13 @@ export default function InvoiceForm({ initialData, jobId, onSubmit, onCancel, su
               <div className={`${styles.formGroup} ${styles.lineItemRate}`}>
                 <label className={styles.formLabel}>Rate</label>
                 <input
-                  type="text"
+                  type="number"
                   className={styles.formInput}
-                  value={formatMoney(item.rate)}
+                  value={item.rate}
                   onChange={(e) => handleLineItemChange(index, 'rate', e.target.value)}
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
                   required
                 />
               </div>

@@ -12,7 +12,7 @@ export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, lo
         ? invoices
         : invoices.filter(invoice => invoice.status === statusFilter);
 
-    const filters = ['all', 'paid', 'sent', 'draft']
+    const filters = ['all', 'paid', 'sent', 'draft', 'overdue']
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap gap-3 mb-6">

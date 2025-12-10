@@ -1,6 +1,7 @@
 import { query } from '../../config/database.js';
 import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
 import { extractUuid } from '../../utils/gid.js';
+import { fetchPaymentsWithInvoices } from './payments.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -97,6 +98,10 @@ export const invoiceResolvers = {
         [`${hexPrefix}%`]
       );
       return toGidFormat(result.rows[0], 'Estimate', { foreignKeys: ['customer_id'] });
+    },
+
+    payments: async (parent) => {
+      return fetchPaymentsWithInvoices({ invoiceId: parent.id });
     },
   },
 

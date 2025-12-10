@@ -41,7 +41,10 @@ export const authResolvers = {
   },
 
   Mutation: {
-    register: async (_, { email, password, name }) => {
+    register: async (_, { email, password, name }, { isBillingRequest }) => {
+      if (isBillingRequest) {
+        throw new Error('Registration is disabled for billing');
+      }
       const existingUser = await query(
         'SELECT id FROM users WHERE email = $1',
         [email]
@@ -79,7 +82,7 @@ export const authResolvers = {
       };
     },
 
-    login: async (_, { username, password }) => {
+    login: async (_, { username, password }, { isBillingRequest }) => {
       const result = await query(
         'SELECT id, email, password_hash, username, first_name, last_name, role, created_at FROM users WHERE username = $1',
         [username]
@@ -94,6 +97,10 @@ export const authResolvers = {
 
       if (!validPassword) {
         throw new Error('Invalid credentials');
+      }
+
+      if (isBillingRequest && user.role !== 'admin') {
+        throw new Error('Only admin users can access billing');
       }
 
       const token = jwt.sign(

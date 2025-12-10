@@ -189,8 +189,6 @@ export default function CustomerDetail() {
           />
         )}
 
-        {loading && <Loading />}
-
         {!loading && customerJobs.length === 0 && (
           <div className={`card ${styles.emptyState}`}>
             <p className="muted">No jobs for this customer yet.</p>
@@ -228,8 +226,6 @@ export default function CustomerDetail() {
             />
           </>
         )}
-
-        {loading && <Loading />}
 
         {!loading && customerInvoices.length === 0 && (
           <div className={`card ${styles.emptyState}`}>

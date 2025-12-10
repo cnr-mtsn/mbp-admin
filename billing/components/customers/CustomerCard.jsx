@@ -28,23 +28,32 @@ export default function CustomerCard({ customer }) {
                     </div>
                 </div>
 
-                <div className={cardStyles.itemContact} style={{ minHeight: '3rem', flex: '1 0 auto' }}>
-                    {phone && <p className={cardStyles.itemContactText}>
-                        <Icon name="phone"  size={6}/>{phone}
-                    </p>}
-                    {location && <p className={cardStyles.itemContactText}>
-                        <Icon name="map-pin" size={6} /> {location}
-                    </p>}
-                    {hasOpenInvoices && (
-                        <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
-                            <Icon name="file-text" size={6} /> {customer.open_invoice_count} open invoice{customer.open_invoice_count !== 1 ? 's' : ''}
-                        </p>
-                    )}
-                    {outstandingBalance > 0 && (
-                        <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
-                            <Icon name="dollar-sign" size={6} /> {formatMoney(outstandingBalance)} outstanding
-                        </p>
-                    )}
+                <div className="flex justify-between">
+                    <div className={cardStyles.itemContact} style={{ minHeight: '3rem', flex: '1 0 auto' }}>
+                        {phone && (
+                            <p className={cardStyles.itemContactText}>
+                                <Icon name="phone"  size={6}/>{phone}
+                            </p>
+                        )}
+                        {location && (
+                            <p className={cardStyles.itemContactText}>
+                                <Icon name="map-pin" size={6} /> {location}
+                            </p>
+                        )}
+                    </div>
+                    <div className={cardStyles.itemContact} style={{ minHeight: '3rem', flex: '1 0 auto' }}>
+
+                        {hasOpenInvoices && (
+                            <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
+                                <Icon name="file-text" size={6} /> {customer.open_invoice_count} open invoice{customer.open_invoice_count !== 1 ? 's' : ''}
+                            </p>
+                        )}
+                        {outstandingBalance > 0 && (
+                            <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
+                                <Icon name="dollar-sign" size={6} /> {formatMoney(outstandingBalance)} outstanding
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>

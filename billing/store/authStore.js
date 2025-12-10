@@ -9,17 +9,43 @@ export const useAuthStore = create((set) => ({
   error: null,
   isHydrated: false,
 
+  isBillingSite: () => {
+    if (typeof window === 'undefined') return false;
+    const billingHost = process.env.NEXT_PUBLIC_BILLING_HOST;
+    return billingHost
+      ? window.location.host === billingHost
+      : window.location.host.includes('billing.matsonbrotherspainting.com');
+  },
+
+  enforceBillingAccess: (user) => {
+    if (typeof window === 'undefined') return true;
+    const isBilling = useAuthStore.getState().isBillingSite();
+    if (isBilling && user && user.role !== 'admin') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      set({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        error: 'Admin access required for billing',
+      });
+      return false;
+    }
+    return true;
+  },
+
   // Hydrate from localStorage (client-side only)
   hydrate: () => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
+      const canAccess = useAuthStore.getState().enforceBillingAccess(user);
 
       set({
-        user,
-        token,
-        isAuthenticated: !!token,
+        user: canAccess ? user : null,
+        token: canAccess ? token : null,
+        isAuthenticated: !!token && canAccess,
         isHydrated: true,
       });
     }
@@ -31,6 +57,12 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await authAPI.login(credentials);
       const { token, user } = response.data;
+
+      const canAccess = useAuthStore.getState().enforceBillingAccess(user);
+      if (!canAccess) {
+        set({ isLoading: false });
+        return { success: false, error: 'Admin access required for billing' };
+      }
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', token);
@@ -58,6 +90,12 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await authAPI.register(userData);
       const { token, user } = response.data;
+
+      const canAccess = useAuthStore.getState().enforceBillingAccess(user);
+      if (!canAccess) {
+        set({ isLoading: false });
+        return { success: false, error: 'Admin access required for billing' };
+      }
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', token);

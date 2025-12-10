@@ -6,11 +6,15 @@ import { expressMiddleware } from '@apollo/server/express4';
 import jwt from 'jsonwebtoken';
 import { typeDefs } from './graphql/schema/typeDefs.js';
 import { resolvers } from './graphql/resolvers/index.js';
+import { initializeCronJobs } from './services/cronService.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// Helper to normalize URLs by removing trailing slashes
+const normalizeUrl = (url) => url?.replace(/\/$/, '');
 
 // Apollo Server setup with introspection and playground enabled
 const server = new ApolloServer({
@@ -62,9 +66,8 @@ const allowedOrigins = [
 
 console.log('🔒 CORS allowed origins:', allowedOrigins);
 
-// Normalize URLs by removing trailing slashes for comparison
-const normalizeUrl = (url) => url?.replace(/\/$/, '');
 const normalizedAllowedOrigins = allowedOrigins.map(normalizeUrl);
+const billingOrigin = normalizeUrl(process.env.BILLING_URL);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -114,8 +117,12 @@ app.use(
   expressMiddleware(server, {
     context: async ({ req }) => {
       const token = req.headers.authorization?.replace('Bearer ', '') || '';
+      const origin = normalizeUrl(req.headers.origin || req.headers.referer);
+      const isBillingRequest = billingOrigin && origin === billingOrigin;
       const user = getUser(token);
-      return { user };
+      const userForContext = isBillingRequest && user && user.role !== 'admin' ? null : user;
+
+      return { user: userForContext, isBillingRequest };
     },
   })
 );
@@ -134,4 +141,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 GraphQL API: http://localhost:${PORT}/graphql`);
+
+  // Initialize cron jobs after server starts
+  initializeCronJobs();
 });

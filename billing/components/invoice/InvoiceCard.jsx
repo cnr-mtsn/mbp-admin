@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { useRouter } from "next/router"
 import cardStyles from '../../styles/cardItems.module.css'
 import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
@@ -7,6 +8,7 @@ import { formatDate, formatMoney } from "../../lib/utils/helpers"
 
 
 export default function InvoiceCard({ invoice }) {
+    const router = useRouter();
 
     const invoiceStatusStyles = {
       paid: styles.statusPaid,
@@ -16,6 +18,16 @@ export default function InvoiceCard({ invoice }) {
     };
 
     const invoiceClass = invoiceStatusStyles[invoice.status] || invoiceStatusStyles.draft;
+    const paymentLink = (invoice.payments || []).find(payment =>
+      (payment.invoices || []).some(pi => extractUuid(pi.invoice_id) === extractUuid(invoice.id))
+    );
+
+    const handlePaymentClick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!paymentLink) return;
+      router.push(`/payments/${extractUuid(paymentLink.id)}`);
+    };
 
     return (
         <Link href={`/invoices/${extractUuid(invoice.id)}`} style={{ height: '100%' }}>
@@ -30,12 +42,17 @@ export default function InvoiceCard({ invoice }) {
                 </div>
 
                 <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>
-                    <div>
-                        <p className={cardStyles.itemTitle}>{formatMoney(invoice.total || 0)}</p>
-                        {invoice.due_date && (
-                            <p className={cardStyles.itemDescription}>Due {formatDate(invoice.due_date)}</p>
-                        )}
-                    </div>
+                    <p className={cardStyles.itemTitle}>{formatMoney(invoice.total || 0)}</p>
+                    {paymentLink ? (
+                      <button
+                        className="btn-secondary-sm"
+                        onClick={handlePaymentClick}
+                        title="View payment details"
+                        type="button"
+                      >
+                        View Payment
+                      </button>
+                    ) : invoice.due_date && <p className={cardStyles.itemDescription}>Due {formatDate(invoice.due_date)}</p>}
                 </div>
             </div>
         </Link>

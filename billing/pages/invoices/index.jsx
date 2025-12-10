@@ -53,7 +53,7 @@ export default function Invoices() {
 
   if (loading && invoices.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[90vh] w-screen">
+      <div className="flex items-center justify-center h-[90vh] mx-auto">
         <Loading />
       </div>
     )

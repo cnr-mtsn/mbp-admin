@@ -12,6 +12,7 @@ import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton'
 import Loading from '../../components/ui/Loading'
 import Icon from '../../components/ui/Icon'
+import PaymentList from '../../components/payments/PaymentList'
 
 const statusStyles = {
   paid: styles.statusPaid,
@@ -316,6 +317,19 @@ export default function InvoiceDetail() {
             </dl>
           </div>
         )}
+      </div>
+
+      <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+        <div className={cardStyles.itemHeader}>
+          <div className={cardStyles.itemHeaderContent}>
+            <h3 className={cardStyles.detailSectionTitle}>Payments</h3>
+            <p className={cardStyles.itemDescription}>Payments applied to this invoice</p>
+          </div>
+        </div>
+        <PaymentList
+          payments={invoice.payments || []}
+          emptyMessage="No payments recorded for this invoice."
+        />
       </div>
 
       {invoice.line_items && invoice.line_items.length > 0 && (

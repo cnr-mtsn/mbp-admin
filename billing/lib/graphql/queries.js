@@ -253,6 +253,37 @@ export const GET_JOB = gql`
         due_date
         paid_date
         invoice_number
+        payments {
+          id
+          payment_method
+          payment_date
+          total_amount
+          invoices {
+            id
+            invoice_id
+          }
+        }
+      }
+      payments {
+        id
+        payment_method
+        payment_date
+        total_amount
+        notes
+        created_at
+        invoices {
+          id
+          amount_applied
+          invoice {
+            id
+            invoice_number
+            title
+            total
+            status
+            payment_stage
+            percentage
+          }
+        }
       }
       invoice_count
       paid_count
@@ -288,6 +319,16 @@ export const GET_INVOICES = gql`
       due_date
       paid_date
       created_at
+      payments {
+        id
+        payment_method
+        payment_date
+        total_amount
+        invoices {
+          id
+          invoice_id
+        }
+      }
     }
   }
 `;
@@ -333,6 +374,27 @@ export const GET_INVOICE = gql`
       payment_method
       notes
       status
+      payments {
+        id
+        payment_method
+        payment_date
+        total_amount
+        notes
+        created_at
+        invoices {
+          id
+          amount_applied
+          invoice {
+            id
+            invoice_number
+            title
+            total
+            status
+            payment_stage
+            percentage
+          }
+        }
+      }
       created_at
       updated_at
     }
@@ -365,6 +427,48 @@ export const SEARCH_SERVICES = gql`
       name
       description
       cost
+    }
+  }
+`;
+
+export const GET_PAYMENT = gql`
+  query GetPayment($id: ID!) {
+    payment(id: $id) {
+      id
+      customer_id
+      customer {
+        id
+        name
+        email
+      }
+      payment_method
+      total_amount
+      payment_date
+      notes
+      created_at
+      invoices {
+        id
+        amount_applied
+        invoice {
+          id
+          invoice_number
+          title
+          total
+          status
+          payment_stage
+          percentage
+          job_id
+          job {
+            id
+            title
+          }
+          customer_id
+          customer {
+            id
+            name
+          }
+        }
+      }
     }
   }
 `;

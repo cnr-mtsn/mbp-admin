@@ -190,3 +190,22 @@ export const SEND_INVOICE = gql`
     sendInvoice(id: $id)
   }
 `;
+
+// Payment Mutations
+export const UPDATE_PAYMENT = gql`
+  mutation UpdatePayment($id: ID!, $input: PaymentUpdateInput!) {
+    updatePayment(id: $id, input: $input) {
+      id
+      payment_method
+      payment_date
+      total_amount
+      notes
+    }
+  }
+`;
+
+export const DELETE_PAYMENT = gql`
+  mutation DeletePayment($id: ID!) {
+    deletePayment(id: $id)
+  }
+`;

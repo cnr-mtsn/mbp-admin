@@ -14,6 +14,7 @@ import InvoicesGrid from '../../components/invoice/InvoicesGrid'
 import Icon from '../../components/ui/Icon'
 import BackButton from '../../components/ui/BackButton'
 import Loading from '../../components/ui/Loading'
+import PaymentList from '../../components/payments/PaymentList'
 
 const jobStatusStyles = {
   completed: styles.statusCompleted,
@@ -291,6 +292,20 @@ export default function JobDetail() {
 
         <InvoicesGrid invoices={invoices} />
 
+      </div>
+
+      <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+        <div className={cardStyles.itemHeader}>
+          <div className={cardStyles.itemHeaderContent}>
+            <h3 className={cardStyles.detailSectionTitle}>Payments</h3>
+            <p className={cardStyles.itemDescription}>Payments applied to invoices on this job</p>
+          </div>
+        </div>
+
+        <PaymentList
+          payments={job.payments || []}
+          emptyMessage="No payments recorded for this job yet."
+        />
       </div>
 
       {/* Link Existing Invoices Modal */}

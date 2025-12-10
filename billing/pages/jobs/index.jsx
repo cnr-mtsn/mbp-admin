@@ -97,7 +97,7 @@ export default function Jobs() {
 
   if (loading && allJobs.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[90vh] w-screen">
+      <div className="flex items-center justify-center h-[90vh] mx-auto">
         <Loading />
       </div>
     )

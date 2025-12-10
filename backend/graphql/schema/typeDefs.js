@@ -74,6 +74,7 @@ export const typeDefs = gql`
     invoice_count: Int
     paid_count: Int
     amount_paid: Float
+    payments: [Payment!]!
     created_at: String!
     updated_at: String!
   }
@@ -100,6 +101,7 @@ export const typeDefs = gql`
     payment_method: String
     notes: String
     status: String!
+    payments: [Payment!]!
     created_at: String!
     updated_at: String!
   }
@@ -415,6 +417,12 @@ export const typeDefs = gql`
     invoices: [PaymentInvoiceInput!]!
   }
 
+  input PaymentUpdateInput {
+    payment_method: String
+    payment_date: String
+    notes: String
+  }
+
   type DashboardAnalytics {
     total_revenue: Float!
     outstanding_balance: Float!
@@ -457,6 +465,10 @@ export const typeDefs = gql`
     invoices(first: Int, offset: Int): [Invoice!]!
     invoice(id: ID!): Invoice
     unlinkedInvoices: [Invoice!]!
+
+    # Payments
+    payments(customer_id: ID, job_id: ID, invoice_id: ID): [Payment!]!
+    payment(id: ID!): Payment
 
     # Services
     services(search: String): [Service!]!
@@ -510,6 +522,8 @@ export const typeDefs = gql`
 
     # Payments
     recordPayment(input: RecordPaymentInput!): Payment!
+    updatePayment(id: ID!, input: PaymentUpdateInput!): Payment!
+    deletePayment(id: ID!): Boolean!
 
     # Inventory - Products
     createProduct(input: ProductInput!): Product!

@@ -31,7 +31,6 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 2.5rem;
 }
 
 .itemDescription {

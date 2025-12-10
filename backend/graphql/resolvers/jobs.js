@@ -1,6 +1,7 @@
 import { query } from '../../config/database.js';
 import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
 import { extractUuid } from '../../utils/gid.js';
+import { fetchPaymentsWithInvoices } from './payments.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -195,6 +196,10 @@ export const jobResolvers = {
         ...row,
         line_items: typeof row.line_items === 'string' ? JSON.parse(row.line_items) : row.line_items
       }));
+    },
+
+    payments: async (parent) => {
+      return fetchPaymentsWithInvoices({ jobId: parent.id });
     },
   },
 

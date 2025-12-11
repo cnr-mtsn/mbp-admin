@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import cardStyles from '../../styles/cardItems.module.css'
 import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
-import { formatDate, formatMoney } from "../../lib/utils/helpers"
+import { formatDate, formatMoney, formatStatus } from "../../lib/utils/helpers"
 
 
 
@@ -38,7 +38,7 @@ export default function InvoiceCard({ invoice }) {
                         <h4 className={cardStyles.itemTitle}>{invoice.title}</h4>
                         <p className={cardStyles.itemDescription}>{invoice.payment_stage || 'Payment stage'}</p>
                     </div>
-                    <span className={`pill ${invoiceClass}`}>{invoice.status}</span>
+                    <span className={`pill ${invoiceClass}`}>{formatStatus(invoice.status)}</span>
                 </div>
 
                 <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>

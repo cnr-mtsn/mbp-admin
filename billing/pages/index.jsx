@@ -3,8 +3,9 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { GET_DASHBOARD_ANALYTICS } from '../lib/graphql/queries';
-import { formatMoney, formatDate } from '../lib/utils/helpers';
+import { formatMoney, formatDate, formatStatus } from '../lib/utils/helpers';
 import { extractUuid } from '../lib/utils/gid';
+import { useAuthStore } from '../store/authStore';
 import styles from '../styles/pages.module.css';
 import cardStyles from '../styles/cardItems.module.css';
 import Loading from '../components/ui/Loading';
@@ -12,6 +13,7 @@ import Icon from '../components/ui/Icon';
 
 export default function Dashboard() {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
 
   const { data, loading, error } = useQuery(GET_DASHBOARD_ANALYTICS);
 
@@ -43,15 +45,17 @@ export default function Dashboard() {
 
       {/* Key Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div className="card" style={{ padding: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-            <Icon name="dollar-sign" size={5} />
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{currentYear} Revenue</p>
+        {user?.role === 'superadmin' && (
+          <div className="card" style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <Icon name="dollar-sign" size={5} />
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{currentYear} Revenue</p>
+            </div>
+            <p style={{ fontSize: '1.875rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+              {formatMoney(analytics.total_revenue)}
+            </p>
           </div>
-          <p style={{ fontSize: '1.875rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-            {formatMoney(analytics.total_revenue)}
-          </p>
-        </div>
+        )}
 
         <div className="card" style={{ padding: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
@@ -123,7 +127,7 @@ export default function Dashboard() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.25rem' }}>
                     <p style={{ fontWeight: '500', fontSize: '0.875rem' }}>{job.title}</p>
                     <span className={`pill-${job.status}`} style={{ fontSize: '0.75rem' }}>
-                      {job.status.replace('_', ' ')}
+                      {formatStatus(job.status)}
                     </span>
                   </div>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{job.customer.name}</p>

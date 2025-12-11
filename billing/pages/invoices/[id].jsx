@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_INVOICE } from '../../lib/graphql/queries';
 import { UPDATE_INVOICE, SEND_INVOICE } from '../../lib/graphql/mutations';
 import { extractUuid, toGid } from '../../lib/utils/gid';
-import { formatDate, formatMoney } from '../../lib/utils/helpers';
+import { formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import InvoiceForm from '../../components/InvoiceForm';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -180,7 +180,7 @@ export default function InvoiceDetail() {
           {invoice.description && <p className={styles.pageSubtitle}>{invoice.description}</p>}
         </div>
         <div className="flex flex-col items-end gap-4 h-full justify-between">
-          <span className={`pill ${statusClass} mt-4`}>{invoice.status}</span>
+          <span className={`pill ${statusClass} mt-4`}>{formatStatus(invoice.status)}</span>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             {invoice.status !== 'paid' && (
               <Link href="/payments/new" className="btn-secondary" title="Record Payment">

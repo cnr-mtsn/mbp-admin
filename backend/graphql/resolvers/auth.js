@@ -99,7 +99,7 @@ export const authResolvers = {
         throw new Error('Invalid credentials');
       }
 
-      if (isBillingRequest && user.role !== 'admin') {
+      if (isBillingRequest && user.role !== 'admin' && user.role !== 'superadmin') {
         throw new Error('Only admin users can access billing');
       }
 

@@ -24,9 +24,11 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const INVOICES_PER_PAGE = 20
+
   const { data, loading, error, fetchMore } = useQuery(GET_INVOICES, {
     variables: {
-      first: 10,
+      first: INVOICES_PER_PAGE,
       offset: 0,
     },
     notifyOnNetworkStatusChange: false,
@@ -40,7 +42,7 @@ export default function Invoices() {
     try {
       const result = await fetchMore({
         variables: {
-          first: 10,
+          first: INVOICES_PER_PAGE,
           offset: invoices.length,
         },
       });
@@ -75,8 +77,8 @@ export default function Invoices() {
     .filter(invoice => invoice.status === 'sent')
     .reduce((sum, invoice) => sum + (parseFloat(invoice.total) || 0), 0);
 
-  // Determine if there are more items to load - check if we got exactly 10 items in the last fetch
-  const hasMore = (data?.invoices?.length === 10 || invoices.length % 10 === 0) && invoices.length > 0;
+  // Determine if there are more items to load - check if we got exactly INVOICES_PER_PAGE items in the last fetch
+  const hasMore = (data?.invoices?.length === INVOICES_PER_PAGE || invoices.length % INVOICES_PER_PAGE === 0) && invoices.length > 0;
 
   return (
     <div className={styles.pageContainer}>

@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_JOB, GET_INVOICES } from '../../lib/graphql/queries';
 import { LINK_INVOICES_TO_JOB, CREATE_INVOICE, UPDATE_JOB } from '../../lib/graphql/mutations';
 import { toGid, extractUuid } from '../../lib/utils/gid';
-import { formatDate, formatMoney } from '../../lib/utils/helpers';
+import { formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import InvoiceForm from '../../components/InvoiceForm';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -355,7 +355,7 @@ export default function JobDetail() {
                       <div style={{ flex: 1 }}>
                         <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{invoice.title}</p>
                         <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                          {invoice.customer?.name} • {formatMoney(invoice.total || 0)} • {invoice.status}
+                          {invoice.customer?.name} • {formatMoney(invoice.total || 0)} • {formatStatus(invoice.status)}
                         </p>
                       </div>
                     </div>

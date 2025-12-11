@@ -20,7 +20,7 @@ export const useAuthStore = create((set) => ({
   enforceBillingAccess: (user) => {
     if (typeof window === 'undefined') return true;
     const isBilling = useAuthStore.getState().isBillingSite();
-    if (isBilling && user && user.role !== 'admin') {
+    if (isBilling && user && user.role !== 'admin' && user.role !== 'superadmin') {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       set({

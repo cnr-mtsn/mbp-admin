@@ -41,9 +41,13 @@ export const customerResolvers = {
       const queryParams = first ? [`${customerId}%`, first] : [`${customerId}%`];
 
       const result = await query(
-        `SELECT * FROM jobs
-         WHERE REPLACE(customer_id::text, '-', '') LIKE $1
-         ORDER BY created_at DESC
+        `SELECT j.*,
+                (SELECT COUNT(*) FROM invoices WHERE job_id = j.id) as invoice_count,
+                (SELECT COUNT(*) FROM invoices WHERE job_id = j.id AND status = 'paid') as paid_count,
+                (SELECT SUM(total) FROM invoices WHERE job_id = j.id AND status = 'paid') as amount_paid
+         FROM jobs j
+         WHERE REPLACE(j.customer_id::text, '-', '') LIKE $1
+         ORDER BY j.created_at DESC
          ${limitClause}`,
         queryParams
       );

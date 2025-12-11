@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useLazyQuery } from '@apollo/client';
 import { GET_CUSTOMERS, GET_UNLINKED_INVOICES, SEARCH_SERVICES } from '../lib/graphql/queries';
-import { formatMoney } from '../lib/utils/helpers';
+import { formatMoney, formatStatus } from '../lib/utils/helpers';
 import styles from '../styles/pages.module.css';
 import Icon from './ui/Icon'
 
@@ -626,7 +626,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
                         #{invoice.invoice_number} - {invoice.title}
                       </div>
                       <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                        {invoice.customer?.name} • {formatMoney(invoice.total)} • {invoice.status}
+                        {invoice.customer?.name} • {formatMoney(invoice.total)} • {formatStatus(invoice.status)}
                       </div>
                     </div>
                   </label>

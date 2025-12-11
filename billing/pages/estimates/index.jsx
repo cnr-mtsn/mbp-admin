@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { GET_ESTIMATES } from '../../lib/graphql/queries';
 import { extractUuid } from '../../lib/utils/gid';
-import { formatDate, formatMoney } from '../../lib/utils/helpers';
+import { formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import Icon from '../../components/ui/Icon'
@@ -70,7 +70,7 @@ export default function Estimates() {
                   <h3 className={cardStyles.itemTitle}>{estimate.title}</h3>
                   <p className={cardStyles.itemDescription}>{estimate.description || 'No description provided.'}</p>
                 </div>
-                <span className={`pill ${statusClass}`}>{estimate.status}</span>
+                <span className={`pill ${statusClass}`}>{formatStatus(estimate.status)}</span>
               </div>
 
               <div className={cardStyles.itemTags}>

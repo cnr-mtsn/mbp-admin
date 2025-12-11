@@ -2,7 +2,7 @@ import Link from "next/link"
 import cardStyles from '../../styles/cardItems.module.css'
 import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
-import { formatMoney } from "../../lib/utils/helpers"
+import { formatMoney, formatStatus } from "../../lib/utils/helpers"
 
 export default function JobCard({ job }) {
 
@@ -26,7 +26,7 @@ export default function JobCard({ job }) {
                             {job.description || 'No description provided.'}
                         </p>
                     </div>
-                    <span className={`pill ${statusClass}`}>{job.status || 'pending'}</span>
+                    <span className={`pill ${statusClass}`}>{formatStatus(job.status) || 'pending'}</span>
                 </div>
 
                 <div className={cardStyles.itemTags}>

@@ -39,7 +39,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '/account/ogin';
+          window.location.href = '/account/login';
         }
       }
     });

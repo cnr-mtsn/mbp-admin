@@ -9,7 +9,8 @@ const { Pool } = pg;
 const poolConfig = process.env.DATABASE_URL || process.env.DB_URL
   ? {
       connectionString: process.env.DATABASE_URL || process.env.DB_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      // Always use SSL for connection strings unless explicitly disabled
+      ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,

@@ -16,7 +16,7 @@ const formatUser = (row) => {
 };
 
 const requireAdmin = (ctxUser) => {
-  if (!ctxUser || ctxUser.role !== 'admin') {
+  if (!ctxUser || (ctxUser.role !== 'admin' && ctxUser.role !== 'superadmin')) {
     throw new Error('Not authorized');
   }
 };

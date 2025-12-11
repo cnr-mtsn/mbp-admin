@@ -120,7 +120,7 @@ app.use(
       const origin = normalizeUrl(req.headers.origin || req.headers.referer);
       const isBillingRequest = billingOrigin && origin === billingOrigin;
       const user = getUser(token);
-      const userForContext = isBillingRequest && user && user.role !== 'admin' ? null : user;
+      const userForContext = isBillingRequest && user && user.role !== 'admin' && user.role !== 'superadmin' ? null : user;
 
       return { user: userForContext, isBillingRequest };
     },

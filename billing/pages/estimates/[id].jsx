@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ESTIMATE } from '../../lib/graphql/queries';
 import { ACCEPT_ESTIMATE } from '../../lib/graphql/mutations';
-import { formatDate, formatMoney } from '../../lib/utils/helpers';
+import { formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import { extractUuid } from '../../lib/utils/gid';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -96,7 +96,7 @@ export default function EstimateDetail() {
           <p className={styles.pageLabel}>Estimate</p>
           <div className={cardStyles.itemHeader}>
             <h2 className={styles.pageTitle}>{estimate.title}</h2>
-            <span className={`pill ${statusClass}`}>{estimate.status}</span>
+            <span className={`pill ${statusClass}`}>{formatStatus(estimate.status)}</span>
           </div>
           {estimate.description && <p className={styles.pageSubtitle}>{estimate.description}</p>}
         </div>
@@ -117,7 +117,7 @@ export default function EstimateDetail() {
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Status</dt>
               <dd className={cardStyles.detailValue}>
-                <span className={`pill ${statusClass}`}>{estimate.status}</span>
+                <span className={`pill ${statusClass}`}>{formatStatus(estimate.status)}</span>
               </dd>
             </div>
             <div className={cardStyles.detailItem}>

@@ -35,7 +35,7 @@ export const expenseResolvers = {
         `SELECT e.*
          FROM expenses e
          ${whereClause}
-         ORDER BY e.created_at DESC
+         ORDER BY e.invoice_date DESC
          LIMIT $${params.length - 1} OFFSET $${params.length}`,
         params
       );

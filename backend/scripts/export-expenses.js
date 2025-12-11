@@ -60,7 +60,7 @@ async function exportExpenses() {
     for (const expense of expenses) {
       const values = [
         expense.id ? `'${expense.id}'` : 'gen_random_uuid()',
-        expense.job_id ? `'${expense.job_id}'` : 'NULL',
+        'NULL', // Set job_id to NULL since jobs may not exist in production
         expense.expense_type ? `'${expense.expense_type}'` : 'NULL',
         expense.vendor ? `'${expense.vendor.replace(/'/g, "''")}'` : 'NULL',
         expense.invoice_number ? `'${expense.invoice_number.replace(/'/g, "''")}'` : 'NULL',

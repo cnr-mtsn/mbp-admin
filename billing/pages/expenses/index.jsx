@@ -15,7 +15,7 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const EXPENSES_PER_PAGE = 20;
+  const EXPENSES_PER_PAGE = 50;
 
   const { data, loading, error, fetchMore } = useQuery(GET_EXPENSES, {
     variables: {

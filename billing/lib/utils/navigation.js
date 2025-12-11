@@ -34,6 +34,11 @@ const buildNavLinks = (user) => {
       label: 'Invoices',
       icon: <Icon name="document-2" />
     },
+    {
+      href: '/expenses',
+      label: 'Expenses',
+      icon: <Icon name="money" />
+    },
   ];
 
   return baseLinks;

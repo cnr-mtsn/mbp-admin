@@ -66,3 +66,5 @@ Thumbs.db
 *.sql
 *_backup*
 *.bak
+
+imports/

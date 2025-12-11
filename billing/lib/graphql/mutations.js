@@ -209,3 +209,47 @@ export const DELETE_PAYMENT = gql`
     deletePayment(id: $id)
   }
 `;
+
+// Expense Mutations
+export const CREATE_EXPENSE = gql`
+  mutation CreateExpense($input: CreateExpenseInput!) {
+    createExpense(input: $input) {
+      id
+      expense_type
+      vendor
+      invoice_number
+      total
+      status
+    }
+  }
+`;
+
+export const UPDATE_EXPENSE = gql`
+  mutation UpdateExpense($id: ID!, $input: UpdateExpenseInput!) {
+    updateExpense(id: $id, input: $input) {
+      id
+      job_id
+      expense_type
+      vendor
+      invoice_number
+      total
+      status
+    }
+  }
+`;
+
+export const ASSIGN_EXPENSE_TO_JOB = gql`
+  mutation AssignExpenseToJob($expense_id: ID!, $job_id: ID!) {
+    assignExpenseToJob(expense_id: $expense_id, job_id: $job_id) {
+      id
+      job_id
+      status
+    }
+  }
+`;
+
+export const DELETE_EXPENSE = gql`
+  mutation DeleteExpense($id: ID!) {
+    deleteExpense(id: $id)
+  }
+`;

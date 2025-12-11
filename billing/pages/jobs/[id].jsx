@@ -302,10 +302,110 @@ export default function JobDetail() {
           </div>
         </div>
 
-        <PaymentList
+          <PaymentList
           payments={job.payments || []}
           emptyMessage="No payments recorded for this job yet."
         />
+      </div>
+
+      {/* Expenses Section */}
+      <div className="card">
+        <div className={cardStyles.detailSection}>
+          <div className={cardStyles.itemHeader}>
+            <div className={cardStyles.itemHeaderContent}>
+              <h3 className={cardStyles.detailSectionTitle}>Expenses</h3>
+              <p className={cardStyles.itemDescription}>Material and labor costs for this job</p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Link href={`/expenses?job_id=${id}`} className="btn-secondary-sm">
+                View All
+              </Link>
+              <Link href="/expenses/new" className="btn-primary-sm">
+                Add Expense
+              </Link>
+            </div>
+          </div>
+
+          {/* Expense Summary */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '1.5rem',
+            padding: '1.5rem',
+            backgroundColor: 'var(--card-bg)',
+            borderRadius: '0.5rem',
+            marginTop: '1rem'
+          }}>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Total Expenses</p>
+              <p style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-danger)' }}>
+                {formatMoney(job.total_expenses || 0)}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Total Revenue</p>
+              <p style={{ fontSize: '1.25rem', fontWeight: '600' }}>
+                {formatMoney(job.total_amount || 0)}
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Net Profit</p>
+              <p style={{
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                color: (job.net_profit || 0) >= 0 ? 'var(--status-paid-text)' : 'var(--status-overdue-text)'
+              }}>
+                {formatMoney(job.net_profit || 0)}
+              </p>
+            </div>
+          </div>
+
+          {/* Expenses List */}
+          {job.expenses && job.expenses.length > 0 ? (
+            <div style={{ marginTop: '1.5rem' }}>
+              {job.expenses.map(expense => (
+                <Link
+                  key={expense.id}
+                  href={`/expenses/${extractUuid(expense.id)}`}
+                  style={{
+                    display: 'block',
+                    padding: '1rem',
+                    marginBottom: '0.5rem',
+                    border: '1px solid var(--border-default)',
+                    borderRadius: '0.5rem',
+                    textDecoration: 'none',
+                    color: 'inherit'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>
+                        {expense.vendor || 'Manual Expense'}
+                        {expense.invoice_number && ` - #${expense.invoice_number}`}
+                      </p>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                        {expense.expense_type === 'labor' ? 'Labor' : 'Materials'}
+                        {expense.invoice_date && ` • ${formatDate(expense.invoice_date)}`}
+                      </p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontWeight: 600, fontSize: '1.125rem' }}>
+                        {formatMoney(expense.total)}
+                      </p>
+                      <span className={`pill ${expense.status === 'approved' ? styles.statusPaid : styles.statusSent}`} style={{ fontSize: '0.75rem' }}>
+                        {formatStatus(expense.status?.replace('_', ' '))}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>
+              No expenses recorded for this job yet.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Link Existing Invoices Modal */}

@@ -11,6 +11,7 @@ import { analyticsResolvers } from './analytics.js';
 import { userResolvers } from './users.js';
 import { dashboardResolvers } from './dashboard.js';
 import { paymentResolvers } from './payments.js';
+import { expenseResolvers } from './expenses.js';
 
 export const resolvers = {
   JSON: GraphQLJSON,
@@ -28,6 +29,7 @@ export const resolvers = {
     ...analyticsResolvers.Query,
     ...dashboardResolvers.Query,
     ...paymentResolvers.Query,
+    ...expenseResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
@@ -39,13 +41,18 @@ export const resolvers = {
     ...productResolvers.Mutation,
     ...transactionResolvers.Mutation,
     ...paymentResolvers.Mutation,
+    ...expenseResolvers.Mutation,
   },
   Customer: customerResolvers.Customer,
-  Job: jobResolvers.Job,
+  Job: {
+    ...jobResolvers.Job,
+    ...expenseResolvers.Job,
+  },
   Invoice: invoiceResolvers.Invoice,
   Estimate: estimateResolvers.Estimate,
   Product: productResolvers.Product,
   Transaction: transactionResolvers.Transaction,
   TransactionWithProduct: transactionResolvers.TransactionWithProduct,
   Payment: paymentResolvers.Payment,
+  Expense: expenseResolvers.Expense,
 };

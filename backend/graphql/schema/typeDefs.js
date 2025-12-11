@@ -75,6 +75,9 @@ export const typeDefs = gql`
     paid_count: Int
     amount_paid: Float
     payments: [Payment!]!
+    expenses: [Expense!]
+    total_expenses: Float
+    net_profit: Float
     created_at: String!
     updated_at: String!
   }
@@ -126,6 +129,34 @@ export const typeDefs = gql`
     invoice: Invoice
     amount_applied: Float!
     created_at: String!
+  }
+
+  type Expense {
+    id: ID!
+    job_id: ID
+    job: Job
+    expense_type: String!
+    vendor: String
+    invoice_number: String
+    invoice_date: String
+    po_number: String
+    description: String
+    line_items: [ExpenseLineItem!]
+    subtotal: Float
+    tax: Float
+    total: Float!
+    notes: String
+    pdf_path: String
+    status: String!
+    created_at: String!
+    updated_at: String!
+  }
+
+  type ExpenseLineItem {
+    description: String!
+    quantity: Float
+    unit_price: Float
+    amount: Float!
   }
 
   type Service {
@@ -423,6 +454,46 @@ export const typeDefs = gql`
     notes: String
   }
 
+  input ExpenseLineItemInput {
+    description: String!
+    quantity: Float
+    unit_price: Float
+    amount: Float!
+  }
+
+  input CreateExpenseInput {
+    job_id: ID
+    expense_type: String!
+    vendor: String
+    invoice_number: String
+    invoice_date: String
+    po_number: String
+    description: String
+    line_items: [ExpenseLineItemInput!]
+    subtotal: Float
+    tax: Float
+    total: Float!
+    notes: String
+    pdf_path: String
+    status: String
+  }
+
+  input UpdateExpenseInput {
+    job_id: ID
+    expense_type: String
+    vendor: String
+    invoice_number: String
+    invoice_date: String
+    po_number: String
+    description: String
+    line_items: [ExpenseLineItemInput!]
+    subtotal: Float
+    tax: Float
+    total: Float
+    notes: String
+    status: String
+  }
+
   type DashboardAnalytics {
     total_revenue: Float!
     outstanding_balance: Float!
@@ -474,6 +545,11 @@ export const typeDefs = gql`
     services(search: String): [Service!]!
     service(id: ID!): Service
 
+    # Expenses
+    expenses(status: String, job_id: ID, first: Int, offset: Int): [Expense!]!
+    expense(id: ID!): Expense
+    unassignedExpenses(first: Int, offset: Int): [Expense!]!
+
     # Inventory - Products
     products(filters: ProductFilters, limit: Int, offset: Int): [Product!]!
     product(id: ID!): Product
@@ -524,6 +600,12 @@ export const typeDefs = gql`
     recordPayment(input: RecordPaymentInput!): Payment!
     updatePayment(id: ID!, input: PaymentUpdateInput!): Payment!
     deletePayment(id: ID!): Boolean!
+
+    # Expenses
+    createExpense(input: CreateExpenseInput!): Expense!
+    updateExpense(id: ID!, input: UpdateExpenseInput!): Expense!
+    assignExpenseToJob(expense_id: ID!, job_id: ID!): Expense!
+    deleteExpense(id: ID!): Boolean!
 
     # Inventory - Products
     createProduct(input: ProductInput!): Product!

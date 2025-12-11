@@ -15,6 +15,12 @@ export default function JobCard({ job }) {
 
     const statusClass = statusStyles[job.status] || statusStyles.pending;
 
+    // Calculate profit margin based on received payments
+    const netProfit = job.net_profit || 0;
+    const amountPaid = job.amount_paid || 0;
+    const profitMargin = amountPaid > 0 ? (netProfit / amountPaid) * 100 : 0;
+    const isProfitable = netProfit >= 0;
+
     return (
         <Link href={`/jobs/${extractUuid(job.id)}`} style={{ height: '100%' }}>
             <div className={cardStyles.lineItem}>
@@ -45,6 +51,14 @@ export default function JobCard({ job }) {
                         </p>
                         <p className={cardStyles.itemDescription}>
                             Paid: {formatMoney(job.amount_paid || 0)}
+                        </p>
+                    </div>
+                    <div>
+                        <p className={cardStyles.itemTitle} style={{ color: isProfitable ? '#10b981' : '#ef4444' }}>
+                            {isProfitable ? '+' : ''}{formatMoney(netProfit)}
+                        </p>
+                        <p className={cardStyles.itemDescription}>
+                            {profitMargin.toFixed(1)}% margin
                         </p>
                     </div>
                 </div>

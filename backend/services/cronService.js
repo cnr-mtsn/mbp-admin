@@ -2,6 +2,7 @@ import cron from 'node-cron';
 import pkg from 'pg';
 const { Client } = pkg;
 import dotenv from 'dotenv';
+import { monitorInvoiceEmails } from './emailMonitorService.js';
 
 dotenv.config();
 
@@ -54,5 +55,18 @@ export function initializeCronJobs() {
     await markOverdueInvoices();
   });
 
-  console.log('✅ Cron jobs initialized - mark-overdue-invoices will run daily at 12:00 AM');
+  // Schedule email monitor every 30 minutes
+  cron.schedule('*/30 * * * *', async () => {
+    console.log('[CRON] Running invoice email monitor job');
+    try {
+      const result = await monitorInvoiceEmails();
+      console.log(`[CRON] Email monitor completed:`, result);
+    } catch (error) {
+      console.error('[CRON] Email monitor error:', error);
+    }
+  });
+
+  console.log('✅ Cron jobs initialized:');
+  console.log('  - mark-overdue-invoices: runs daily at 12:00 AM');
+  console.log('  - invoice-email-monitor: runs every 30 minutes');
 }

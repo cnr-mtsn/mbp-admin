@@ -3,24 +3,24 @@ import { generateInvoicePDF } from './pdfService.js';
 
 // Create reusable transporter (single config shared by all environments)
 const createTransporter = () => {
-  const secureFromEnv = process.env.SMTP_SECURE === 'true';
-  const port = Number(process.env.SMTP_PORT) || (secureFromEnv ? 465 : 587);
+  const secureFromEnv = process.env.EMAIL_SECURE === 'true';
+  const port = Number(process.env.EMAIL_PORT) || (secureFromEnv ? 465 : 587);
   // Gmail: secure=true for 465, secure=false/starttls for 587
   const useTlsImmediately = port === 465 || secureFromEnv;
 
   const secure = useTlsImmediately && port === 465 ? true : false;
 
   if (useTlsImmediately && port !== 465) {
-    console.warn('[email] SMTP_SECURE=true but port is not 465; falling back to STARTTLS on port', port);
+    console.warn('[email] EMAIL_SECURE=true but port is not 465; falling back to STARTTLS on port', port);
   }
 
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port,
     secure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     },
     requireTLS: !secure, // force STARTTLS when using 587
   });
@@ -71,7 +71,7 @@ export const sendInvoiceEmail = async (invoice) => {
 
     // Email options
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: recipientEmail,
       subject: `Invoice: ${invoice.title}`,
       html: `

@@ -1,7 +1,13 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Always load .env from the project root so scripts work regardless of cwd
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const { Pool } = pg;
 
@@ -18,7 +24,7 @@ const poolConfig = process.env.DATABASE_URL || process.env.DB_URL
   : {
       host: process.env.DB_HOST || 'localhost',
       port: process.env.DB_PORT || 5432,
-      database: process.env.DB_NAME,
+      database: process.env.DB_NAME || 'matson_bros',
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,

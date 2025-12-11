@@ -206,6 +206,8 @@ export const GET_JOBS = gql`
       invoice_count
       paid_count
       amount_paid
+      total_expenses
+      net_profit
       created_at
     }
   }
@@ -288,6 +290,17 @@ export const GET_JOB = gql`
       invoice_count
       paid_count
       amount_paid
+      expenses {
+        id
+        expense_type
+        vendor
+        invoice_number
+        invoice_date
+        total
+        status
+      }
+      total_expenses
+      net_profit
       created_at
       updated_at
     }
@@ -469,6 +482,102 @@ export const GET_PAYMENT = gql`
           }
         }
       }
+    }
+  }
+`;
+
+// Expense Queries
+export const GET_EXPENSES = gql`
+  query GetExpenses($status: String, $job_id: ID, $first: Int, $offset: Int) {
+    expenses(status: $status, job_id: $job_id, first: $first, offset: $offset) {
+      id
+      job_id
+      job {
+        id
+        title
+      }
+      expense_type
+      vendor
+      invoice_number
+      invoice_date
+      po_number
+      description
+      line_items {
+        description
+        quantity
+        unit_price
+        amount
+      }
+      subtotal
+      tax
+      total
+      notes
+      pdf_path
+      status
+      created_at
+      updated_at
+    }
+  }
+`;
+
+export const GET_EXPENSE = gql`
+  query GetExpense($id: ID!) {
+    expense(id: $id) {
+      id
+      job_id
+      job {
+        id
+        title
+        customer {
+          id
+          name
+        }
+      }
+      expense_type
+      vendor
+      invoice_number
+      invoice_date
+      po_number
+      description
+      line_items {
+        description
+        quantity
+        unit_price
+        amount
+      }
+      subtotal
+      tax
+      total
+      notes
+      pdf_path
+      status
+      created_at
+      updated_at
+    }
+  }
+`;
+
+export const GET_UNASSIGNED_EXPENSES = gql`
+  query GetUnassignedExpenses($first: Int, $offset: Int) {
+    unassignedExpenses(first: $first, offset: $offset) {
+      id
+      expense_type
+      vendor
+      invoice_number
+      invoice_date
+      po_number
+      description
+      line_items {
+        description
+        quantity
+        unit_price
+        amount
+      }
+      subtotal
+      tax
+      total
+      status
+      created_at
     }
   }
 `;

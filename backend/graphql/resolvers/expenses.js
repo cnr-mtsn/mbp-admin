@@ -85,7 +85,7 @@ export const expenseResolvers = {
         `SELECT e.*
          FROM expenses e
          WHERE e.job_id IS NULL
-         ORDER BY e.created_at DESC
+         ORDER BY e.invoice_date DESC
          LIMIT $1 OFFSET $2`,
         [first, offset]
       );

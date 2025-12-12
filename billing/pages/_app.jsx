@@ -5,6 +5,7 @@ import apolloClient from '../lib/apolloClient';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
 import SeoHead from '../components/SeoHead'
+import { useAuthStore } from '../store/authStore';
 
 // Pages that don't require authentication
 const publicPages = ['/account/login', '/account/register'];
@@ -14,6 +15,7 @@ const noLayoutPages = ['/account/login', '/account/register'];
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
+  const hydrateAuth = useAuthStore((state) => state.hydrate);
 
   // Sync dark mode with system preference
   // useEffect(() => {
@@ -49,6 +51,11 @@ function MyApp({ Component, pageProps }) {
       router.push('/');
     }
   }, [router.pathname]);
+
+  // Hydrate auth store on the client so user/role are available after refresh
+  useEffect(() => {
+    hydrateAuth?.();
+  }, [hydrateAuth]);
 
   const useLayout = !noLayoutPages.includes(router.pathname);
 

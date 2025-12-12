@@ -1,6 +1,7 @@
 import JobCard from "./JobCard"
 import styles from '../../styles/pages.module.css';
 import { useState, useMemo } from "react"
+import Loading from '../ui/Loading'
 
 export default function JobsGrid({ jobs, showFilters = true, showSort = true, onLoadMore, hasMore = false, loading = false, initialStatusFilter = 'all' }) {
 

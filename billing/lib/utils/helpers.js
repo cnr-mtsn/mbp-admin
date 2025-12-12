@@ -70,3 +70,10 @@ export const RESULTS_PER_PAGE = {
   jobs: parseInt(process.env.NEXT_PUBLIC_JOBS_PER_PAGE) || 25,
   expenses: parseInt(process.env.NEXT_PUBLIC_EXPENSES_PER_PAGE) || 100
 }
+
+export const formatExpenseDescription = description => {
+  if(!description) return "";
+  if(typeof description !== 'string') return "";
+  if(description?.includes("I 0 ")) return description.replaceAll("I 0 ", ""); 
+  return description;
+}

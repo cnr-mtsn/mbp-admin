@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_EXPENSE, GET_JOBS } from '../../lib/graphql/queries';
 import { UPDATE_EXPENSE, ASSIGN_EXPENSE_TO_JOB, DELETE_EXPENSE } from '../../lib/graphql/mutations';
 import { extractUuid } from '../../lib/utils/gid';
-import { formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
+import { formatDate, formatExpenseDescription, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import { toGid } from '../../lib/utils/gid';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -234,7 +234,7 @@ export default function ExpenseDetail() {
           {expense.description && (
             <div style={{ marginTop: '1.5rem' }}>
               <h4 className={cardStyles.detailLabel}>Description</h4>
-              <p className={cardStyles.detailValue}>{expense.description}</p>
+              <p className={cardStyles.detailValue}>{formatExpenseDescription(expense.description)}</p>
             </div>
           )}
 
@@ -264,7 +264,7 @@ export default function ExpenseDetail() {
               <tbody>
                 {expense.line_items.map((item, index) => (
                   <tr key={index} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '0.5rem' }}>{item.description}</td>
+                    <td style={{ padding: '0.5rem' }}>{formatExpenseDescription(item.description)}</td>
                     <td style={{ textAlign: 'right', padding: '0.5rem' }}>{item.quantity || '-'}</td>
                     <td style={{ textAlign: 'right', padding: '0.5rem' }}>
                       {item.unit_price ? formatMoney(item.unit_price) : '-'}

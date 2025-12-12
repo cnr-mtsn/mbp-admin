@@ -291,16 +291,6 @@
   margin-bottom: 1rem;
 }
 
-.formGroup {
-  margin-bottom: 1rem;
-}
-
-@media (min-width: 768px) {
-  .formGroup {
-    margin-bottom: 0;
-  }
-}
-
 .formRow {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));

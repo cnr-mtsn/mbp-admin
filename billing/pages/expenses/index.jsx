@@ -101,7 +101,7 @@ export default function Expenses() {
       </div>
 
       {/* Summary Card */}
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
+      <div className="card" style={{ marginBottom: '1.5rem', cursor: 'default' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', padding: '1rem 0' }}>
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
@@ -129,6 +129,25 @@ export default function Expenses() {
           </div>
         </div>
       </div>
+
+      {/* Unassigned Expenses Card - Mobile Navigation */}
+      {unassignedCount > 0 && (
+        <Link href="/expenses/unassigned" style={{ marginBottom: '1.5rem', display: 'block' }}>
+          <div className="card md:hidden">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                  View Unassigned Expenses
+                </p>
+                <p style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+                  {unassignedCount} expense{unassignedCount !== 1 ? 's' : ''} need assignment
+                </p>
+              </div>
+              <Icon name="chevron-right" size={12} />
+            </div>
+          </div>
+        </Link>
+      )}
 
       <ExpensesGrid
         expenses={expenses}

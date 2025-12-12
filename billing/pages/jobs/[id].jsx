@@ -345,7 +345,7 @@ export default function JobDetail() {
             <div>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Total Revenue</p>
               <p style={{ fontSize: '1.25rem', fontWeight: '600' }}>
-                {formatMoney(job.total_amount || 0)}
+                {formatMoney(job.amount_paid || 0)}
               </p>
             </div>
             <div>

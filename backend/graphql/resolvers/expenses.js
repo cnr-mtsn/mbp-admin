@@ -433,9 +433,9 @@ export const expenseResolvers = {
       );
 
       const totalExpenses = parseFloat(expensesResult.rows[0].total_expenses);
-      const totalAmount = parseFloat(parent.total_amount || 0);
+      const amountPaid = parseFloat(parent.amount_paid || 0);
 
-      return totalAmount - totalExpenses;
+      return amountPaid - totalExpenses;
     },
   },
 };

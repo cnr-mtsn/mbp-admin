@@ -57,7 +57,19 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="card" style={{ padding: '1.5rem' }}>
+        <Link
+          href="/invoices?status=sent,overdue"
+          className="card"
+          style={{ padding: '1.5rem', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
             <Icon name="clock" size={5} />
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Outstanding</p>
@@ -68,9 +80,21 @@ export default function Dashboard() {
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
             {analytics.open_invoices_count} open invoice{analytics.open_invoices_count !== 1 ? 's' : ''}
           </p>
-        </div>
+        </Link>
 
-        <div className="card" style={{ padding: '1.5rem' }}>
+        <Link
+          href="/invoices?status=overdue"
+          className="card"
+          style={{ padding: '1.5rem', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
             <Icon name="alert-circle" size={5} />
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Overdue</p>
@@ -81,9 +105,21 @@ export default function Dashboard() {
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
             {analytics.overdue_invoices_count} overdue invoice{analytics.overdue_invoices_count !== 1 ? 's' : ''}
           </p>
-        </div>
+        </Link>
 
-        <div className="card" style={{ padding: '1.5rem' }}>
+        <Link
+          href="/jobs?status=in_progress"
+          className="card"
+          style={{ padding: '1.5rem', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
             <Icon name="briefcase" size={5} />
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Active Jobs</p>
@@ -94,7 +130,7 @@ export default function Dashboard() {
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
             {analytics.pending_jobs_count} pending
           </p>
-        </div>
+        </Link>
       </div>
 
       {/* Recent Activity Sections */}

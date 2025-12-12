@@ -3,14 +3,17 @@ import styles from '../../styles/pages.module.css';
 import { useState } from "react"
 import Loading from "../ui/Loading"
 
-export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, loading = false }) {
+export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, loading = false, initialFilter = 'all' }) {
 
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState(initialFilter);
 
-    // Filter invoices based on status
+    // Filter invoices based on status (supports comma-separated values)
     const filteredInvoices = statusFilter === 'all'
         ? invoices
-        : invoices.filter(invoice => invoice.status === statusFilter);
+        : invoices.filter(invoice => {
+            const statuses = statusFilter.split(',').map(s => s.trim());
+            return statuses.includes(invoice.status);
+          });
 
     const filters = ['all', 'paid', 'sent', 'draft', 'overdue']
     return (

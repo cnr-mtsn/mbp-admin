@@ -74,7 +74,7 @@
 /* Card item footer */
 .itemFooter {
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: space-between;
   padding-top: 0.75rem;
   border-top: 1px solid var(--border-color);

@@ -2,9 +2,9 @@ import JobCard from "./JobCard"
 import styles from '../../styles/pages.module.css';
 import { useState, useMemo } from "react"
 
-export default function JobsGrid({ jobs, showFilters = true, showSort = true, onLoadMore, hasMore = false, loading = false }) {
+export default function JobsGrid({ jobs, showFilters = true, showSort = true, onLoadMore, hasMore = false, loading = false, initialStatusFilter = 'all' }) {
 
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
     const [paymentScheduleFilter, setPaymentScheduleFilter] = useState('all');
     const [sortKey, setSortKey] = useState('status');
 

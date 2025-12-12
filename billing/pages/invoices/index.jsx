@@ -26,6 +26,9 @@ export default function Invoices() {
 
   const INVOICES_PER_PAGE = 20
 
+  // Get initial filter from query params
+  const initialFilter = router.query.status || 'all';
+
   const { data, loading, error, fetchMore } = useQuery(GET_INVOICES, {
     variables: {
       first: INVOICES_PER_PAGE,
@@ -112,6 +115,7 @@ export default function Invoices() {
         onLoadMore={handleLoadMore}
         hasMore={hasMore}
         loading={loadingMore}
+        initialFilter={initialFilter}
       />
     </div>
   );

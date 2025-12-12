@@ -48,6 +48,9 @@ export default function Jobs() {
   const [allJobs, setAllJobs] = useState([]);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  // Get initial status filter from query params
+  const initialStatusFilter = router.query.status || 'all';
+
   const { data, loading, error, fetchMore } = useQuery(GET_JOBS, {
     variables: {
       sortKey: 'status',
@@ -156,6 +159,7 @@ export default function Jobs() {
         onLoadMore={handleLoadMore}
         hasMore={hasMore}
         loading={loadingMore}
+        initialStatusFilter={initialStatusFilter}
       />
     </div>
   );

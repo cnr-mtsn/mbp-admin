@@ -76,13 +76,24 @@ export default function Expenses() {
           <p className={styles.pageLabel}>Job Expenses</p>
           <h2 className={styles.pageTitle}>All Expenses</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           {unassignedCount > 0 && (
-            <Link href="/expenses/unassigned" className="btn-secondary">
+            <Link href="/expenses/unassigned" className="btn-secondary hidden md:inline-flex">
               Unassigned ({unassignedCount})
             </Link>
           )}
-          <Link href="/expenses/new" className="btn-primary">
+          <Link
+            href="/expenses/new"
+            className="btn-primary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: '2.5rem',
+              minHeight: '2.5rem',
+              padding: '0.5rem'
+            }}
+          >
             <Icon name="add" size={10} />
           </Link>
           <BackButton href="/" classes="btn-secondary" title="Back to Dashboard" />

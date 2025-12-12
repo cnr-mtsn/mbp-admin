@@ -36,7 +36,7 @@ export default function InvoiceCard({ invoice }) {
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Invoice</p>
                         <h4 className={cardStyles.itemTitle}>{invoice.title}</h4>
-                        <h4 className={cardStyles.itemSubtitle}>{invoice.customer.name}</h4>
+                        <h4 className={cardStyles.itemSubtitle}>{invoice.customer?.name || 'No customer'}</h4>
                     </div>
                     <div className={cardStyles.itemTags}>
                         <span className={`pill ${invoiceClass}`}>{formatStatus(invoice.status)}</span>

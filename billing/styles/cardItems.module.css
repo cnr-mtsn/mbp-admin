@@ -32,6 +32,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.itemSubtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+  line-height: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+}
 
 .itemDescription {
   color: var(--color-gray-500);
@@ -42,19 +54,13 @@
 
 /* Card item tags/pills section */
 .itemTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  @apply flex flex-col gap-1;
   font-size: 0.875rem;
   margin-bottom: 0.75rem;
 }
 
 .itemTag {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
+  @apply bg-gray-700 text-gray-200 text-sm w-max rounded-full px-2 py-0.5;
 }
 
 /* Contact info section */

@@ -7,6 +7,28 @@ export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, lo
 
     const [statusFilter, setStatusFilter] = useState(initialFilter);
 
+    // Toggle a filter on/off (for multi-select)
+    const toggleFilter = (filter) => {
+        if (filter === 'all') {
+            setStatusFilter('all');
+        } else {
+            if (statusFilter === 'all') {
+                // If "all" is selected, replace with just this filter
+                setStatusFilter(filter);
+            } else {
+                const currentFilters = statusFilter.split(',').map(s => s.trim());
+                if (currentFilters.includes(filter)) {
+                    // Remove this filter
+                    const newFilters = currentFilters.filter(f => f !== filter);
+                    setStatusFilter(newFilters.length > 0 ? newFilters.join(',') : 'all');
+                } else {
+                    // Add this filter
+                    setStatusFilter([...currentFilters, filter].join(','));
+                }
+            }
+        }
+    };
+
     // Filter invoices based on status (supports comma-separated values)
     const filteredInvoices = statusFilter === 'all'
         ? invoices
@@ -21,11 +43,15 @@ export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, lo
             <div className="flex flex-wrap gap-3 mb-6">
                 {filters.map(filter => {
                     const count = filter === "all" ? invoices.length : (invoices.filter(i => i.status === filter)?.length || 0)
-                    const classes = `capitalize ${statusFilter === filter ? 'btn-primary' : 'btn-secondary'}`
+                    // Check if this filter is active (supports comma-separated values)
+                    const isActive = statusFilter === 'all'
+                        ? filter === 'all'
+                        : statusFilter.split(',').map(s => s.trim()).includes(filter);
+                    const classes = `capitalize ${isActive ? 'btn-primary' : 'btn-secondary'}`
                     const displayText = `${filter} (${count})`
                     return (
                         <button
-                            onClick={() => setStatusFilter(filter)}
+                            onClick={() => toggleFilter(filter)}
                             className={classes}
                             key={`filter-${filter}`}
                         >

@@ -33,6 +33,7 @@ export default function JobCard({ job }) {
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Job</p>
                         <h4 className={cardStyles.itemTitle}>{job.title}</h4>
+                        <h4 className={cardStyles.itemSubTitle}>{job.customer?.name || "Unassigned"}</h4>
                         <p className={cardStyles.itemDescription}>
                             {job.description || 'No description provided.'}
                         </p>
@@ -41,9 +42,7 @@ export default function JobCard({ job }) {
                 </div>
 
                 <div className={cardStyles.itemTags}>
-                    <span className={cardStyles.itemTag}>
-                        {job.customer?.name || 'Unassigned customer'}
-                    </span>
+                    
                     <span className={cardStyles.itemTag}>
                         {job.payment_schedule || 'Schedule TBD'}
                     </span>

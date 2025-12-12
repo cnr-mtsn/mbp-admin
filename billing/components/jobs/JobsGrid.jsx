@@ -8,16 +8,56 @@ export default function JobsGrid({ jobs, showFilters = true, showSort = true, on
     const [paymentScheduleFilter, setPaymentScheduleFilter] = useState('all');
     const [sortKey, setSortKey] = useState('status');
 
+    // Toggle a status filter on/off (for multi-select)
+    const toggleStatusFilter = (filter) => {
+        if (filter === 'all') {
+            setStatusFilter('all');
+        } else {
+            if (statusFilter === 'all') {
+                setStatusFilter(filter);
+            } else {
+                const currentFilters = statusFilter.split(',').map(s => s.trim());
+                if (currentFilters.includes(filter)) {
+                    const newFilters = currentFilters.filter(f => f !== filter);
+                    setStatusFilter(newFilters.length > 0 ? newFilters.join(',') : 'all');
+                } else {
+                    setStatusFilter([...currentFilters, filter].join(','));
+                }
+            }
+        }
+    };
+
+    // Toggle a payment schedule filter on/off (for multi-select)
+    const togglePaymentScheduleFilter = (filter) => {
+        if (filter === 'all') {
+            setPaymentScheduleFilter('all');
+        } else {
+            if (paymentScheduleFilter === 'all') {
+                setPaymentScheduleFilter(filter);
+            } else {
+                const currentFilters = paymentScheduleFilter.split(',').map(s => s.trim());
+                if (currentFilters.includes(filter)) {
+                    const newFilters = currentFilters.filter(f => f !== filter);
+                    setPaymentScheduleFilter(newFilters.length > 0 ? newFilters.join(',') : 'all');
+                } else {
+                    setPaymentScheduleFilter([...currentFilters, filter].join(','));
+                }
+            }
+        }
+    };
+
     // Filter jobs based on status and payment schedule
     const filteredJobs = useMemo(() => {
         let filtered = jobs;
 
         if (statusFilter !== 'all') {
-            filtered = filtered.filter(job => job.status === statusFilter);
+            const statuses = statusFilter.split(',').map(s => s.trim());
+            filtered = filtered.filter(job => statuses.includes(job.status));
         }
 
         if (paymentScheduleFilter !== 'all') {
-            filtered = filtered.filter(job => job.payment_schedule === paymentScheduleFilter);
+            const schedules = paymentScheduleFilter.split(',').map(s => s.trim());
+            filtered = filtered.filter(job => schedules.includes(job.payment_schedule));
         }
 
         return filtered;
@@ -66,13 +106,17 @@ export default function JobsGrid({ jobs, showFilters = true, showSort = true, on
                             const count = filter === "all"
                                 ? jobs.length
                                 : (jobs.filter(j => j.status === filter)?.length || 0);
-                            const classes = `capitalize ${statusFilter === filter ? 'btn-primary' : 'btn-secondary'}`;
+                            // Check if this filter is active (supports comma-separated values)
+                            const isActive = statusFilter === 'all'
+                                ? filter === 'all'
+                                : statusFilter.split(',').map(s => s.trim()).includes(filter);
+                            const classes = `capitalize ${isActive ? 'btn-primary' : 'btn-secondary'}`;
                             const displayText = filter === 'all'
                                 ? `All Jobs (${count})`
                                 : `${filter.replace('_', ' ')} (${count})`;
                             return (
                                 <button
-                                    onClick={() => setStatusFilter(filter)}
+                                    onClick={() => toggleStatusFilter(filter)}
                                     className={classes}
                                     key={`status-filter-${filter}`}
                                 >
@@ -88,13 +132,17 @@ export default function JobsGrid({ jobs, showFilters = true, showSort = true, on
                             const count = filter === "all"
                                 ? jobs.length
                                 : (jobs.filter(j => j.payment_schedule === filter)?.length || 0);
-                            const classes = `${paymentScheduleFilter === filter ? 'btn-primary' : 'btn-secondary'}`;
+                            // Check if this filter is active (supports comma-separated values)
+                            const isActive = paymentScheduleFilter === 'all'
+                                ? filter === 'all'
+                                : paymentScheduleFilter.split(',').map(s => s.trim()).includes(filter);
+                            const classes = `${isActive ? 'btn-primary' : 'btn-secondary'}`;
                             const displayText = filter === 'all'
                                 ? `All Schedules (${count})`
                                 : `${filter} (${count})`;
                             return (
                                 <button
-                                    onClick={() => setPaymentScheduleFilter(filter)}
+                                    onClick={() => togglePaymentScheduleFilter(filter)}
                                     className={classes}
                                     key={`schedule-filter-${filter}`}
                                 >

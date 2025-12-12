@@ -2,11 +2,24 @@ import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/clien
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 
+// Custom fetch with timeout
+const fetchWithTimeout = (uri, options) => {
+  const timeout = 30000; // 30 seconds
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  return fetch(uri, {
+    ...options,
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeoutId));
+};
+
 // GraphQL endpoint
 const httpLink = createHttpLink({
   uri: process.env.NODE_ENV === 'production'
     ? process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_GRAPHQL_URL
     : 'http://localhost:4000/graphql',
+  fetch: fetchWithTimeout,
 });
 
 // Auth link - inject JWT token

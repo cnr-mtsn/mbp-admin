@@ -22,16 +22,16 @@ export default function ExpenseCard({ expense, compact = false }) {
               {expense.expense_type === 'labor' ? 'Labor' : 'Materials'}
             </p>
             <h4 className={cardStyles.itemTitle}>
-              {expense.vendor || 'Manual Expense'}
+              PO: {expense.po_number || 'N/A'}
             </h4>
             {expense.invoice_number && (
               <p className={cardStyles.itemDescription}>
                 Invoice #{expense.invoice_number}
               </p>
             )}
-            {expense.po_number && !compact && (
+            {expense.vendor && !compact && (
               <p className={cardStyles.itemDescription}>
-                PO: {expense.po_number}
+                {expense.vendor}
               </p>
             )}
           </div>

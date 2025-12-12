@@ -33,19 +33,19 @@ export default function JobCard({ job }) {
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Job</p>
                         <h4 className={cardStyles.itemTitle}>{job.title}</h4>
-                        <h4 className={cardStyles.itemSubTitle}>{job.customer?.name || "Unassigned"}</h4>
-                        <p className={cardStyles.itemDescription}>
+                        <h4 className={cardStyles.itemSubtitle}>{job.customer?.name || "Unassigned"}</h4>
+                        <p title={job.description} className={cardStyles.itemDescription}>
                             {job.description || 'No description provided.'}
                         </p>
                     </div>
-                    <span className={`pill ${statusClass}`}>{formatStatus(job.status) || 'pending'}</span>
-                </div>
-
-                <div className={cardStyles.itemTags}>
-                    
-                    <span className={cardStyles.itemTag}>
-                        {job.payment_schedule || 'Schedule TBD'}
-                    </span>
+                    <div className={cardStyles.itemTags}>
+                        <span className={`pill ${statusClass}`}>{formatStatus(job.status) || 'pending'}</span>
+                        {job.payment_schedule !== "100" && (
+                            <span className={cardStyles.itemTag}>
+                                {job.payment_schedule || 'Schedule TBD'}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>

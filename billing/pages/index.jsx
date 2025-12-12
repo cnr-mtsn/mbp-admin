@@ -141,7 +141,7 @@ export default function Dashboard() {
           <div className="card" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Active Jobs</h3>
-              <Link href="/jobs" style={{ fontSize: '0.875rem', color: 'var(--primary)' }}>
+              <Link href="/jobs?status=in_progress" style={{ fontSize: '0.875rem', color: 'var(--primary)' }}>
                 View all →
               </Link>
             </div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
                 Overdue Invoices
               </h3>
-              <Link href="/invoices" style={{ fontSize: '0.875rem', color: 'var(--primary)' }}>
+              <Link href="/invoices?status=overdue" style={{ fontSize: '0.875rem', color: 'var(--primary)' }}>
                 View all →
               </Link>
             </div>

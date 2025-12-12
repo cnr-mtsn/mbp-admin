@@ -36,9 +36,16 @@ export default function InvoiceCard({ invoice }) {
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Invoice</p>
                         <h4 className={cardStyles.itemTitle}>{invoice.title}</h4>
-                        <p className={cardStyles.itemDescription}>{invoice.payment_stage || 'Payment stage'}</p>
+                        <h4 className={cardStyles.itemSubtitle}>{invoice.customer.name}</h4>
                     </div>
-                    <span className={`pill ${invoiceClass}`}>{formatStatus(invoice.status)}</span>
+                    <div className={cardStyles.itemTags}>
+                        <span className={`pill ${invoiceClass}`}>{formatStatus(invoice.status)}</span>
+                        {invoice.payment_stage && (
+                            <span style={{ backgroundColor: 'rgba(150, 150, 255, 0.5)', fontSize: ".7rem" }} className={cardStyles.itemTag}>
+                                {invoice.payment_stage === "start" ? "1/3" : invoice.payment_stage === "completion" ? "2/3" : invoice.payment_stage === "touchup" ? "3/3" : 'Payment stage TBD'}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>

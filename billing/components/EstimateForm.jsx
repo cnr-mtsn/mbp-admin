@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_CUSTOMERS } from '../lib/graphql/queries';
-import { formatMoney } from '../lib/utils/helpers';
+import { formatCustomerName, formatMoney } from '../lib/utils/helpers';
 import styles from '../styles/pages.module.css';
 import Icon from './ui/Icon'
 
@@ -103,7 +103,7 @@ export default function EstimateForm({ initialData, onSubmit, onCancel, submitLa
             <option value="">Select a customer</option>
             {customers.map(customer => (
               <option key={customer.id} value={customer.id}>
-                {customer.name}
+                {formatCustomerName(customer)}
               </option>
             ))}
           </select>

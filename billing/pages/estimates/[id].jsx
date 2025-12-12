@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ESTIMATE } from '../../lib/graphql/queries';
 import { ACCEPT_ESTIMATE } from '../../lib/graphql/mutations';
-import { formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
+import { formatCustomerName, formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import { extractUuid } from '../../lib/utils/gid';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -138,7 +138,7 @@ export default function EstimateDetail() {
           <dl className={cardStyles.detailList}>
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Name</dt>
-              <dd className={cardStyles.detailValue}>{estimate.customer?.name}</dd>
+              <dd className={cardStyles.detailValue}>{formatCustomerName(estimate.customer)}</dd>
             </div>
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Email</dt>

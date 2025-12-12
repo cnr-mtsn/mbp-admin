@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useMutation } from '@apollo/client';
 import { CREATE_EXPENSE } from '../../lib/graphql/mutations';
-import { extractUuid } from '../../lib/utils/gid';
+import { extractUuid, toGid } from '../../lib/utils/gid';
 import styles from '../../styles/pages.module.css';
 import BackButton from '../../components/ui/BackButton';
 import ExpenseForm from '../../components/expense/ExpenseForm';
@@ -9,6 +9,10 @@ import ExpenseForm from '../../components/expense/ExpenseForm';
 export default function NewExpense() {
   const router = useRouter();
   const [createExpense, { loading }] = useMutation(CREATE_EXPENSE);
+  const { job_id: jobIdQuery } = router.query;
+
+  const initialJobId = typeof jobIdQuery === 'string' ? jobIdQuery : '';
+  const backHref = typeof initialJobId === 'string' ? `/jobs/${initialJobId}` : '/expenses';
 
   const handleSubmit = async (expenseData) => {
     try {
@@ -36,13 +40,14 @@ export default function NewExpense() {
             Create a new expense record for labor or materials
           </p>
         </div>
-        <BackButton href="/expenses" classes="btn-secondary" />
+        <BackButton href={backHref} classes="btn-secondary" />
       </div>
 
       <div className="card">
         <ExpenseForm
+          initialData={{ job_id: toGid("Job", initialJobId) }}
           onSubmit={handleSubmit}
-          onCancel={() => router.push('/expenses')}
+          onCancel={() => router.push(backHref)}
           submitLabel={loading ? 'Creating...' : 'Create Expense'}
         />
       </div>

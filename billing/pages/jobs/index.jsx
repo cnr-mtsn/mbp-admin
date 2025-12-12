@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { GET_JOBS } from '../../lib/graphql/queries';
-import { RESULTS_PER_PAGE } from '../../lib/utils/helpers';
+import { RESULTS_PER_PAGE, formatCustomerName } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import BackButton from '../../components/ui/BackButton'
 import JobsGrid from '../../components/jobs/JobsGrid';
@@ -72,7 +72,7 @@ export default function Jobs() {
     return allJobs.filter(job =>
       job.title?.toLowerCase().includes(searchLower) ||
       job.description?.toLowerCase().includes(searchLower) ||
-      job.customer?.name?.toLowerCase().includes(searchLower)
+      formatCustomerName(job.customer, '').toLowerCase().includes(searchLower)
     );
   }, [allJobs, searchFilter]);
 

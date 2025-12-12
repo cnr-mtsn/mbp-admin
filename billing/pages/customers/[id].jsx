@@ -3,7 +3,7 @@ import { useQuery } from '@apollo/client';
 import { useState } from 'react';
 import { GET_CUSTOMER } from '../../lib/graphql/queries';
 import { toGid } from '../../lib/utils/gid';
-import { formatDate, formatMoney } from '../../lib/utils/helpers';
+import { formatCustomerName, formatDate, formatMoney } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import InvoicesGrid from '../../components/invoice/InvoicesGrid'
@@ -114,7 +114,7 @@ export default function CustomerDetail() {
       <div className={styles.pageHeaderLarge}>
         <div className={styles.pageHeaderContent}>
           <p className={styles.pageLabel}>Customer</p>
-          <h2 className={styles.pageTitle}>{customer.name}</h2>
+          <h2 className={styles.pageTitle}>{formatCustomerName(customer)}</h2>
         </div>
         <BackButton href="/customers" classes="btn-secondary" title="Back to all customers" />
       </div>
@@ -122,10 +122,10 @@ export default function CustomerDetail() {
       <div className={`card ${cardStyles.detailSection}`}>
         <h3 className={cardStyles.detailSectionTitle}>Contact Information</h3>
         <dl className={styles.detailGrid}>
-          <div className={cardStyles.detailItem}>
-            <dt className={cardStyles.detailLabel}>Name</dt>
-            <dd className={cardStyles.detailValue}>{customer.name}</dd>
-          </div>
+            <div className={cardStyles.detailItem}>
+              <dt className={cardStyles.detailLabel}>Name</dt>
+              <dd className={cardStyles.detailValue}>{formatCustomerName(customer)}</dd>
+            </div>
           <div className={cardStyles.detailItem}>
             <dt className={cardStyles.detailLabel}>Email</dt>
             <dd className={cardStyles.detailLink}>

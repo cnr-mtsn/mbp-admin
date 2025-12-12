@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { GET_ESTIMATES } from '../../lib/graphql/queries';
 import { extractUuid } from '../../lib/utils/gid';
-import { formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
+import { formatCustomerName, formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import Icon from '../../components/ui/Icon'
@@ -75,7 +75,7 @@ export default function Estimates() {
 
               <div className={cardStyles.itemTags}>
                 <span className={cardStyles.itemTag}>
-                  {estimate.customer?.name || 'No customer'}
+                  {formatCustomerName(estimate.customer, 'No customer')}
                 </span>
                 <span className={cardStyles.itemTag}>
                   {estimate.customer?.email || 'No email'}

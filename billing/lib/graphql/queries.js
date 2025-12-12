@@ -32,6 +32,7 @@ export const GET_DASHBOARD_ANALYTICS = gql`
         customer {
           id
           name
+          company_name
         }
         status
         total_amount
@@ -44,6 +45,7 @@ export const GET_DASHBOARD_ANALYTICS = gql`
         customer {
           id
           name
+          company_name
         }
         total
         due_date
@@ -56,6 +58,7 @@ export const GET_DASHBOARD_ANALYTICS = gql`
         customer {
           id
           name
+          company_name
         }
         total
         paid_date
@@ -70,6 +73,7 @@ export const GET_CUSTOMERS = gql`
     customers(first: 100, sortKey: $sortKey) {
       id
       name
+      company_name
       email
       phone
       address
@@ -88,6 +92,7 @@ export const GET_CUSTOMER = gql`
     customer(id: $id) {
       id
       name
+      company_name
       email
       phone
       address
@@ -102,6 +107,7 @@ export const GET_CUSTOMER = gql`
         customer {
           id
           name
+          company_name
         }
         title
         description
@@ -118,6 +124,12 @@ export const GET_CUSTOMER = gql`
       invoices(first: $invoicesFirst) {
         id
         customer_id
+        customer {
+          id
+          name
+          company_name
+          email
+        }
         job {
           id
           title
@@ -145,6 +157,7 @@ export const GET_ESTIMATES = gql`
       customer {
         id
         name
+        company_name
         email
       }
       title
@@ -164,6 +177,7 @@ export const GET_ESTIMATE = gql`
       customer {
         id
         name
+        company_name
         email
         phone
         address
@@ -196,6 +210,7 @@ export const GET_JOBS = gql`
       customer {
         id
         name
+        company_name
         phone
       }
       title
@@ -221,6 +236,7 @@ export const GET_JOB = gql`
       customer {
         id
         name
+        company_name
         email
         phone
         address
@@ -316,6 +332,7 @@ export const GET_INVOICES = gql`
       customer {
         id
         name
+        company_name
         email
       }
       job_id
@@ -354,6 +371,7 @@ export const GET_INVOICE = gql`
       customer {
         id
         name
+        company_name
         email
         phone
         address
@@ -422,6 +440,7 @@ export const GET_UNLINKED_INVOICES = gql`
       customer {
         id
         name
+        company_name
       }
       invoice_number
       title
@@ -452,6 +471,7 @@ export const GET_PAYMENT = gql`
       customer {
         id
         name
+        company_name
         email
       }
       payment_method
@@ -479,6 +499,7 @@ export const GET_PAYMENT = gql`
           customer {
             id
             name
+            company_name
           }
         }
       }
@@ -531,6 +552,7 @@ export const GET_EXPENSE = gql`
         customer {
           id
           name
+          company_name
         }
       }
       expense_type

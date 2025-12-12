@@ -6,7 +6,6 @@ import Loading from "../ui/Loading"
 export default function InvoicesGrid({ invoices, onLoadMore, hasMore = false, loading = false, initialFilter = 'all' }) {
 
     const [statusFilter, setStatusFilter] = useState(initialFilter);
-
     // Toggle a filter on/off (for multi-select)
     const toggleFilter = (filter) => {
         if (filter === 'all') {

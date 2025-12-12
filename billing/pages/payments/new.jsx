@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_CUSTOMERS } from '../../lib/graphql/queries';
 import { gql } from '@apollo/client';
-import { formatMoney } from '../../lib/utils/helpers';
+import { formatCustomerName, formatMoney } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import paymentStyles from '../../styles/payments.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -25,6 +25,7 @@ const GET_CUSTOMER_UNPAID_INVOICES = gql`
     customer(id: $id) {
       id
       name
+      company_name
       invoices(first: 100) {
         id
         title
@@ -189,7 +190,7 @@ export default function RecordPayment() {
                 <option value="">Select a customer...</option>
                 {customers.map(customer => (
                   <option key={customer.id} value={customer.id}>
-                    {customer.name}
+                    {formatCustomerName(customer)}
                   </option>
                 ))}
               </select>

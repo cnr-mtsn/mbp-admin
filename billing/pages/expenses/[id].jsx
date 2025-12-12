@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_EXPENSE, GET_JOBS } from '../../lib/graphql/queries';
 import { UPDATE_EXPENSE, ASSIGN_EXPENSE_TO_JOB, DELETE_EXPENSE } from '../../lib/graphql/mutations';
 import { extractUuid } from '../../lib/utils/gid';
-import { formatDate, formatExpenseDescription, formatMoney, formatStatus } from '../../lib/utils/helpers';
+import { formatCustomerName, formatDate, formatExpenseDescription, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import { toGid } from '../../lib/utils/gid';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -290,7 +290,7 @@ export default function ExpenseDetail() {
               </Link>
               {expense.job.customer && (
                 <p className="muted" style={{ marginTop: '0.5rem' }}>
-                  Customer: {expense.job.customer.name}
+                  Customer: {formatCustomerName(expense.job.customer)}
                 </p>
               )}
             </div>

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { GET_DASHBOARD_ANALYTICS } from '../lib/graphql/queries';
-import { formatMoney, formatDate, formatStatus } from '../lib/utils/helpers';
+import { formatCustomerName, formatMoney, formatDate, formatStatus } from '../lib/utils/helpers';
 import { extractUuid } from '../lib/utils/gid';
 import { useAuthStore } from '../store/authStore';
 import styles from '../styles/pages.module.css';
@@ -166,7 +166,7 @@ export default function Dashboard() {
                       {formatStatus(job.status)}
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{job.customer.name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatCustomerName(job.customer)}</p>
                   {job.total_amount && (
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                       {formatMoney(job.total_amount)}
@@ -211,7 +211,7 @@ export default function Dashboard() {
                       {formatMoney(invoice.total)}
                     </p>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{invoice.customer.name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatCustomerName(invoice.customer)}</p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--status-overdue-text)', marginTop: '0.25rem' }}>
                     Due {formatDate(invoice.due_date)}
                   </p>
@@ -251,7 +251,7 @@ export default function Dashboard() {
                       {formatMoney(payment.total)}
                     </p>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{payment.customer.name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatCustomerName(payment.customer)}</p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                     Paid {formatDate(payment.paid_date)}
                   </p>

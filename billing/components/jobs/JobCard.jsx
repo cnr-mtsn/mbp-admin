@@ -2,7 +2,7 @@ import Link from "next/link"
 import cardStyles from '../../styles/cardItems.module.css'
 import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
-import { formatMoney, formatStatus } from "../../lib/utils/helpers"
+import { formatCustomerName, formatMoney, formatStatus } from "../../lib/utils/helpers"
 
 export default function JobCard({ job }) {
 
@@ -33,7 +33,7 @@ export default function JobCard({ job }) {
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Job</p>
                         <h4 className={cardStyles.itemTitle}>{job.title}</h4>
-                        <h4 className={cardStyles.itemSubtitle}>{job.customer?.name || "Unassigned"}</h4>
+                        <h4 className={cardStyles.itemSubtitle}>{formatCustomerName(job.customer, "Unassigned")}</h4>
                         <p title={job.description} className={cardStyles.itemDescription}>
                             {job.description || 'No description provided.'}
                         </p>

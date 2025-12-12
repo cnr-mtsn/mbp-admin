@@ -2,7 +2,7 @@ import Link from 'next/link'
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import { useState } from 'react'
-import { formatDate } from '../../lib/utils/helpers'
+import { formatCustomerName } from '../../lib/utils/helpers'
 import { extractUuid } from '../../lib/utils/gid'
 import CustomerCard from './CustomerCard'
 
@@ -21,11 +21,15 @@ export default function CustomersGrid({ customers }) {
         )
     }
 
-    const filteredCustomers = !filter ? customers : customers.filter(customer =>
-        customer.name.toLowerCase().includes(filter.toLowerCase()) ||
-        (customer.email && customer.email.toLowerCase().includes(filter.toLowerCase())) ||
-        (customer.phone && customer.phone.toLowerCase().includes(filter.toLowerCase())) 
-    );
+    const filteredCustomers = !filter ? customers : customers.filter(customer => {
+        const normalizedFilter = filter.toLowerCase();
+        const displayName = formatCustomerName(customer, '').toLowerCase();
+        return (
+            displayName.includes(normalizedFilter) ||
+            (customer.email && customer.email.toLowerCase().includes(normalizedFilter)) ||
+            (customer.phone && customer.phone.toLowerCase().includes(normalizedFilter))
+        );
+    });
 
     if(filteredCustomers.length === 0) {
         return (

@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_PAYMENT, GET_JOB, GET_INVOICE, GET_INVOICES } from '../../lib/graphql/queries';
 import { UPDATE_PAYMENT, DELETE_PAYMENT } from '../../lib/graphql/mutations';
 import { toGid, extractUuid } from '../../lib/utils/gid';
-import { formatDate, formatMoney } from '../../lib/utils/helpers';
+import { formatCustomerName, formatDate, formatMoney } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import paymentStyles from '../../styles/payments.module.css';
@@ -169,6 +169,7 @@ export default function PaymentDetail() {
     return sum + (parseFloat(invoiceLink.amount_applied) || 0);
   }, 0);
   const paymentDateLabel = payment.payment_date ? formatDate(payment.payment_date) : '—';
+  const displayCustomerName = formatCustomerName(payment.customer, 'Customer Payment');
 
   return (
     <div className={styles.pageContainer}>
@@ -176,7 +177,7 @@ export default function PaymentDetail() {
         <div className={styles.pageHeaderContent}>
           <p className={styles.pageLabel}>Payment</p>
           <div className={cardStyles.itemHeader}>
-            <h2 className={styles.pageTitle}>{payment.customer?.name || 'Customer Payment'}</h2>
+            <h2 className={styles.pageTitle}>{displayCustomerName}</h2>
           </div>
           <p className={styles.pageSubtitle}>
             {formatMoney(appliedTotal || payment.total_amount || 0)} &middot; {paymentDateLabel}
@@ -257,7 +258,7 @@ export default function PaymentDetail() {
                 <label className={styles.formLabel}>Customer</label>
                 {payment.customer ? (
                   <Link href={`/customers/${extractUuid(payment.customer.id)}`} className={cardStyles.detailLink}>
-                    {payment.customer.name}
+                    {formatCustomerName(payment.customer)}
                   </Link>
                 ) : (
                   <span className={cardStyles.detailValue}>—</span>

@@ -1,32 +1,95 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_JOBS } from '../../lib/graphql/queries';
-import { formatMoney } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 
 export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLabel = 'Create Expense' }) {
+  const defaultLaborRate = process.env.NEXT_PUBLIC_COST_PER_MAN_HOUR || '';
+
+  const deriveLaborQuantity = (total, rate) => {
+    const totalNum = parseFloat(total);
+    const rateNum = parseFloat(rate);
+
+    if (!Number.isFinite(totalNum) || !Number.isFinite(rateNum) || rateNum <= 0) {
+      return '';
+    }
+
+    const quantity = totalNum / rateNum;
+    return Number.isFinite(quantity) && quantity > 0 ? quantity.toFixed(2) : '';
+  };
+
   const { data: jobsData } = useQuery(GET_JOBS, {
     variables: { first: 100 }
   });
   const jobs = jobsData?.jobs || [];
 
+  const initialExpenseType = initialData?.expense_type || 'labor';
+  const initialRate = initialExpenseType === 'labor' ? (initialData?.rate || defaultLaborRate) : '';
+  const initialTotal = initialData?.total || '';
+
   const [formData, setFormData] = useState({
     job_id: initialData?.job_id || '',
-    expense_type: initialData?.expense_type || 'labor',
+    expense_type: initialExpenseType,
     vendor: initialData?.vendor || '',
     invoice_number: initialData?.invoice_number || '',
     invoice_date: initialData?.invoice_date || '',
     description: initialData?.description || '',
-    total: initialData?.total || '',
+    total: initialTotal,
     notes: initialData?.notes || '',
-    status: initialData?.status || 'pending_review'
+    status: initialData?.status || 'pending_review',
+    quantity: initialExpenseType === 'labor'
+      ? deriveLaborQuantity(initialTotal, initialRate)
+      : '',
+    rate: initialExpenseType === 'labor' ? initialRate : '',
   });
 
   const [errors, setErrors] = useState({});
 
+  const jobIdFromInitial = initialData?.job_id;
+
+  useEffect(() => {
+    if (jobIdFromInitial && jobIdFromInitial !== formData.job_id) {
+      setFormData(prev => ({ ...prev, job_id: jobIdFromInitial }));
+    }
+  }, [jobIdFromInitial, formData.job_id]);
+
+  useEffect(() => {
+    if (formData.expense_type !== 'labor') {
+      return;
+    }
+
+    const qty = parseFloat(formData.quantity);
+    const rate = parseFloat(formData.rate);
+
+    if (!Number.isFinite(qty) || !Number.isFinite(rate) || qty <= 0 || rate <= 0) {
+      return;
+    }
+
+    const calculatedTotal = (qty * rate).toFixed(2);
+
+    if (calculatedTotal !== formData.total) {
+      setFormData(prev => ({ ...prev, total: calculatedTotal }));
+    }
+  }, [formData.expense_type, formData.quantity, formData.rate, formData.total]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+
+      if (name === 'expense_type') {
+        if (value === 'labor') {
+          updated.vendor = '';
+          updated.invoice_number = '';
+          updated.notes = '';
+          if (!prev.rate) {
+            updated.rate = defaultLaborRate;
+          }
+        }
+      }
+
+      return updated;
+    });
 
     // Clear error for this field
     if (errors[name]) {
@@ -45,6 +108,18 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
       newErrors.total = 'Total must be greater than 0';
     }
 
+    if (formData.expense_type === 'labor') {
+      if (!formData.quantity || parseFloat(formData.quantity) <= 0) {
+        newErrors.quantity = 'Hours must be greater than 0';
+      }
+
+      if (!formData.rate) {
+        newErrors.rate = 'Rate is required for labor expenses';
+      } else if (parseFloat(formData.rate) <= 0) {
+        newErrors.rate = 'Rate must be greater than 0';
+      }
+    }
+
     if (formData.expense_type === 'materials' && !formData.vendor) {
       newErrors.vendor = 'Vendor is required for material expenses';
     }
@@ -60,8 +135,10 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
       return;
     }
 
+    const { quantity, rate, ...submitFields } = formData;
+
     const submitData = {
-      ...formData,
+      ...submitFields,
       total: parseFloat(formData.total),
     };
 
@@ -117,38 +194,82 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
         </div>
       </div>
 
-      <div className={styles.formRow}>
-        <div className={styles.formGroup}>
-          <label htmlFor="vendor" className={styles.formLabel}>
-            Vendor {formData.expense_type === 'materials' && <span style={{ color: 'var(--color-danger)' }}>*</span>}
-          </label>
-          <input
-            type="text"
-            id="vendor"
-            name="vendor"
-            value={formData.vendor}
-            onChange={handleChange}
-            className={styles.formInput}
-            placeholder="e.g., Spectrum Paint, ABC Hardware"
-          />
-          {errors.vendor && <span className={styles.formError}>{errors.vendor}</span>}
-        </div>
+      {formData.expense_type !== 'labor' && (
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label htmlFor="vendor" className={styles.formLabel}>
+              Vendor {formData.expense_type === 'materials' && <span style={{ color: 'var(--color-danger)' }}>*</span>}
+            </label>
+            <input
+              type="text"
+              id="vendor"
+              name="vendor"
+              value={formData.vendor}
+              onChange={handleChange}
+              className={styles.formInput}
+              placeholder="e.g., Spectrum Paint, ABC Hardware"
+            />
+            {errors.vendor && <span className={styles.formError}>{errors.vendor}</span>}
+          </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="invoice_number" className={styles.formLabel}>
-            Invoice Number
-          </label>
-          <input
-            type="text"
-            id="invoice_number"
-            name="invoice_number"
-            value={formData.invoice_number}
-            onChange={handleChange}
-            className={styles.formInput}
-            placeholder="e.g., INV-12345"
-          />
+          <div className={styles.formGroup}>
+            <label htmlFor="invoice_number" className={styles.formLabel}>
+              Invoice Number
+            </label>
+            <input
+              type="text"
+              id="invoice_number"
+              name="invoice_number"
+              value={formData.invoice_number}
+              onChange={handleChange}
+              className={styles.formInput}
+              placeholder="e.g., INV-12345"
+            />
+          </div>
         </div>
-      </div>
+      )}
+
+      {formData.expense_type === 'labor' && (
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label htmlFor="quantity" className={styles.formLabel}>
+              Hours <span style={{ color: 'var(--color-danger)' }}>*</span>
+            </label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              className={styles.formInput}
+              placeholder="0"
+              step="0.25"
+              min="0"
+              required={formData.expense_type === 'labor'}
+            />
+            {errors.quantity && <span className={styles.formError}>{errors.quantity}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="rate" className={styles.formLabel}>
+              Rate (per hour) <span style={{ color: 'var(--color-danger)' }}>*</span>
+            </label>
+            <input
+              type="number"
+              id="rate"
+              name="rate"
+              value={formData.rate}
+              onChange={handleChange}
+              className={styles.formInput}
+              placeholder={defaultLaborRate || '0.00'}
+              step="0.01"
+              min="0"
+              required={formData.expense_type === 'labor'}
+            />
+            {errors.rate && <span className={styles.formError}>{errors.rate}</span>}
+          </div>
+        </div>
+      )}
 
       <div className={styles.formRow}>
         <div className={styles.formGroup}>
@@ -179,8 +300,14 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
             placeholder="0.00"
             step="0.01"
             min="0"
+            readOnly={formData.expense_type === 'labor'}
             required
           />
+          {formData.expense_type === 'labor' && (
+            <p className="muted" style={{ marginTop: '0.25rem' }}>
+              Calculated as hours x rate
+            </p>
+          )}
           {errors.total && <span className={styles.formError}>{errors.total}</span>}
         </div>
       </div>
@@ -200,20 +327,22 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
         />
       </div>
 
-      <div className={styles.formGroup}>
-        <label htmlFor="notes" className={styles.formLabel}>
-          Notes
-        </label>
-        <textarea
-          id="notes"
-          name="notes"
-          value={formData.notes}
-          onChange={handleChange}
-          className={styles.formInput}
-          rows="3"
-          placeholder="Additional notes (internal use)"
-        />
-      </div>
+      {formData.expense_type !== 'labor' && (
+        <div className={styles.formGroup}>
+          <label htmlFor="notes" className={styles.formLabel}>
+            Notes
+          </label>
+          <textarea
+            id="notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            className={styles.formInput}
+            rows="3"
+            placeholder="Additional notes (internal use)"
+          />
+        </div>
+      )}
 
       <div className={styles.formActions}>
         <button type="submit" className="btn-primary">

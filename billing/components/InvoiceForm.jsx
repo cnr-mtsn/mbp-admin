@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useLazyQuery } from '@apollo/client';
 import { GET_CUSTOMERS, SEARCH_SERVICES } from '../lib/graphql/queries';
-import { formatMoney } from '../lib/utils/helpers';
+import { formatCustomerName, formatMoney } from '../lib/utils/helpers';
 import styles from '../styles/pages.module.css';
 import Icon from './ui/Icon'
 
@@ -244,7 +244,7 @@ export default function InvoiceForm({ initialData, jobId, onSubmit, onCancel, su
             <option value="">Select a customer</option>
             {customers.map(customer => (
               <option key={customer.id} value={customer.id}>
-                {customer.name}
+                {formatCustomerName(customer)}
               </option>
             ))}
           </select>

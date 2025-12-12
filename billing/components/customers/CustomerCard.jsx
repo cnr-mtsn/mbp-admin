@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { extractUuid } from "../../lib/utils/gid"
-import { formatDate, formatMoney } from "../../lib/utils/helpers"
+import { formatCustomerName, formatDate, formatMoney } from "../../lib/utils/helpers"
 
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
@@ -20,7 +20,7 @@ export default function CustomerCard({ customer }) {
                 <div className={cardStyles.itemHeader}>
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Customer</p>
-                        <h3 className={cardStyles.itemTitle}>{customer.name}</h3>
+                        <h3 className={cardStyles.itemTitle}>{formatCustomerName(customer)}</h3>
                         <p className={cardStyles.itemDescription}>{customer.email || 'No email provided'}</p>
                     </div>
                     <div className="pill-primary">

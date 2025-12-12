@@ -77,3 +77,12 @@ export const formatExpenseDescription = description => {
   if(description?.includes("I 0 ")) return description.replaceAll("I 0 ", ""); 
   return description;
 }
+
+export const formatCustomerName = (customer, fallback = 'No customer') => {
+  if (!customer) return fallback;
+  const companyName = typeof customer.company_name === 'string' ? customer.company_name.trim() : '';
+  if (companyName) return companyName;
+
+  const name = typeof customer.name === 'string' ? customer.name.trim() : '';
+  return name || fallback;
+};

@@ -3,13 +3,14 @@ import { useRouter } from "next/router"
 import cardStyles from '../../styles/cardItems.module.css'
 import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
-import { formatDate, formatMoney, formatStatus } from "../../lib/utils/helpers"
+import { formatCustomerName, formatDate, formatMoney, formatStatus } from "../../lib/utils/helpers"
 
 
 
 export default function InvoiceCard({ invoice }) {
     const router = useRouter();
 
+    const displayCustomerName = formatCustomerName(invoice.customer, 'No customer');
     const invoiceStatusStyles = {
       paid: styles.statusPaid,
       sent: styles.statusSent,
@@ -36,7 +37,7 @@ export default function InvoiceCard({ invoice }) {
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Invoice</p>
                         <h4 className={cardStyles.itemTitle}>{invoice.title}</h4>
-                        <h4 className={cardStyles.itemSubtitle}>{invoice.customer?.name || 'No customer'}</h4>
+                        <h4 className={cardStyles.itemSubtitle}>{displayCustomerName}</h4>
                     </div>
                     <div className={cardStyles.itemTags}>
                         <span className={`pill ${invoiceClass}`}>{formatStatus(invoice.status)}</span>

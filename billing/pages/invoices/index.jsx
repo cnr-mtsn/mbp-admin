@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { GET_INVOICES } from '../../lib/graphql/queries';
 import { extractUuid } from '../../lib/utils/gid';
-import { formatDate, formatMoney } from '../../lib/utils/helpers';
+import { formatDate, formatMoney, RESULTS_PER_PAGE } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import InvoicesGrid from '../../components/invoice/InvoicesGrid'
@@ -24,14 +24,12 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const INVOICES_PER_PAGE = 20
-
   // Get initial filter from query params
   const initialFilter = router.query.status || 'all';
 
   const { data, loading, error, fetchMore } = useQuery(GET_INVOICES, {
     variables: {
-      first: INVOICES_PER_PAGE,
+      first: RESULTS_PER_PAGE.invoices,
       offset: 0,
     },
     notifyOnNetworkStatusChange: false,
@@ -45,7 +43,7 @@ export default function Invoices() {
     try {
       const result = await fetchMore({
         variables: {
-          first: INVOICES_PER_PAGE,
+          first: RESULTS_PER_PAGE.invoices,
           offset: invoices.length,
         },
       });
@@ -80,8 +78,8 @@ export default function Invoices() {
     .filter(invoice => invoice.status === 'sent')
     .reduce((sum, invoice) => sum + (parseFloat(invoice.total) || 0), 0);
 
-  // Determine if there are more items to load - check if we got exactly INVOICES_PER_PAGE items in the last fetch
-  const hasMore = (data?.invoices?.length === INVOICES_PER_PAGE || invoices.length % INVOICES_PER_PAGE === 0) && invoices.length > 0;
+  // Determine if there are more items to load - check if we got exactly RESULTS_PER_PAGE.invoices items in the last fetch
+  const hasMore = (data?.invoices?.length === RESULTS_PER_PAGE.invoices || invoices.length % RESULTS_PER_PAGE.invoices === 0) && invoices.length > 0;
 
   return (
     <div className={styles.pageContainer}>

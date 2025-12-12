@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { GET_JOBS } from '../../lib/graphql/queries';
+import { RESULTS_PER_PAGE } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import BackButton from '../../components/ui/BackButton'
 import JobsGrid from '../../components/jobs/JobsGrid';
@@ -54,7 +55,7 @@ export default function Jobs() {
   const { data, loading, error, fetchMore } = useQuery(GET_JOBS, {
     variables: {
       sortKey: 'status',
-      first: 10,
+      first: RESULTS_PER_PAGE.jobs,
       offset: 0,
     },
     notifyOnNetworkStatusChange: false,
@@ -80,7 +81,7 @@ export default function Jobs() {
     try {
       const result = await fetchMore({
         variables: {
-          first: 10,
+          first: RESULTS_PER_PAGE.jobs,
           offset: allJobs.length,
         },
       });
@@ -117,8 +118,8 @@ export default function Jobs() {
     );
   }
 
-  // Determine if there are more items to load - check if we got exactly 10 items in the last fetch
-  const hasMore = (data?.jobs?.length === 10 || allJobs.length % 10 === 0) && !searchFilter && allJobs.length > 0;
+  // Determine if there are more items to load - check if we got exactly RESULTS_PER_PAGE.jobs items in the last fetch
+  const hasMore = (data?.jobs?.length === RESULTS_PER_PAGE.jobs || allJobs.length % RESULTS_PER_PAGE.jobs === 0) && !searchFilter && allJobs.length > 0;
 
   return (
     <div className={styles.pageContainer}>

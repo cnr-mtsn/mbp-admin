@@ -389,8 +389,10 @@ export default function InvoiceDetail() {
         className={styles.invoiceDialog}
       >
         <div className={`card ${styles.dialogContent}`}>
-          <h3 className={cardStyles.detailSectionTitle}>Edit Invoice</h3>
-
+          <h3 className={styles.modalHeader}>Edit Invoice</h3>
+          <button onClick={() => setShowEditModal(false)} className={styles.modalClose}>
+              <Icon name="close" size={10} />
+            </button>
           {updateError && (
             <div style={{
               padding: '1rem',

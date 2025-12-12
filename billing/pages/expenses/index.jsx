@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { GET_EXPENSES } from '../../lib/graphql/queries';
-import { formatMoney } from '../../lib/utils/helpers';
+import { formatMoney, RESULTS_PER_PAGE } from '../../lib/utils/helpers';
 import styles from '../../styles/pages.module.css';
 import ExpensesGrid from '../../components/expense/ExpensesGrid';
 import BackButton from '../../components/ui/BackButton';
@@ -15,11 +15,9 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const EXPENSES_PER_PAGE = 100;
-
   const { data, loading, error, fetchMore } = useQuery(GET_EXPENSES, {
     variables: {
-      first: EXPENSES_PER_PAGE,
+      first: RESULTS_PER_PAGE.expenses,
       offset: 0,
     },
     notifyOnNetworkStatusChange: false,
@@ -33,7 +31,7 @@ export default function Expenses() {
     try {
       const result = await fetchMore({
         variables: {
-          first: EXPENSES_PER_PAGE,
+          first: RESULTS_PER_PAGE.expenses,
           offset: expenses.length,
         },
       });
@@ -69,7 +67,7 @@ export default function Expenses() {
   const unassignedCount = expenses.filter(e => !e.job_id).length;
 
   // Determine if there are more items to load
-  const hasMore = (data?.expenses?.length === EXPENSES_PER_PAGE || expenses.length % EXPENSES_PER_PAGE === 0) && expenses.length > 0;
+  const hasMore = (data?.expenses?.length === RESULTS_PER_PAGE.expenses || expenses.length % RESULTS_PER_PAGE.expenses === 0) && expenses.length > 0;
 
   return (
     <div className={styles.pageContainer}>

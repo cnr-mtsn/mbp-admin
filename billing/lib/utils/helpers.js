@@ -64,3 +64,9 @@ export const formatStatus = (status) => {
   if (!status) return '';
   return status.replace(/_/g, ' ');
 };
+
+export const RESULTS_PER_PAGE = {
+  invoices: parseInt(process.env.NEXT_PUBLIC_INVOICES_PER_PAGE) || 25,
+  jobs: parseInt(process.env.NEXT_PUBLIC_JOBS_PER_PAGE) || 25,
+  expenses: parseInt(process.env.NEXT_PUBLIC_EXPENSES_PER_PAGE) || 100
+}

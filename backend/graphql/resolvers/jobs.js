@@ -2,6 +2,7 @@ import { query } from '../../config/database.js';
 import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
 import { extractUuid } from '../../utils/gid.js';
 import { fetchPaymentsWithInvoices } from './payments.js';
+import { cachedResolver, invalidateCache, generateListTags } from '../../utils/cachedResolver.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -11,134 +12,165 @@ const requireAuth = (user) => {
 
 export const jobResolvers = {
   Query: {
-    jobs: async (_, { filters, sortKey = 'created_at', first, offset }, { user }) => {
-      requireAuth(user);
+    jobs: cachedResolver(
+      async (_, { filters, sortKey = 'created_at', first, offset }, { user }) => {
+        requireAuth(user);
 
-      // Build WHERE clause based on filters
-      const whereClauses = [];
-      const queryParams = [];
-      let paramCount = 0;
+        // Build WHERE clause based on filters
+        const whereClauses = [];
+        const queryParams = [];
+        let paramCount = 0;
 
-      if (filters?.status) {
-        paramCount++;
-        whereClauses.push(`j.status = $${paramCount}`);
-        queryParams.push(filters.status);
+        if (filters?.status) {
+          paramCount++;
+          whereClauses.push(`j.status = $${paramCount}`);
+          queryParams.push(filters.status);
+        }
+
+        if (filters?.customer_id) {
+          paramCount++;
+          const customerHexPrefix = extractUuid(filters.customer_id);
+          whereClauses.push(`REPLACE(j.customer_id::text, '-', '') LIKE $${paramCount}`);
+          queryParams.push(`${customerHexPrefix}%`);
+        }
+
+        if (filters?.payment_schedule) {
+          paramCount++;
+          whereClauses.push(`j.payment_schedule = $${paramCount}`);
+          queryParams.push(filters.payment_schedule);
+        }
+
+        if (filters?.search) {
+          paramCount++;
+          whereClauses.push(`(j.title ILIKE $${paramCount} OR j.description ILIKE $${paramCount})`);
+          queryParams.push(`%${filters.search}%`);
+        }
+
+        const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // Build ORDER BY clause based on sortKey
+        let orderBy;
+        switch (sortKey) {
+          case 'title':
+            orderBy = 'j.title ASC';
+            break;
+          case 'customer':
+            orderBy = 'j.customer_id ASC';
+            break;
+          case 'total_amount':
+            orderBy = 'j.total_amount DESC NULLS LAST';
+            break;
+          case 'status':
+            orderBy = `CASE j.status
+                        WHEN 'in_progress' THEN 1
+                        WHEN 'pending' THEN 2
+                        WHEN 'completed' THEN 3
+                        WHEN 'paid' THEN 4
+                        ELSE 5
+                      END, j.created_at DESC`;
+            break;
+          case 'created_at':
+          default:
+            orderBy = 'j.created_at DESC';
+        }
+
+        // Add LIMIT and OFFSET if provided
+        let limitOffsetClause = '';
+        if (first) {
+          paramCount++;
+          limitOffsetClause += `LIMIT $${paramCount}`;
+          queryParams.push(first);
+        }
+        if (offset) {
+          paramCount++;
+          limitOffsetClause += ` OFFSET $${paramCount}`;
+          queryParams.push(offset);
+        }
+
+        const result = await query(
+          `SELECT j.*,
+                  (SELECT COUNT(*) FROM invoices WHERE job_id = j.id) as invoice_count,
+                  (SELECT COUNT(*) FROM invoices WHERE job_id = j.id AND status = 'paid') as paid_count,
+                  (SELECT SUM(total) FROM invoices WHERE job_id = j.id AND status = 'paid') as amount_paid
+           FROM jobs j
+           ${whereClause}
+           ORDER BY ${orderBy}
+           ${limitOffsetClause}`,
+          queryParams
+        );
+        return toGidFormatArray(result.rows, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
+      },
+      {
+        operationName: 'jobs',
+        getTags: (args, result) => generateListTags('job', args.filters, result),
+        ttl: 300000, // 5 minutes
       }
+    ),
 
-      if (filters?.customer_id) {
-        paramCount++;
-        const customerHexPrefix = extractUuid(filters.customer_id);
-        whereClauses.push(`REPLACE(j.customer_id::text, '-', '') LIKE $${paramCount}`);
-        queryParams.push(`${customerHexPrefix}%`);
+    job: cachedResolver(
+      async (_, { id }, { user }) => {
+        requireAuth(user);
+        const hexPrefix = extractUuid(id);
+        const result = await query(
+          `SELECT j.*,
+                  (SELECT COUNT(*) FROM invoices WHERE job_id = j.id) as invoice_count,
+                  (SELECT COUNT(*) FROM invoices WHERE job_id = j.id AND status = 'paid') as paid_count,
+                  (SELECT SUM(total) FROM invoices WHERE job_id = j.id AND status = 'paid') as amount_paid
+           FROM jobs j
+           WHERE REPLACE(j.id::text, '-', '') LIKE $1`,
+          [`${hexPrefix}%`]
+        );
+
+        if (result.rows.length === 0) {
+          throw new Error('Job not found');
+        }
+
+        return toGidFormat(result.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
+      },
+      {
+        operationName: 'job',
+        getTags: (args, result) => [
+          `job:${result.id}`,
+          `job:customer:${result.customer_id}`,
+        ],
+        ttl: 300000, // 5 minutes
       }
-
-      if (filters?.payment_schedule) {
-        paramCount++;
-        whereClauses.push(`j.payment_schedule = $${paramCount}`);
-        queryParams.push(filters.payment_schedule);
-      }
-
-      if (filters?.search) {
-        paramCount++;
-        whereClauses.push(`(j.title ILIKE $${paramCount} OR j.description ILIKE $${paramCount})`);
-        queryParams.push(`%${filters.search}%`);
-      }
-
-      const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-      // Build ORDER BY clause based on sortKey
-      let orderBy;
-      switch (sortKey) {
-        case 'title':
-          orderBy = 'j.title ASC';
-          break;
-        case 'customer':
-          orderBy = 'j.customer_id ASC';
-          break;
-        case 'total_amount':
-          orderBy = 'j.total_amount DESC NULLS LAST';
-          break;
-        case 'status':
-          orderBy = `CASE j.status
-                      WHEN 'in_progress' THEN 1
-                      WHEN 'pending' THEN 2
-                      WHEN 'completed' THEN 3
-                      WHEN 'paid' THEN 4
-                      ELSE 5
-                    END, j.created_at DESC`;
-          break;
-        case 'created_at':
-        default:
-          orderBy = 'j.created_at DESC';
-      }
-
-      // Add LIMIT and OFFSET if provided
-      let limitOffsetClause = '';
-      if (first) {
-        paramCount++;
-        limitOffsetClause += `LIMIT $${paramCount}`;
-        queryParams.push(first);
-      }
-      if (offset) {
-        paramCount++;
-        limitOffsetClause += ` OFFSET $${paramCount}`;
-        queryParams.push(offset);
-      }
-
-      const result = await query(
-        `SELECT j.*,
-                (SELECT COUNT(*) FROM invoices WHERE job_id = j.id) as invoice_count,
-                (SELECT COUNT(*) FROM invoices WHERE job_id = j.id AND status = 'paid') as paid_count,
-                (SELECT SUM(total) FROM invoices WHERE job_id = j.id AND status = 'paid') as amount_paid
-         FROM jobs j
-         ${whereClause}
-         ORDER BY ${orderBy}
-         ${limitOffsetClause}`,
-        queryParams
-      );
-      return toGidFormatArray(result.rows, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
-    },
-
-    job: async (_, { id }, { user }) => {
-      requireAuth(user);
-      const hexPrefix = extractUuid(id);
-      const result = await query(
-        `SELECT j.*,
-                (SELECT COUNT(*) FROM invoices WHERE job_id = j.id) as invoice_count,
-                (SELECT COUNT(*) FROM invoices WHERE job_id = j.id AND status = 'paid') as paid_count,
-                (SELECT SUM(total) FROM invoices WHERE job_id = j.id AND status = 'paid') as amount_paid
-         FROM jobs j
-         WHERE REPLACE(j.id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
-      );
-
-      if (result.rows.length === 0) {
-        throw new Error('Job not found');
-      }
-
-      return toGidFormat(result.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
-    },
+    ),
   },
 
   Job: {
-    customer: async (parent) => {
-      const hexPrefix = extractUuid(parent.customer_id);
-      const result = await query(
-        `SELECT * FROM customers WHERE REPLACE(id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
-      );
-      return toGidFormat(result.rows[0], 'Customer');
-    },
+    customer: cachedResolver(
+      async (parent) => {
+        const hexPrefix = extractUuid(parent.customer_id);
+        const result = await query(
+          `SELECT * FROM customers WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          [`${hexPrefix}%`]
+        );
+        return toGidFormat(result.rows[0], 'Customer');
+      },
+      {
+        operationName: 'Job.customer',
+        getTags: (args, result) => [`customer:${result.id}`],
+        ttl: 600000, // 10 minutes
+      }
+    ),
 
-    estimate: async (parent) => {
-      if (!parent.estimate_id) return null;
-      const hexPrefix = extractUuid(parent.estimate_id);
-      const result = await query(
-        `SELECT * FROM estimates WHERE REPLACE(id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
-      );
-      return toGidFormat(result.rows[0], 'Estimate', { foreignKeys: ['customer_id'] });
-    },
+    estimate: cachedResolver(
+      async (parent) => {
+        if (!parent.estimate_id) return null;
+        const hexPrefix = extractUuid(parent.estimate_id);
+        const result = await query(
+          `SELECT * FROM estimates WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          [`${hexPrefix}%`]
+        );
+        return toGidFormat(result.rows[0], 'Estimate', { foreignKeys: ['customer_id'] });
+      },
+      {
+        operationName: 'Job.estimate',
+        getTags: (args, result) => result ? [`estimate:${result.id}`] : [],
+        ttl: 300000, // 5 minutes
+      }
+    ),
 
     invoices: async (parent, { sortKey = 'invoice_number' }) => {
       const hexPrefix = extractUuid(parent.id);
@@ -259,6 +291,13 @@ export const jobResolvers = {
       );
 
       const job = result.rows[0];
+
+      // Invalidate cache after creating job
+      invalidateCache([
+        'job:all',
+        `job:customer:${customerUuid}`,
+        'dashboard:analytics',
+      ]);
 
       // Handle invoices: either link existing ones or auto-create new ones
       if (invoice_ids && invoice_ids.length > 0) {
@@ -447,20 +486,49 @@ export const jobResolvers = {
         throw new Error('Job not found');
       }
 
-      return toGidFormat(result.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
+      const updatedJob = result.rows[0];
+
+      // Invalidate cache after updating job
+      const hexId = extractUuid(id);
+      invalidateCache([
+        'job:all',
+        `job:${hexId}`,
+        `job:customer:${existingJob.customer_id}`,
+        ...(updates.customer_id !== existingJob.customer_id ? [`job:customer:${updates.customer_id}`] : []),
+        'dashboard:analytics',
+      ]);
+
+      return toGidFormat(updatedJob, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
     },
 
     deleteJob: async (_, { id }, { user }) => {
       requireAuth(user);
       const hexPrefix = extractUuid(id);
+
+      // Get job before deleting for cache invalidation
+      const jobResult = await query(
+        `SELECT customer_id FROM jobs WHERE REPLACE(id::text, '-', '') LIKE $1`,
+        [`${hexPrefix}%`]
+      );
+
+      if (jobResult.rows.length === 0) {
+        throw new Error('Job not found');
+      }
+
+      const customerId = jobResult.rows[0].customer_id;
+
       const result = await query(
         `DELETE FROM jobs WHERE REPLACE(id::text, '-', '') LIKE $1 RETURNING id`,
         [`${hexPrefix}%`]
       );
 
-      if (result.rows.length === 0) {
-        throw new Error('Job not found');
-      }
+      // Invalidate cache after deleting job
+      invalidateCache([
+        'job:all',
+        `job:${hexPrefix}`,
+        `job:customer:${customerId}`,
+        'dashboard:analytics',
+      ]);
 
       return true;
     },
@@ -580,6 +648,14 @@ export const jobResolvers = {
         [job.id]
       );
 
+      // Invalidate cache after accepting estimate and creating job
+      invalidateCache([
+        'job:all',
+        `job:customer:${estimate.customer_id}`,
+        'invoice:all',
+        'dashboard:analytics',
+      ]);
+
       return toGidFormat(job, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
     },
 
@@ -639,6 +715,17 @@ export const jobResolvers = {
          WHERE j.id = $1`,
         [job.id]
       );
+
+      // Invalidate cache after linking invoices to job
+      const jobHexId = extractUuid(job_id);
+      invalidateCache([
+        'job:all',
+        `job:${jobHexId}`,
+        `job:customer:${job.customer_id}`,
+        'invoice:all',
+        ...invoice_ids.map(inv_id => `invoice:${extractUuid(inv_id)}`),
+        'dashboard:analytics',
+      ]);
 
       return toGidFormat(updatedJobResult.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
     },

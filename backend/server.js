@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { typeDefs } from './graphql/schema/typeDefs.js';
 import { resolvers } from './graphql/resolvers/index.js';
 import { initializeCronJobs } from './services/cronService.js';
+import cache from './utils/cacheManager.js';
 
 dotenv.config();
 
@@ -29,17 +30,18 @@ const server = new ApolloServer({
       },
     },
     // Add artificial delay in development to see loading states
-    {
-      async requestDidStart() {
-        return {
-          async willSendResponse() {
-            if (process.env.NODE_ENV === 'development') {
-              await new Promise(resolve => setTimeout(resolve, 800));
-            }
-          },
-        };
-      },
-    },
+    // Disabled to allow caching performance to be visible
+    // {
+    //   async requestDidStart() {
+    //     return {
+    //       async willSendResponse() {
+    //         if (process.env.NODE_ENV === 'development') {
+    //           await new Promise(resolve => setTimeout(resolve, 800));
+    //         }
+    //       },
+    //     };
+    //   },
+    // },
   ],
 });
 
@@ -110,6 +112,23 @@ app.use(express.json({ limit: '10mb' }));
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Cache statistics endpoint (development only)
+if (process.env.NODE_ENV === 'development') {
+  app.get('/cache/stats', (req, res) => {
+    const stats = cache.getStats();
+    res.json(stats);
+  });
+
+  app.post('/cache/clear', (req, res) => {
+    cache.clear();
+    res.json({ success: true, message: 'Cache cleared successfully' });
+  });
+
+  console.log('🔧 Cache management endpoints enabled:');
+  console.log('   GET  /cache/stats - View cache statistics');
+  console.log('   POST /cache/clear - Clear all cache');
+}
 
 // GraphQL endpoint
 app.use(

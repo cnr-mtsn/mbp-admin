@@ -73,14 +73,80 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 // Create Apollo Client
 const client = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          jobs: {
+            // Merge strategy for paginated queries
+            keyArgs: ['filters', 'sortKey'],
+            merge(existing = [], incoming, { args }) {
+              // If offset is 0, replace the cache (new query)
+              if (!args || args.offset === 0) {
+                return incoming;
+              }
+              // Otherwise, append new results (pagination)
+              return [...existing, ...incoming];
+            },
+          },
+          invoices: {
+            keyArgs: ['filters', 'sortKey'],
+            merge(existing = [], incoming, { args }) {
+              if (!args || args.offset === 0) {
+                return incoming;
+              }
+              return [...existing, ...incoming];
+            },
+          },
+          customers: {
+            keyArgs: ['sortKey'],
+          },
+          expenses: {
+            keyArgs: ['filters', 'sortKey'],
+            merge(existing = [], incoming, { args }) {
+              if (!args || args.offset === 0) {
+                return incoming;
+              }
+              return [...existing, ...incoming];
+            },
+          },
+        },
+      },
+      Job: {
+        keyFields: ['id'],
+        fields: {
+          invoices: {
+            keyArgs: false,
+          },
+        },
+      },
+      Invoice: {
+        keyFields: ['id'],
+      },
+      Customer: {
+        keyFields: ['id'],
+      },
+      Expense: {
+        keyFields: ['id'],
+      },
+      Payment: {
+        keyFields: ['id'],
+      },
+      Estimate: {
+        keyFields: ['id'],
+      },
+      User: {
+        keyFields: ['id'],
+      },
+    },
+  }),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-and-network', // Show cached data immediately, fetch in background
       errorPolicy: 'all',
     },
     query: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-first', // Use cache unless forced refetch
       errorPolicy: 'all',
     },
     mutate: {

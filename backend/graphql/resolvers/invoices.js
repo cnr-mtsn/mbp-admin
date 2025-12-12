@@ -2,6 +2,7 @@ import { query } from '../../config/database.js';
 import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
 import { extractUuid } from '../../utils/gid.js';
 import { fetchPaymentsWithInvoices } from './payments.js';
+import { cachedResolver, invalidateCache, generateListTags } from '../../utils/cachedResolver.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -11,98 +12,150 @@ const requireAuth = (user) => {
 
 export const invoiceResolvers = {
   Query: {
-    invoices: async (_, { first, offset }, { user }) => {
-      requireAuth(user);
+    invoices: cachedResolver(
+      async (_, { first, offset }, { user }) => {
+        requireAuth(user);
 
-      let limitOffsetClause = '';
-      const queryParams = [];
-      let paramCount = 0;
+        let limitOffsetClause = '';
+        const queryParams = [];
+        let paramCount = 0;
 
-      if (first) {
-        paramCount++;
-        limitOffsetClause += `LIMIT $${paramCount}`;
-        queryParams.push(first);
+        if (first) {
+          paramCount++;
+          limitOffsetClause += `LIMIT $${paramCount}`;
+          queryParams.push(first);
+        }
+        if (offset) {
+          paramCount++;
+          limitOffsetClause += ` OFFSET $${paramCount}`;
+          queryParams.push(offset);
+        }
+
+        const result = await query(
+          `SELECT * FROM invoices ORDER BY created_at DESC ${limitOffsetClause}`,
+          queryParams
+        );
+        return toGidFormatArray(result.rows, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] }).map(row => ({
+          ...row,
+          line_items: typeof row.line_items === 'string' ? JSON.parse(row.line_items) : row.line_items
+        }));
+      },
+      {
+        operationName: 'invoices',
+        getTags: (args, result) => generateListTags('invoice', {}, result),
+        ttl: 300000, // 5 minutes
       }
-      if (offset) {
-        paramCount++;
-        limitOffsetClause += ` OFFSET $${paramCount}`;
-        queryParams.push(offset);
+    ),
+
+    invoice: cachedResolver(
+      async (_, { id }, { user }) => {
+        requireAuth(user);
+        const hexPrefix = extractUuid(id);
+        const result = await query(
+          `SELECT * FROM invoices WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          [`${hexPrefix}%`]
+        );
+
+        if (result.rows.length === 0) {
+          throw new Error('Invoice not found');
+        }
+
+        const invoice = toGidFormat(result.rows[0], 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] });
+        return {
+          ...invoice,
+          line_items: typeof invoice.line_items === 'string' ? JSON.parse(invoice.line_items) : invoice.line_items
+        };
+      },
+      {
+        operationName: 'invoice',
+        getTags: (args, result) => [
+          `invoice:${result.id}`,
+          ...(result.job_id ? [`invoice:job:${result.job_id}`] : []),
+        ],
+        ttl: 300000, // 5 minutes
       }
+    ),
 
-      const result = await query(
-        `SELECT * FROM invoices ORDER BY created_at DESC ${limitOffsetClause}`,
-        queryParams
-      );
-      return toGidFormatArray(result.rows, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] }).map(row => ({
-        ...row,
-        line_items: typeof row.line_items === 'string' ? JSON.parse(row.line_items) : row.line_items
-      }));
-    },
-
-    invoice: async (_, { id }, { user }) => {
-      requireAuth(user);
-      const hexPrefix = extractUuid(id);
-      const result = await query(
-        `SELECT * FROM invoices WHERE REPLACE(id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
-      );
-
-      if (result.rows.length === 0) {
-        throw new Error('Invoice not found');
+    unlinkedInvoices: cachedResolver(
+      async (_, __, { user }) => {
+        requireAuth(user);
+        const result = await query(
+          'SELECT * FROM invoices WHERE job_id IS NULL ORDER BY created_at DESC'
+        );
+        return toGidFormatArray(result.rows, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] }).map(row => ({
+          ...row,
+          line_items: typeof row.line_items === 'string' ? JSON.parse(row.line_items) : row.line_items
+        }));
+      },
+      {
+        operationName: 'unlinkedInvoices',
+        getTags: (args, result) => ['invoice:unlinked', ...result.map(inv => `invoice:${inv.id}`)],
+        ttl: 300000, // 5 minutes
       }
-
-      const invoice = toGidFormat(result.rows[0], 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] });
-      return {
-        ...invoice,
-        line_items: typeof invoice.line_items === 'string' ? JSON.parse(invoice.line_items) : invoice.line_items
-      };
-    },
-
-    unlinkedInvoices: async (_, __, { user }) => {
-      requireAuth(user);
-      const result = await query(
-        'SELECT * FROM invoices WHERE job_id IS NULL ORDER BY created_at DESC'
-      );
-      return toGidFormatArray(result.rows, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] }).map(row => ({
-        ...row,
-        line_items: typeof row.line_items === 'string' ? JSON.parse(row.line_items) : row.line_items
-      }));
-    },
+    ),
   },
 
   Invoice: {
-    customer: async (parent) => {
-      const hexPrefix = extractUuid(parent.customer_id);
-      const result = await query(
-        `SELECT * FROM customers WHERE REPLACE(id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
-      );
-      return toGidFormat(result.rows[0], 'Customer');
-    },
+    customer: cachedResolver(
+      async (parent) => {
+        const hexPrefix = extractUuid(parent.customer_id);
+        const result = await query(
+          `SELECT * FROM customers WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          [`${hexPrefix}%`]
+        );
+        return toGidFormat(result.rows[0], 'Customer');
+      },
+      {
+        operationName: 'Invoice.customer',
+        getTags: (args, result) => [`customer:${result.id}`],
+        ttl: 600000, // 10 minutes
+      }
+    ),
 
-    job: async (parent) => {
-      if (!parent.job_id) return null;
-      const hexPrefix = extractUuid(parent.job_id);
-      const result = await query(
-        `SELECT * FROM jobs WHERE REPLACE(id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
-      );
-      return toGidFormat(result.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
-    },
+    job: cachedResolver(
+      async (parent) => {
+        if (!parent.job_id) return null;
+        const hexPrefix = extractUuid(parent.job_id);
+        const result = await query(
+          `SELECT * FROM jobs WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          [`${hexPrefix}%`]
+        );
+        return toGidFormat(result.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
+      },
+      {
+        operationName: 'Invoice.job',
+        getTags: (args, result) => result ? [`job:${result.id}`] : [],
+        ttl: 300000, // 5 minutes
+      }
+    ),
 
-    estimate: async (parent) => {
-      if (!parent.estimate_id) return null;
-      const hexPrefix = extractUuid(parent.estimate_id);
-      const result = await query(
-        `SELECT * FROM estimates WHERE REPLACE(id::text, '-', '') LIKE $1`,
-        [`${hexPrefix}%`]
-      );
-      return toGidFormat(result.rows[0], 'Estimate', { foreignKeys: ['customer_id'] });
-    },
+    estimate: cachedResolver(
+      async (parent) => {
+        if (!parent.estimate_id) return null;
+        const hexPrefix = extractUuid(parent.estimate_id);
+        const result = await query(
+          `SELECT * FROM estimates WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          [`${hexPrefix}%`]
+        );
+        return toGidFormat(result.rows[0], 'Estimate', { foreignKeys: ['customer_id'] });
+      },
+      {
+        operationName: 'Invoice.estimate',
+        getTags: (args, result) => result ? [`estimate:${result.id}`] : [],
+        ttl: 300000, // 5 minutes
+      }
+    ),
 
-    payments: async (parent) => {
-      return fetchPaymentsWithInvoices({ invoiceId: parent.id });
-    },
+    payments: cachedResolver(
+      async (parent) => {
+        return fetchPaymentsWithInvoices({ invoiceId: parent.id });
+      },
+      {
+        operationName: 'Invoice.payments',
+        getTags: (args, result) => result.map(payment => `payment:${payment.id}`),
+        ttl: 300000, // 5 minutes
+      }
+    ),
   },
 
   Mutation: {
@@ -203,6 +256,19 @@ export const invoiceResolvers = {
       }
 
       const invoice = toGidFormat(result.rows[0], 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] });
+
+      // Invalidate cache after creating invoice
+      invalidateCache([
+        'invoice:all',
+        'invoice:unlinked',
+        ...(jobUuid ? [
+          `invoice:job:${jobUuid}`,
+          `job:${jobUuid}`,
+          'job:all',
+        ] : []),
+        'dashboard:analytics',
+      ]);
+
       return {
         ...invoice,
         line_items: typeof invoice.line_items === 'string' ? JSON.parse(invoice.line_items) : invoice.line_items
@@ -314,6 +380,26 @@ export const invoiceResolvers = {
       }
 
       const invoice = toGidFormat(updatedInvoice, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] });
+
+      // Invalidate cache after updating invoice
+      const hexId = extractUuid(id);
+      invalidateCache([
+        'invoice:all',
+        'invoice:unlinked',
+        `invoice:${hexId}`,
+        ...(updatedInvoice.job_id ? [
+          `invoice:job:${updatedInvoice.job_id}`,
+          `job:${updatedInvoice.job_id}`,
+          'job:all',
+        ] : []),
+        // If job changed, also invalidate old job
+        ...(existingInvoice.job_id && existingInvoice.job_id !== updatedInvoice.job_id ? [
+          `invoice:job:${existingInvoice.job_id}`,
+          `job:${existingInvoice.job_id}`,
+        ] : []),
+        'dashboard:analytics',
+      ]);
+
       return {
         ...invoice,
         line_items: typeof invoice.line_items === 'string' ? JSON.parse(invoice.line_items) : invoice.line_items
@@ -360,6 +446,19 @@ export const invoiceResolvers = {
           [deletedInvoice.job_id]
         );
       }
+
+      // Invalidate cache after deleting invoice
+      invalidateCache([
+        'invoice:all',
+        'invoice:unlinked',
+        `invoice:${hexPrefix}`,
+        ...(deletedInvoice.job_id ? [
+          `invoice:job:${deletedInvoice.job_id}`,
+          `job:${deletedInvoice.job_id}`,
+          'job:all',
+        ] : []),
+        'dashboard:analytics',
+      ]);
 
       return true;
     },

@@ -12,6 +12,7 @@ import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton';
 import Loading from '../../components/ui/Loading';
 import ExpenseForm from '../../components/expense/ExpenseForm';
+import Icon from '../../components/ui/Icon'
 
 export default function ExpenseDetail() {
   const router = useRouter();
@@ -141,11 +142,20 @@ export default function ExpenseDetail() {
           </h2>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={() => setShowEditModal(true)} className="btn-secondary">
-            Edit
+          <button 
+            onClick={() => setShowEditModal(true)} 
+            className="btn-secondary"
+            title="Edit Expense"
+          >
+            <Icon name="edit" size={10} />
           </button>
-          <button onClick={() => setShowDeleteModal(true)} className="btn-secondary" style={{ color: 'var(--color-danger)' }}>
-            Delete
+          <button 
+            onClick={() => setShowDeleteModal(true)} 
+            className="btn-secondary" 
+            style={{ color: 'var(--color-danger)' }}
+            title="Delete Expense"
+          >
+            <Icon name="trash" size={10} />
           </button>
           <BackButton href="/expenses" classes="btn-secondary" />
         </div>
@@ -318,7 +328,7 @@ export default function ExpenseDetail() {
           <div className={styles.modalHeader}>
             <h3>Edit Expense</h3>
             <button onClick={() => setShowEditModal(false)} className={styles.modalClose}>
-              ×
+              <Icon name="close" size={10} />
             </button>
           </div>
           <ExpenseForm

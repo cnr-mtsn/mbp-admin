@@ -180,7 +180,6 @@ export default function EmailPreviewModal({ invoice, isOpen, onClose, onSend }) 
 
               {/* PDF Preview Section */}
               <div className={styles.formGroup}>
-                <label>Attachment:</label>
                 <div className={styles.pdfSection}>
                   <div className={styles.pdfButtons}>
                     <button
@@ -229,13 +228,13 @@ export default function EmailPreviewModal({ invoice, isOpen, onClose, onSend }) 
                 disabled={sending || !recipientEmail}
               >
                 {sending ? (
-                  <>
+                  <p className="flex items-center gap-1">
                     <Icon name="loader" className="spin" /> Sending...
-                  </>
+                  </p>
                 ) : (
-                  <>
+                  <p className="flex items-center gap-1">
                     <Icon name="send" /> Send
-                  </>
+                  </p>
                 )}
               </button>
             </div>

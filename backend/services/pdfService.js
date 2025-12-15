@@ -107,26 +107,21 @@ export const generateInvoicePDF = (invoice) => {
       doc
         .fillColor(textColor)
         .font('Helvetica-Bold')
-        .fontSize(24)
+        .fontSize(12)
         .text('INVOICE', marginLeft + 20, marginLeft + 18);
-
-      doc
-        .font('Helvetica')
-        .fontSize(11)
-        .fillColor(textSecondary)
-        .text('Matson Brothers Painting, LLC', marginLeft + 20, marginLeft + 48);
 
       // Center - Company logo
       const logoPath = path.join(__dirname, '..', 'images', 'logo-2.png');
-      const logoSize = 65;
+      const logoSize = 120;
       const logoX = marginLeft + (contentWidth / 2) - (logoSize / 2);
-      doc.image(logoPath, logoX, marginLeft + 12, { width: logoSize, height: logoSize });
+      const logoY = marginLeft + (headerHeight / 2) - (logoSize / 2);
+      doc.image(logoPath, logoX, logoY, { width: logoSize, height: logoSize });
 
       // Right side header info - cleaner layout with padding
       const rightHeaderX = marginLeft + contentWidth - 200;
       doc
         .font('Helvetica-Bold')
-        .fontSize(16)
+        .fontSize(12)
         .fillColor(accent)
         .text(`${invoiceNumber}`, rightHeaderX, marginLeft + 18, { width: 180, align: 'right' });
 

@@ -374,6 +374,11 @@ export const jobResolvers = {
             }));
           }
 
+          // For 100% payment schedule, use title without payment info
+          const invoiceTitle = schedule.length === 1
+            ? title
+            : `${title} - Payment ${i + 1} (${percentage}%)`;
+
           await query(
             `INSERT INTO invoices (customer_id, job_id, estimate_id, invoice_number, title, description, line_items, total, payment_stage, percentage, status)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'unpaid')`,
@@ -382,7 +387,7 @@ export const jobResolvers = {
               job.id,
               estimateUuid,
               invoiceNumber,
-              `${title} - Payment ${i + 1} (${percentage}%)`,
+              invoiceTitle,
               stageDescriptions[i] || `Payment ${i + 1}`,
               JSON.stringify(invoiceLineItems),
               amount,
@@ -617,6 +622,11 @@ export const jobResolvers = {
         const amount = (estimate.total * percentage / 100).toFixed(2);
         const invoiceNumber = (nextInvoiceNumber + i).toString();
 
+        // For 100% payment schedule, use title without payment info
+        const invoiceTitle = schedule.length === 1
+          ? estimate.title
+          : `${estimate.title} - Payment ${i + 1} (${percentage}%)`;
+
         await query(
           `INSERT INTO invoices (customer_id, job_id, estimate_id, invoice_number, title, description, line_items, subtotal, tax, total, payment_stage, percentage, status)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'unpaid')`,
@@ -625,7 +635,7 @@ export const jobResolvers = {
             job.id,
             estimate.id,
             invoiceNumber,
-            `${estimate.title} - Payment ${i + 1} (${percentage}%)`,
+            invoiceTitle,
             stageDescriptions[i] || `Payment ${i + 1}`,
             estimate.line_items,
             estimate.subtotal,

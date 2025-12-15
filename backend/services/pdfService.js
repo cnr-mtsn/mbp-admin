@@ -1,6 +1,7 @@
 import PDFDocument from 'pdfkit';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { capitalize } from '../utils/emailHelpers.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,8 +22,26 @@ const formatMoney = (value) => {
  */
 const formatDate = (dateValue) => {
   if (!dateValue) return '—';
-  const date = new Date(parseInt(dateValue));
+
+  let date;
+
+  // Handle different date formats
+  if (typeof dateValue === 'string') {
+    // String date (YYYY-MM-DD, ISO string, etc.)
+    date = new Date(dateValue);
+  } else if (typeof dateValue === 'number') {
+    // Unix timestamp
+    date = new Date(dateValue);
+  } else if (dateValue instanceof Date) {
+    // Already a Date object
+    date = dateValue;
+  } else {
+    // Try parsing as integer (timestamp in string form)
+    date = new Date(parseInt(dateValue));
+  }
+
   if (isNaN(date.getTime())) return '—';
+
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -84,23 +103,24 @@ export const generateInvoicePDF = (invoice) => {
         .rect(marginLeft, marginLeft, contentWidth, headerHeight)
         .fill(headerBg);
 
-      // Add company logo
-      const logoPath = path.join(__dirname, '..', 'images', 'logo-2.png');
-      const logoSize = 65;
-      doc.image(logoPath, marginLeft + 20, marginLeft + 12, { width: logoSize, height: logoSize });
-
-      // Header text - modern typography
+      // Left side - Invoice text
       doc
         .fillColor(textColor)
         .font('Helvetica-Bold')
         .fontSize(24)
-        .text('INVOICE', marginLeft + logoSize + 35, marginLeft + 18);
+        .text('INVOICE', marginLeft + 20, marginLeft + 18);
 
       doc
         .font('Helvetica')
         .fontSize(11)
         .fillColor(textSecondary)
-        .text('Matson Brothers Painting, LLC', marginLeft + logoSize + 35, marginLeft + 48);
+        .text('Matson Brothers Painting, LLC', marginLeft + 20, marginLeft + 48);
+
+      // Center - Company logo
+      const logoPath = path.join(__dirname, '..', 'images', 'logo-2.png');
+      const logoSize = 65;
+      const logoX = marginLeft + (contentWidth / 2) - (logoSize / 2);
+      doc.image(logoPath, logoX, marginLeft + 12, { width: logoSize, height: logoSize });
 
       // Right side header info - cleaner layout with padding
       const rightHeaderX = marginLeft + contentWidth - 200;
@@ -109,13 +129,6 @@ export const generateInvoicePDF = (invoice) => {
         .fontSize(16)
         .fillColor(accent)
         .text(`${invoiceNumber}`, rightHeaderX, marginLeft + 18, { width: 180, align: 'right' });
-
-      doc
-        .font('Helvetica')
-        .fontSize(9)
-        .fillColor(textSecondary)
-        .text(`${createdDate}`, rightHeaderX, marginLeft + 42, { width: 180, align: 'right' })
-        .text(`Due: ${dueDate}`, rightHeaderX, marginLeft + 56, { width: 180, align: 'right' });
 
       doc.restore();
       doc.fillColor(textColor);
@@ -341,7 +354,7 @@ export const generateInvoicePDF = (invoice) => {
           .fontSize(10)
           .fillColor(textColor)
           .text(
-            `${invoice.payment_stage}${invoice.percentage ? ` (${invoice.percentage}%)` : ''}`,
+            `${capitalize(invoice.payment_stage)}${invoice.percentage ? ` (${invoice.percentage}%)` : ''}`,
             totalsX + 120,
             yPosition,
             { width: 120, align: 'right' }

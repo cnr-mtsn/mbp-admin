@@ -7,6 +7,7 @@ import { UPDATE_INVOICE, SEND_INVOICE } from '../../lib/graphql/mutations';
 import { extractUuid, toGid } from '../../lib/utils/gid';
 import { formatCustomerName, formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import InvoiceForm from '../../components/InvoiceForm';
+import EmailPreviewModal from '../../components/EmailPreviewModal';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton'
@@ -27,6 +28,7 @@ export default function InvoiceDetail() {
   const router = useRouter();
   const { id } = router.query;
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
   const dialogRef = useRef(null);
 
   const { data, loading, error, refetch } = useQuery(GET_INVOICE, {
@@ -89,11 +91,7 @@ export default function InvoiceDetail() {
     if (restData.subtotal !== undefined) input.subtotal = restData.subtotal;
     if (restData.tax !== undefined) input.tax = restData.tax;
     if (restData.total !== undefined) input.total = restData.total;
-
-    // Handle due_date: only include if it's a valid date string (YYYY-MM-DD format)
-    if (restData.due_date && restData.due_date !== '') {
-      input.due_date = restData.due_date;
-    }
+    if (restData.due_date !== undefined) input.due_date = restData.due_date;
 
     updateInvoice({
       variables: {
@@ -104,11 +102,22 @@ export default function InvoiceDetail() {
   };
 
   const handleSendInvoice = async () => {
-    if (!id) return;
+    // Open the email preview modal instead of sending directly
+    setShowEmailPreview(true);
+  };
+
+  const handleConfirmSend = async (emailOptions) => {
+    if (!id) return false;
 
     try {
       await sendInvoice({
-        variables: { id: toGid('Invoice', id) },
+        variables: {
+          id: toGid('Invoice', id),
+          recipientEmail: emailOptions.recipientEmail,
+          ccEmails: emailOptions.ccEmails,
+          subject: emailOptions.subject,
+          body: emailOptions.body,
+        },
       });
 
       alert('Invoice sent successfully!');
@@ -119,9 +128,12 @@ export default function InvoiceDetail() {
       } else {
         await refetch();
       }
+
+      return true;
     } catch (err) {
       console.error('Error sending invoice:', err);
       alert(`Failed to send invoice: ${err.message}`);
+      return false;
     }
   };
 
@@ -435,6 +447,14 @@ export default function InvoiceDetail() {
           />
         </div>
       </dialog>
+
+      {/* Email Preview Modal */}
+      <EmailPreviewModal
+        invoice={invoice}
+        isOpen={showEmailPreview}
+        onClose={() => setShowEmailPreview(false)}
+        onSend={handleConfirmSend}
+      />
 
       <style jsx>{`
         dialog::backdrop {

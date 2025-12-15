@@ -74,8 +74,9 @@ export default function Invoices() {
   }
 
   // Calculate total unpaid balance
+  const sentStatuses = ['sent', 'overdue'];
   const unpaidBalance = invoices
-    .filter(invoice => invoice.status === 'sent')
+    .filter(invoice => sentStatuses.includes(invoice.status))
     .reduce((sum, invoice) => sum + (parseFloat(invoice.total) || 0), 0);
 
   // Determine if there are more items to load - check if we got exactly RESULTS_PER_PAGE.invoices items in the last fetch

@@ -82,6 +82,15 @@ export const typeDefs = gql`
     updated_at: String!
   }
 
+  type EmailPreview {
+    from: String!
+    to: String!
+    cc: [String!]!
+    subject: String!
+    body: String!
+    attachmentName: String!
+  }
+
   type Invoice {
     id: ID!
     customer_id: ID!
@@ -536,6 +545,7 @@ export const typeDefs = gql`
     invoices(first: Int, offset: Int): [Invoice!]!
     invoice(id: ID!): Invoice
     unlinkedInvoices: [Invoice!]!
+    previewInvoiceEmail(id: ID!): EmailPreview!
 
     # Payments
     payments(customer_id: ID, job_id: ID, invoice_id: ID): [Payment!]!
@@ -594,7 +604,7 @@ export const typeDefs = gql`
     createInvoice(input: InvoiceInput!): Invoice!
     updateInvoice(id: ID!, input: InvoiceUpdateInput!): Invoice!
     deleteInvoice(id: ID!): Boolean!
-    sendInvoice(id: ID!): Boolean!
+    sendInvoice(id: ID!, recipientEmail: String, ccEmails: [String!], subject: String, body: String): Boolean!
 
     # Payments
     recordPayment(input: RecordPaymentInput!): Payment!

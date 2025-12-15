@@ -12,6 +12,35 @@ const requireAuth = (user) => {
 
 export const invoiceResolvers = {
   Query: {
+    previewInvoiceEmail: async (_, { id }, { user }) => {
+      requireAuth(user);
+      const hexPrefix = extractUuid(id);
+      const result = await query(
+        `SELECT i.*, c.name as customer_name, c.email as customer_email,
+                c.phone as customer_phone, c.address as customer_address,
+                j.title as job_title
+         FROM invoices i
+         LEFT JOIN customers c ON i.customer_id = c.id
+         LEFT JOIN jobs j ON i.job_id = j.id
+         WHERE REPLACE(i.id::text, '-', '') LIKE $1`,
+        [`${hexPrefix}%`]
+      );
+
+      if (result.rows.length === 0) {
+        throw new Error('Invoice not found');
+      }
+
+      const invoice = result.rows[0];
+
+      console.log('[previewInvoiceEmail] Invoice due_date from DB:', invoice.due_date);
+
+      // Dynamic import to get email preview function
+      const { getInvoiceEmailPreview } = await import('../../services/emailService.js');
+
+      // Get email preview data
+      return getInvoiceEmailPreview(invoice);
+    },
+
     invoices: cachedResolver(
       async (_, { first, offset }, { user }) => {
         requireAuth(user);
@@ -118,7 +147,12 @@ export const invoiceResolvers = {
         if (!parent.job_id) return null;
         const hexPrefix = extractUuid(parent.job_id);
         const result = await query(
-          `SELECT * FROM jobs WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          `SELECT j.*,
+                  (SELECT COUNT(*) FROM invoices WHERE job_id = j.id) as invoice_count,
+                  (SELECT COUNT(*) FROM invoices WHERE job_id = j.id AND status = 'paid') as paid_count,
+                  (SELECT SUM(total) FROM invoices WHERE job_id = j.id AND status = 'paid') as amount_paid
+           FROM jobs j
+           WHERE REPLACE(j.id::text, '-', '') LIKE $1`,
           [`${hexPrefix}%`]
         );
         return toGidFormat(result.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
@@ -283,6 +317,8 @@ export const invoiceResolvers = {
       requireAuth(user);
       const hexPrefix = extractUuid(id);
 
+      console.log('[updateInvoice] Received input:', JSON.stringify(input, null, 2));
+
       // First, get the existing invoice
       const existingResult = await query(
         `SELECT * FROM invoices WHERE REPLACE(id::text, '-', '') LIKE $1`,
@@ -314,6 +350,8 @@ export const invoiceResolvers = {
         notes = existingInvoice.notes,
         status = existingInvoice.status
       } = { ...existingInvoice, ...input };
+
+      console.log('[updateInvoice] Merged due_date value:', due_date);
 
       const result = await query(
         `UPDATE invoices
@@ -467,7 +505,7 @@ export const invoiceResolvers = {
       return true;
     },
 
-    sendInvoice: async (_, { id }, { user }) => {
+    sendInvoice: async (_, { id, recipientEmail, ccEmails, subject, body }, { user }) => {
       requireAuth(user);
       const hexPrefix = extractUuid(id);
 
@@ -489,15 +527,20 @@ export const invoiceResolvers = {
 
       const invoice = result.rows[0];
 
-      if (!invoice.customer_email) {
+      if (!invoice.customer_email && !recipientEmail) {
         throw new Error('Customer email not found');
       }
 
       // Dynamic import to load the email service
       const { sendInvoiceEmail } = await import('../../services/emailService.js');
 
-      // Send the invoice email with PDF
-      await sendInvoiceEmail(invoice);
+      // Send the invoice email with PDF, with optional custom parameters
+      await sendInvoiceEmail(invoice, {
+        recipientEmail,
+        ccEmails,
+        subject,
+        body
+      });
 
       return true;
     },

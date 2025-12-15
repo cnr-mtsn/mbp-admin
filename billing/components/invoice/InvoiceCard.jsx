@@ -30,6 +30,32 @@ export default function InvoiceCard({ invoice }) {
       router.push(`/payments/${extractUuid(paymentLink.id)}`);
     };
 
+    // Calculate payment stage display
+    const getPaymentStageDisplay = () => {
+      if (!invoice.payment_stage || !invoice.job?.invoice_count) return null;
+
+      const totalInvoices = invoice.job.invoice_count;
+
+      // Don't show payment stage for single-payment jobs (100% schedule)
+      if (totalInvoices === 1) return null;
+
+      let currentPayment;
+      if (invoice.payment_stage === 'start') {
+        currentPayment = 1;
+      } else if (invoice.payment_stage === 'touchup') {
+        currentPayment = 3;
+      } else if (invoice.payment_stage === 'completion') {
+        // If 2 invoices total, completion is 2nd; if 3 invoices, completion is 2nd
+        currentPayment = totalInvoices === 2 ? 2 : 2;
+      } else {
+        return null;
+      }
+
+      return `${currentPayment}/${totalInvoices}`;
+    };
+
+    const paymentStageDisplay = getPaymentStageDisplay();
+
     return (
         <Link href={`/invoices/${extractUuid(invoice.id)}`} style={{ height: '100%' }}>
             <div key={invoice.id} className={cardStyles.lineItem}>
@@ -41,9 +67,9 @@ export default function InvoiceCard({ invoice }) {
                     </div>
                     <div className={cardStyles.itemTags}>
                         <span className={`pill ${invoiceClass}`}>{formatStatus(invoice.status)}</span>
-                        {invoice.payment_stage && (
+                        {paymentStageDisplay && (
                             <span style={{ backgroundColor: 'rgba(150, 150, 255, 0.5)', fontSize: ".7rem" }} className={cardStyles.itemTag}>
-                                {invoice.payment_stage === "start" ? "1/3" : invoice.payment_stage === "completion" ? "2/3" : invoice.payment_stage === "touchup" ? "3/3" : 'Payment stage TBD'}
+                                {paymentStageDisplay}
                             </span>
                         )}
                     </div>

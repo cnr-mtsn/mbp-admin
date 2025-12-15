@@ -174,6 +174,7 @@ export const UPDATE_INVOICE = gql`
       title
       total
       status
+      due_date
       paid_date
     }
   }
@@ -186,8 +187,8 @@ export const DELETE_INVOICE = gql`
 `;
 
 export const SEND_INVOICE = gql`
-  mutation SendInvoice($id: ID!) {
-    sendInvoice(id: $id)
+  mutation SendInvoice($id: ID!, $recipientEmail: String, $ccEmails: [String!], $subject: String, $body: String) {
+    sendInvoice(id: $id, recipientEmail: $recipientEmail, ccEmails: $ccEmails, subject: $subject, body: $body)
   }
 `;
 

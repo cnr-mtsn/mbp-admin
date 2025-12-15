@@ -339,6 +339,7 @@ export const GET_INVOICES = gql`
       job {
         id
         title
+        invoice_count
       }
       title
       description
@@ -428,6 +429,19 @@ export const GET_INVOICE = gql`
       }
       created_at
       updated_at
+    }
+  }
+`;
+
+export const PREVIEW_INVOICE_EMAIL = gql`
+  query PreviewInvoiceEmail($id: ID!) {
+    previewInvoiceEmail(id: $id) {
+      from
+      to
+      cc
+      subject
+      body
+      attachmentName
     }
   }
 `;

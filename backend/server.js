@@ -8,6 +8,7 @@ import { typeDefs } from './graphql/schema/typeDefs.js';
 import { resolvers } from './graphql/resolvers/index.js';
 import { initializeCronJobs } from './services/cronService.js';
 import cache from './utils/cacheManager.js';
+import invoicesRouter from './routes/invoices.js';
 
 dotenv.config();
 
@@ -129,6 +130,9 @@ if (process.env.NODE_ENV === 'development') {
   console.log('   GET  /cache/stats - View cache statistics');
   console.log('   POST /cache/clear - Clear all cache');
 }
+
+// REST API routes
+app.use('/api/invoices', invoicesRouter);
 
 // GraphQL endpoint
 app.use(

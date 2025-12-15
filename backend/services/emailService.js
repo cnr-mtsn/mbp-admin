@@ -65,50 +65,226 @@ export const sendInvoiceEmail = async (invoice) => {
 
     // For development, override recipient email
     const isDevelopment = process.env.NODE_ENV !== 'production';
-    const recipientEmail = 'cnr.mtsn@gmail.com'
-    
+    const recipientEmail = 'cnr.mtsn@gmail.com';
     // const recipientEmail = isDevelopment ? 'c.matson11@gmail.com' : invoice.customer_email;
+
+    const invoiceNumber = invoice.invoice_number || invoice.id || '—';
+    const dueDate = formatDate(invoice.due_date);
+    const totalAmount = formatMoney(invoice.total);
+    const status = invoice.status ? invoice.status.toUpperCase() : '—';
+    const customerName = invoice.customer_name || 'Customer';
+    const invoiceTitle = invoice.title || 'Your invoice';
 
     // Email options
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: recipientEmail,
-      subject: `Invoice: ${invoice.title}`,
+      subject: `Invoice: ${invoiceTitle}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Invoice from Matson Bros</h2>
-          <p>Dear ${invoice.customer_name},</p>
-          <p>Please find attached your invoice for <strong>${invoice.title}</strong>.</p>
+        <div
+          style="
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #e6e9ed;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+          "
+        >
+          <div style="background: #1f365c; color: #ffffff; padding: 18px 22px">
+            <h2 style="margin: 0 0 4px; font-size: 20px">Invoice from Matson Bros</h2>
+            <p style="margin: 0; font-size: 14px">
+              Invoice ${invoiceNumber} &bull; Due ${dueDate}
+            </p>
+          </div>
 
-          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-            <tr style="background-color: #f5f5f5;">
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Invoice Number:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${invoice.invoice_number || '—'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Total Amount:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${formatMoney(invoice.total)}</td>
-            </tr>
-            <tr style="background-color: #f5f5f5;">
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Due Date:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd;">${formatDate(invoice.due_date)}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Status:</strong></td>
-              <td style="padding: 10px; border: 1px solid #ddd; text-transform: uppercase;">${invoice.status}</td>
-            </tr>
-          </table>
+          <div style="padding: 22px">
+            <p style="margin: 0 0 12px">Hello ${customerName},</p>
+            <p style="margin: 0 0 16px">
+              Here is your invoice for <strong>${invoiceTitle}</strong>.
+            </p>
+            <p style="margin: 0 0 12px; color: #334357">
+              Full invoice details are in the attached PDF.
+            </p>
 
-          ${invoice.notes ? `<p><strong>Notes:</strong><br>${invoice.notes.replace(/\n/g, '<br>')}</p>` : ''}
+            <table
+              style="
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+                margin: 0 0 16px;
+              "
+            >
+              <tr>
+                <td
+                  style="
+                    width: 50%;
+                    background: #f7f9fc;
+                    padding: 12px;
+                    border: 1px solid #e6e9ed;
+                    color: #1f365c;
+                  "
+                >
+                  <strong>Total Amount</strong>
+                </td>
+                <td
+                  style="
+                    padding: 12px;
+                    border: 1px solid #e6e9ed;
+                    text-align: right;
+                    color: #1f365c;
+                  "
+                >
+                  ${totalAmount}
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    width: 50%;
+                    background: #f7f9fc;
+                    padding: 12px;
+                    border: 1px solid #e6e9ed;
+                    color: #1f365c;
+                  "
+                >
+                  <strong>Payment Due</strong>
+                </td>
+                <td
+                  style="
+                    padding: 12px;
+                    border: 1px solid #e6e9ed;
+                    text-align: right;
+                    color: #1f365c;
+                  "
+                >
+                  ${dueDate}
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    width: 50%;
+                    background: #f7f9fc;
+                    padding: 12px;
+                    border: 1px solid #e6e9ed;
+                    color: #1f365c;
+                  "
+                >
+                  <strong>Status</strong>
+                </td>
+                <td
+                  style="
+                    padding: 12px;
+                    border: 1px solid #e6e9ed;
+                    text-align: right;
+                    color: #1f365c;
+                  "
+                >
+                  ${status}
+                </td>
+              </tr>
+            </table>
 
-          <p>If you have any questions about this invoice, please don't hesitate to contact us.</p>
+            ${
+              invoice.notes
+                ? `<div
+                    style="
+                      background: #f7f9fc;
+                      border: 1px solid #e6e9ed;
+                      border-radius: 8px;
+                      padding: 12px 14px;
+                      margin: 0 0 16px;
+                      color: #334357;
+                      font-size: 14px;
+                    "
+                  >
+                    <strong style="display: block; margin-bottom: 6px">Notes</strong>
+                    ${invoice.notes.replace(/\n/g, '<br>')}
+                  </div>`
+                : ''
+            }
 
-          <p style="margin-top: 30px;">
-            Best regards,<br>
-            <strong>Matson Bros</strong>
-          </p>
+            <div
+              style="
+                background: #f7f9fc;
+                border: 1px solid #e6e9ed;
+                border-radius: 8px;
+                padding: 14px;
+                margin: 0 0 16px;
+                color: #1f365c;
+                font-size: 14px;
+              "
+            >
+              <strong style="display: block; margin-bottom: 6px">How to pay:</strong>
+              <ul style="padding-left: 18px; margin: 0; color: #334357">
+                <li style="margin-bottom: 6px">Cash</li>
+                <li>
+                  Online at
+                  <a
+                    href="https://matsonbrotherspainting.com/pay"
+                    style="color: #1f365c; font-weight: bold"
+                  >matsonbrotherspainting.com/pay</a>
+                </li>
+                <li>Check (details below)</li>
+              </ul>
+            </div>
 
-          ${isDevelopment ? '<p style="color: #999; font-size: 12px; margin-top: 20px;"><em>This is a development email. In production, this would be sent to: ' + invoice.customer_email + '</em></p>' : ''}
+            <p style="margin: 0 0 18px; color: #334357">
+              Please include the invoice number with your payment. If you have any questions,
+              reply to this email and we will help right away.
+            </p>
+
+            <div
+              style="
+                border: 1px solid #e6e9ed;
+                border-radius: 8px;
+                padding: 12px 14px;
+                margin: 0 0 14px;
+                color: #334357;
+                font-size: 14px;
+                background: #ffffff;
+              "
+            >
+              <strong style="display: block; margin-bottom: 6px">Paying by check?</strong>
+              <div style="margin-bottom: 4px">
+                Make payable to <strong>Matson Brothers Painting</strong>
+              </div>
+              <div style="margin-bottom: 4px">
+                Mail to 38104 E Hudson Rd, Oak Grove, MO, 64075
+              </div>
+              <div>Include invoice number: ${invoiceNumber}</div>
+            </div>
+
+            <a
+              href="https://matsonbrotherspainting.com/pay"
+              style="
+                display: inline-block;
+                background: #1f365c;
+                color: #ffffff;
+                text-decoration: none;
+                padding: 12px 16px;
+                border-radius: 6px;
+                font-weight: bold;
+                font-size: 14px;
+              "
+            >Pay Online</a>
+
+            <p style="margin: 20px 0 0; color: #334357">
+              Thank you,<br />
+              <strong>Matson Brothers Painting</strong>
+            </p>
+
+            ${
+              isDevelopment
+                ? `<p style="color: #999; font-size: 12px; margin-top: 20px;">
+                    <em>This is a development email. In production, this would be sent to: ${invoice.customer_email}</em>
+                  </p>`
+                : ''
+            }
+          </div>
         </div>
       `,
       attachments: [

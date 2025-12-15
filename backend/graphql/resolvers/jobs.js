@@ -150,6 +150,7 @@ export const jobResolvers = {
       },
       {
         operationName: 'Job.customer',
+        getKey: (parent) => ({ customer_id: parent.customer_id }),
         getTags: (args, result) => [`customer:${result.id}`],
         ttl: 600000, // 10 minutes
       }
@@ -167,6 +168,7 @@ export const jobResolvers = {
       },
       {
         operationName: 'Job.estimate',
+        getKey: (parent) => ({ estimate_id: parent.estimate_id }),
         getTags: (args, result) => result ? [`estimate:${result.id}`] : [],
         ttl: 300000, // 5 minutes
       }

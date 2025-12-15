@@ -35,3 +35,5 @@ frontend/.env.local
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+scripts

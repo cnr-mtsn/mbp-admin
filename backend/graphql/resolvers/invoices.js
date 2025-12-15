@@ -107,6 +107,7 @@ export const invoiceResolvers = {
       },
       {
         operationName: 'Invoice.customer',
+        getKey: (parent) => ({ customer_id: parent.customer_id }),
         getTags: (args, result) => [`customer:${result.id}`],
         ttl: 600000, // 10 minutes
       }
@@ -124,6 +125,7 @@ export const invoiceResolvers = {
       },
       {
         operationName: 'Invoice.job',
+        getKey: (parent) => ({ job_id: parent.job_id }),
         getTags: (args, result) => result ? [`job:${result.id}`] : [],
         ttl: 300000, // 5 minutes
       }
@@ -141,6 +143,7 @@ export const invoiceResolvers = {
       },
       {
         operationName: 'Invoice.estimate',
+        getKey: (parent) => ({ estimate_id: parent.estimate_id }),
         getTags: (args, result) => result ? [`estimate:${result.id}`] : [],
         ttl: 300000, // 5 minutes
       }
@@ -152,6 +155,7 @@ export const invoiceResolvers = {
       },
       {
         operationName: 'Invoice.payments',
+        getKey: (parent) => ({ invoice_id: parent.id }),
         getTags: (args, result) => result.map(payment => `payment:${payment.id}`),
         ttl: 300000, // 5 minutes
       }

@@ -6,6 +6,7 @@ import cache from './cacheManager.js';
  * @param {Function} resolver - The original resolver function
  * @param {Object} options - Caching options
  * @param {string} options.operationName - Name for cache key generation
+ * @param {Function} options.getKey - Custom key generator function(parent, args) for field resolvers
  * @param {Function} options.getTags - Function to generate tags from args/result
  * @param {number} options.ttl - TTL in milliseconds
  * @param {boolean} options.enabled - Whether caching is enabled (default: true)
@@ -14,6 +15,7 @@ import cache from './cacheManager.js';
 export function cachedResolver(resolver, options = {}) {
   const {
     operationName,
+    getKey = null,
     getTags = () => [],
     ttl = 300000, // 5 minutes
     enabled = true,
@@ -25,8 +27,9 @@ export function cachedResolver(resolver, options = {}) {
   }
 
   return async (parent, args, context, info) => {
-    // Generate cache key from operation name and args
-    const cacheKey = cache.generateKey(operationName, args);
+    // Generate cache key - use custom getKey function if provided, otherwise use args
+    const keyData = getKey ? getKey(parent, args) : args;
+    const cacheKey = cache.generateKey(operationName, keyData);
 
     // Try to get from cache
     const cached = cache.get(cacheKey);

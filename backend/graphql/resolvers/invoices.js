@@ -16,7 +16,7 @@ export const invoiceResolvers = {
       requireAuth(user);
       const hexPrefix = extractUuid(id);
       const result = await query(
-        `SELECT i.*, c.name as customer_name, c.email as customer_email,
+        `SELECT i.*, c.name as customer_name, c.company_name as company_name,c.email as customer_email,
                 c.phone as customer_phone, c.address as customer_address,
                 j.title as job_title
          FROM invoices i
@@ -138,7 +138,7 @@ export const invoiceResolvers = {
 
         if (invoiceNumber) {
           queryText = `
-            SELECT i.*, c.name as customer_name, c.email as customer_email
+            SELECT i.*, c.name as customer_name, c.company_name as company_name, c.email as customer_email
             FROM invoices i
             LEFT JOIN customers c ON i.customer_id = c.id
             WHERE i.invoice_number = $1
@@ -147,7 +147,7 @@ export const invoiceResolvers = {
           queryParams = [invoiceNumber];
         } else if (email) {
           queryText = `
-            SELECT i.*, c.name as customer_name, c.email as customer_email
+            SELECT i.*, c.name as customer_name, c.company_name as company_name, c.email as customer_email
             FROM invoices i
             LEFT JOIN customers c ON i.customer_id = c.id
             WHERE LOWER(c.email) = LOWER($1)
@@ -156,7 +156,7 @@ export const invoiceResolvers = {
           queryParams = [email];
         } else if (name) {
           queryText = `
-            SELECT i.*, c.name as customer_name, c.email as customer_email
+            SELECT i.*, c.name as customer_name, c.company_name as company_name, c.email as customer_email
             FROM invoices i
             LEFT JOIN customers c ON i.customer_id = c.id
             WHERE LOWER(c.name) LIKE LOWER($1)
@@ -173,6 +173,7 @@ export const invoiceResolvers = {
           ...row,
           line_items: typeof row.line_items === 'string' ? JSON.parse(row.line_items) : row.line_items,
           customer_name: row.customer_name,
+          company_name: row.company_name,
           customer_email: row.customer_email,
         }));
       },
@@ -581,7 +582,7 @@ export const invoiceResolvers = {
       // Fetch invoice with customer information
       const result = await query(
         `SELECT i.*, c.name as customer_name, c.email as customer_email,
-                c.phone as customer_phone, c.address as customer_address,
+                c.phone as customer_phone, c.company_name as company_name, c.address as customer_address,
                 j.title as job_title
          FROM invoices i
          LEFT JOIN customers c ON i.customer_id = c.id

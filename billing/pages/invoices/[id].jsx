@@ -13,6 +13,7 @@ import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton'
 import Loading from '../../components/ui/Loading'
 import Icon from '../../components/ui/Icon'
+import Alert from '../../components/ui/Alert'
 import PaymentList from '../../components/payments/PaymentList'
 
 const statusStyles = {
@@ -29,6 +30,7 @@ export default function InvoiceDetail() {
   const { id } = router.query;
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [alert, setAlert] = useState({ isOpen: false, title: '', message: '', type: 'info' });
   const dialogRef = useRef(null);
 
   const { data, loading, error, refetch } = useQuery(GET_INVOICE, {
@@ -68,7 +70,12 @@ export default function InvoiceDetail() {
       });
     } catch (err) {
       console.error('Error updating invoice status:', err);
-      alert('Failed to update invoice status');
+      setAlert({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to update invoice status',
+        type: 'error'
+      });
     }
   };
 
@@ -120,7 +127,12 @@ export default function InvoiceDetail() {
         },
       });
 
-      alert('Invoice sent successfully!');
+      setAlert({
+        isOpen: true,
+        title: 'Success',
+        message: 'Invoice sent successfully!',
+        type: 'success'
+      });
 
       // Update status to 'sent' if it was 'draft'
       if (invoice.status === 'draft') {
@@ -132,7 +144,12 @@ export default function InvoiceDetail() {
       return true;
     } catch (err) {
       console.error('Error sending invoice:', err);
-      alert(`Failed to send invoice: ${err.message}`);
+      setAlert({
+        isOpen: true,
+        title: 'Error',
+        message: `Failed to send invoice: ${err.message}`,
+        type: 'error'
+      });
       return false;
     }
   };
@@ -454,6 +471,15 @@ export default function InvoiceDetail() {
         isOpen={showEmailPreview}
         onClose={() => setShowEmailPreview(false)}
         onSend={handleConfirmSend}
+      />
+
+      {/* Custom Alert Dialog */}
+      <Alert
+        isOpen={alert.isOpen}
+        onClose={() => setAlert({ ...alert, isOpen: false })}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
       />
 
       <style jsx>{`

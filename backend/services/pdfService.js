@@ -90,6 +90,7 @@ export const generateInvoicePDF = (invoice) => {
       const dueDate = invoice.due_date ? formatDate(invoice.due_date) : '—';
       const status = invoice.status ? invoice.status.toUpperCase() : 'UNPAID';
       const customerName = invoice.customer_name || 'Customer';
+      const companyName = invoice.company_name || '';
       const invoiceTitle = invoice.title || 'Invoice';
       const description = invoice.description || '';
 
@@ -142,7 +143,7 @@ export const generateInvoicePDF = (invoice) => {
         .font('Helvetica-Bold')
         .fontSize(11)
         .fillColor(textColor)
-        .text(customerName, marginLeft, yPosition, { width: 280 });
+        .text(companyName || customerName, marginLeft, yPosition, { width: 280 });
 
       doc.font('Helvetica').fontSize(10).fillColor(textSecondary);
 

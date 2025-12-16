@@ -11,6 +11,7 @@ const sampleInvoice = {
   title: 'Sample Project - Interior/Exterior Paint',
   description: 'Full prep, prime, and paint for main floor and exterior trim.',
   customer_name: 'Jane Customer',
+  company_name: 'Customer Co.',
   customer_email: 'jane.customer@example.com',
   customer_phone: '555-123-4567',
   customer_address: '123 Main St\nSpringfield, MO 65807',

@@ -76,12 +76,14 @@ const formatDate = (dateValue) => {
  * @returns {string} HTML content for email
  */
 const generateInvoiceEmailHTML = (invoice, options = {}) => {
+  console.log("generate email for invoice: ", invoice)
   const isDevelopment = process.env.NODE_ENV !== 'production';
   const invoiceNumber = invoice.invoice_number || invoice.id || '—';
   const dueDate = formatDate(invoice.due_date);
   const totalAmount = formatMoney(invoice.total);
   const status = invoice.status ? invoice.status.toUpperCase() : '—';
   const customerName = invoice.customer_name || 'Customer';
+  const companyName = invoice.company_name || ''
   const invoiceTitle = invoice.title || 'Your invoice';
 
   // Use custom body if provided, otherwise use default template
@@ -110,9 +112,9 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
       </div>
 
       <div style="padding: 22px">
-        <p style="margin: 0 0 12px; color: #1f365c">Hello ${customerName},</p>
+        <p style="margin: 0 0 12px; color: #1f365c">Hello ${companyName || customerName},</p>
         <p style="margin: 0 0 16px; color: #1f365c">
-          Here is your invoice for <strong>${invoiceTitle}</strong>.
+          Job: <strong>${invoiceTitle}</strong>
         </p>
         <p style="margin: 0 0 12px; color: #334357">
           Full invoice details are in the attached PDF.
@@ -299,6 +301,21 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
 };
 
 /**
+ * Get default CC emails from environment variable
+ * @returns {Array<string>} Array of CC email addresses
+ */
+const getDefaultCcEmails = () => {
+  const ccEmailsFromEnv = process.env.CC_EMAILS;
+  if (ccEmailsFromEnv) {
+    if (ccEmailsFromEnv.includes(',')) {
+      return ccEmailsFromEnv.split(',').map(email => email.trim());
+    }
+    return [ccEmailsFromEnv.trim()];
+  }
+  return [];
+};
+
+/**
  * Get email preview data without sending
  * @param {Object} invoice - Invoice data from database
  * @returns {Object} Email preview data
@@ -306,12 +323,15 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
 export const getInvoiceEmailPreview = (invoice) => {
   const isDevelopment = process.env.NODE_ENV !== 'production';
   const invoiceTitle = invoice.title || 'Your invoice';
-  const recipientEmail = isDevelopment ? 'cnr.mtsn@gmail.com' : invoice.customer_email;
+  const recipientEmail = isDevelopment ? process.env.DEV_EMAIL_TO : invoice.customer_email;
+  const customerName = invoice?.customer_name || ""
+  const companyName = invoice?.company_name || ""
+  const recipient = companyName !== "" ? `${companyName} <${recipientEmail}>` : (customerName !== "" ? `${customerName} <${recipientEmail}>` : recipientEmail);
 
   return {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    to: recipientEmail,
-    cc: [], // Empty by default, can be filled in the modal
+    from: `Matson Brothers Painting - Billing <${process.env.EMAIL_FROM}>`,
+    to: recipient,
+    cc: getDefaultCcEmails(),
     subject: `Invoice: ${invoiceTitle}`,
     body: generateInvoiceEmailHTML(invoice),
     attachmentName: `invoice-${invoice.invoice_number || invoice.id}.pdf`,
@@ -341,7 +361,11 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
 
     // Use custom recipient email if provided, otherwise fall back to default behavior
     const recipientEmail = options.recipientEmail ||
-      (isDevelopment ? 'cnr.mtsn@gmail.com' : invoice.customer_email);
+      (isDevelopment ? process.env.DEV_EMAIL_TO : invoice.customer_email);
+
+    const customerName = invoice?.customer_name || ""
+    const companyName = invoice?.company_name || ""
+    const recipient = companyName !== "" ? `${companyName} <${recipientEmail}>` : (customerName !== "" ? `${customerName} <${recipientEmail}>` : recipientEmail);
 
     // Use custom subject if provided, otherwise use default
     const subject = options.subject || `Invoice: ${invoiceTitle}`;
@@ -351,8 +375,8 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
 
     // Email options
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to: recipientEmail,
+      from: `Matson Brothers Painting - Billing <${process.env.EMAIL_FROM}>`,
+      to: recipient,
       subject: subject,
       html: htmlBody,
       attachments: [
@@ -364,9 +388,14 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
       ],
     };
 
-    // Add CC emails if provided
-    if (options.ccEmails && options.ccEmails.length > 0) {
-      mailOptions.cc = options.ccEmails.join(', ');
+    // Add CC emails - merge default CC emails with any provided in options
+    const defaultCcEmails = getDefaultCcEmails();
+    const allCcEmails = options.ccEmails && options.ccEmails.length > 0
+      ? [...new Set([...defaultCcEmails, ...options.ccEmails])] // Merge and remove duplicates
+      : defaultCcEmails;
+
+    if (allCcEmails.length > 0) {
+      mailOptions.cc = allCcEmails.join(', ');
     }
 
     // Send email

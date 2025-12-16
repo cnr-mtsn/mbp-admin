@@ -32,7 +32,7 @@ router.get('/:id/preview-pdf', authenticatePdfRequest, async (req, res) => {
 
     // Fetch invoice with customer information
     const result = await query(
-      `SELECT i.*, c.name as customer_name, c.email as customer_email,
+      `SELECT i.*, c.name as customer_name, c.company_name as company_name, c.email as customer_email,
               c.phone as customer_phone, c.address as customer_address,
               j.title as job_title
        FROM invoices i

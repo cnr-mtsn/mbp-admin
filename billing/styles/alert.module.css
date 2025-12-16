@@ -1,0 +1,117 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: scale(0.95) translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.alert {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+  max-width: 28rem;
+  width: 100%;
+  padding: 1.25rem;
+  background-color: var(--color-white);
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideIn 0.2s ease-out;
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+.content {
+  flex: 1;
+  padding-top: 0.25rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: var(--color-gray-900);
+}
+
+.message {
+  font-size: 0.875rem;
+  margin: 0;
+  color: var(--color-gray-600);
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+/* Success variant */
+.alert.success .iconWrapper {
+  background-color: var(--status-completed-bg);
+  color: var(--status-completed-text);
+}
+
+/* Error variant */
+.alert.error .iconWrapper {
+  background-color: var(--status-overdue-bg);
+  color: var(--status-overdue-text);
+}
+
+/* Info variant */
+.alert.info .iconWrapper {
+  background-color: var(--status-sent-bg);
+  color: var(--status-sent-text);
+}
+
+/* Warning variant */
+.alert.warning .iconWrapper {
+  background-color: #fef3c7;
+  color: #d97706;
+}

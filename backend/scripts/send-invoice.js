@@ -13,7 +13,7 @@ const sendInvoice = async (invoiceNumber) => {
 
     // Fetch invoice with customer information
     const result = await query(
-      `SELECT i.*, c.name as customer_name, c.email as customer_email,
+      `SELECT i.*, c.name as customer_name, c.company_name as company_name, c.email as customer_email,
               c.phone as customer_phone, c.address as customer_address,
               j.title as job_title
        FROM invoices i
@@ -39,6 +39,7 @@ const sendInvoice = async (invoiceNumber) => {
     console.log(`Found invoice: ${invoiceNumber}`);
     console.log(`  Title: ${invoice.title || 'N/A'}`);
     console.log(`  Customer: ${invoice.customer_name || 'Unknown'}`);
+    console.log(`  Company: ${invoice.company_name || 'Unknown'}`);
     console.log(`  Email: ${invoice.customer_email}`);
     console.log(`  Total: $${invoice.total || 0}`);
     console.log(`  Status: ${invoice.status || 'Unknown'}`);

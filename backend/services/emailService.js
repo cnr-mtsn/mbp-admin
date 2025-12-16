@@ -105,7 +105,7 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
       "
     >
       <div style="background: #1f365c; color: #ffffff; padding: 18px 22px">
-        <h2 style="margin: 0 0 4px; font-size: 20px">Invoice from Matson Bros</h2>
+        <h2 style="margin: 0 0 4px; font-size: 20px">Invoice from Matson Brothers Painting</h2>
         <p style="margin: 0; font-size: 14px">
           Invoice ${invoiceNumber} &bull; Due ${dueDate}
         </p>
@@ -117,7 +117,7 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
           Job: <strong>${invoiceTitle}</strong>
         </p>
         <p style="margin: 0 0 12px; color: #334357">
-          Full invoice details are in the attached PDF.
+          View full invoice details in the attached PDF.
         </p>
 
         <table
@@ -264,9 +264,9 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
             Make payable to <strong>Matson Brothers Painting</strong>
           </div>
           <div style="margin-bottom: 4px">
-            Mail to 38104 E Hudson Rd, Oak Grove, MO, 64075
+            Mail to <strong>38104 E Hudson Rd, Oak Grove, MO, 64075</strong>
           </div>
-          <div>Include invoice number: ${invoiceNumber}</div>
+          <div>Memo: <strong>${invoice.invoice_number}</strong></div>
         </div>
 
         <a

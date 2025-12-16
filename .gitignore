@@ -53,6 +53,9 @@ next-env.d.ts
 *~
 .claude/
 
+# Nested repositories
+website/
+
 # OS
 .DS_Store
 Thumbs.db

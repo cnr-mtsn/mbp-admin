@@ -546,6 +546,7 @@ export const typeDefs = gql`
     invoice(id: ID!): Invoice
     unlinkedInvoices: [Invoice!]!
     previewInvoiceEmail(id: ID!): EmailPreview!
+    searchInvoices(invoiceNumber: String, email: String, name: String): [Invoice!]!
 
     # Payments
     payments(customer_id: ID, job_id: ID, invoice_id: ID): [Payment!]!

@@ -63,6 +63,7 @@ await server.start();
 const allowedOrigins = [
   process.env.BILLING_URL,
   process.env.INVENTORY_URL,
+  process.env.WEBSITE_URL,
   process.env.RENDER_URL, // Render's default URL for internal requests
   'https://studio.apollographql.com' // Allow Apollo Studio
 ].filter(Boolean);

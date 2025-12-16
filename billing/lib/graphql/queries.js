@@ -329,6 +329,7 @@ export const GET_INVOICES = gql`
     invoices(first: $first, offset: $offset) {
       id
       customer_id
+      invoice_number
       customer {
         id
         name

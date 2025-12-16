@@ -122,6 +122,69 @@ export const invoiceResolvers = {
         ttl: 300000, // 5 minutes
       }
     ),
+
+    searchInvoices: cachedResolver(
+      async (_, { invoiceNumber, email, name }) => {
+        // Validate only one search field
+        const fieldsProvided = [invoiceNumber, email, name].filter(Boolean).length;
+        if (fieldsProvided === 0) {
+          throw new Error('Please provide at least one search criteria');
+        }
+        if (fieldsProvided > 1) {
+          throw new Error('Please search by only ONE field');
+        }
+
+        let queryText, queryParams;
+
+        if (invoiceNumber) {
+          queryText = `
+            SELECT i.*, c.name as customer_name, c.email as customer_email
+            FROM invoices i
+            LEFT JOIN customers c ON i.customer_id = c.id
+            WHERE i.invoice_number = $1
+            ORDER BY i.created_at DESC
+          `;
+          queryParams = [invoiceNumber];
+        } else if (email) {
+          queryText = `
+            SELECT i.*, c.name as customer_name, c.email as customer_email
+            FROM invoices i
+            LEFT JOIN customers c ON i.customer_id = c.id
+            WHERE LOWER(c.email) = LOWER($1)
+            ORDER BY i.created_at DESC
+          `;
+          queryParams = [email];
+        } else if (name) {
+          queryText = `
+            SELECT i.*, c.name as customer_name, c.email as customer_email
+            FROM invoices i
+            LEFT JOIN customers c ON i.customer_id = c.id
+            WHERE LOWER(c.name) LIKE LOWER($1)
+            ORDER BY i.created_at DESC
+          `;
+          queryParams = [`%${name}%`];
+        }
+
+        const result = await query(queryText, queryParams);
+
+        return toGidFormatArray(result.rows, 'Invoice', {
+          foreignKeys: ['customer_id', 'job_id', 'estimate_id']
+        }).map(row => ({
+          ...row,
+          line_items: typeof row.line_items === 'string' ? JSON.parse(row.line_items) : row.line_items,
+          customer_name: row.customer_name,
+          customer_email: row.customer_email,
+        }));
+      },
+      {
+        operationName: 'searchInvoices',
+        getTags: (args, result) => [
+          'invoice:all',
+          ...result.map(inv => `invoice:${inv.id}`)
+        ],
+        ttl: 60000, // 1 minute
+      }
+    ),
   },
 
   Invoice: {
@@ -313,8 +376,14 @@ export const invoiceResolvers = {
       };
     },
 
-    updateInvoice: async (_, { id, input }, { user }) => {
-      requireAuth(user);
+    updateInvoice: async (_, { id, input }, { user, req }) => {
+      // Allow webhook calls with valid API key
+      const apiKey = req?.headers?.['x-api-key'];
+      const validWebhookKey = apiKey && apiKey === process.env.WEBHOOK_API_KEY;
+
+      if (!validWebhookKey) {
+        requireAuth(user);
+      }
       const hexPrefix = extractUuid(id);
 
       console.log('[updateInvoice] Received input:', JSON.stringify(input, null, 2));

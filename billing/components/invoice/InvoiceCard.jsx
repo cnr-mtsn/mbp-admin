@@ -61,7 +61,7 @@ export default function InvoiceCard({ invoice }) {
             <div key={invoice.id} className={cardStyles.lineItem}>
                 <div className={cardStyles.itemHeader}>
                     <div className={cardStyles.itemHeaderContent}>
-                        <p className={cardStyles.itemLabel}>Invoice</p>
+                        <p className={cardStyles.itemLabel}>Invoice {invoice.invoice_number}</p>
                         <h4 className={cardStyles.itemTitle}>{invoice.title}</h4>
                         <h4 className={cardStyles.itemSubtitle}>{displayCustomerName}</h4>
                     </div>

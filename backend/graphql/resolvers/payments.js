@@ -248,8 +248,14 @@ export const paymentResolvers = {
   },
 
   Mutation: {
-    recordPayment: async (_, { input }, { user }) => {
-      requireAuth(user);
+    recordPayment: async (_, { input }, { user, req }) => {
+      // Allow webhook calls with valid API key
+      const apiKey = req?.headers?.['x-api-key'];
+      const validWebhookKey = apiKey && apiKey === process.env.WEBHOOK_API_KEY;
+
+      if (!validWebhookKey) {
+        requireAuth(user);
+      }
 
       const { customer_id, payment_method, total_amount, payment_date, notes, invoices: invoiceInputs } = input;
 

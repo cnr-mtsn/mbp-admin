@@ -327,12 +327,13 @@ export const getInvoiceEmailPreview = (invoice) => {
   const customerName = invoice?.customer_name || ""
   const companyName = invoice?.company_name || ""
   const recipient = companyName !== "" ? `"${companyName}" <${recipientEmail}>` : (customerName !== "" ? `"${customerName}" <${recipientEmail}>` : recipientEmail);
-
+  const subject = `MBP Invoice #${invoice.invoice_number}: ${invoiceTitle}`;
+  
   return {
     from: `Matson Brothers Painting - Billing <${process.env.EMAIL_FROM}>`,
     to: recipient,
     cc: getDefaultCcEmails(),
-    subject: `Invoice: ${invoiceTitle}`,
+    subject: subject,
     body: generateInvoiceEmailHTML(invoice),
     attachmentName: `invoice-${invoice.invoice_number || invoice.id}.pdf`,
   };
@@ -368,7 +369,7 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
     const recipient = companyName !== "" ? `"${companyName}" <${recipientEmail}>` : (customerName !== "" ? `"${customerName}" <${recipientEmail}>` : recipientEmail);
 
     // Use custom subject if provided, otherwise use default
-    const subject = options.subject || `Invoice: ${invoiceTitle}`;
+    const subject = options.subject || `MBP Invoice #${invoice.invoice_number}: ${invoiceTitle}`;
 
     // Generate HTML body (uses custom body if provided in options)
     const htmlBody = generateInvoiceEmailHTML(invoice, options);

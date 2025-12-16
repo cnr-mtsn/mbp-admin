@@ -326,7 +326,7 @@ export const getInvoiceEmailPreview = (invoice) => {
   const recipientEmail = isDevelopment ? process.env.DEV_EMAIL_TO : invoice.customer_email;
   const customerName = invoice?.customer_name || ""
   const companyName = invoice?.company_name || ""
-  const recipient = companyName !== "" ? `${companyName} <${recipientEmail}>` : (customerName !== "" ? `${customerName} <${recipientEmail}>` : recipientEmail);
+  const recipient = companyName !== "" ? `"${companyName}" <${recipientEmail}>` : (customerName !== "" ? `"${customerName}" <${recipientEmail}>` : recipientEmail);
 
   return {
     from: `Matson Brothers Painting - Billing <${process.env.EMAIL_FROM}>`,
@@ -365,7 +365,7 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
 
     const customerName = invoice?.customer_name || ""
     const companyName = invoice?.company_name || ""
-    const recipient = companyName !== "" ? `${companyName} <${recipientEmail}>` : (customerName !== "" ? `${customerName} <${recipientEmail}>` : recipientEmail);
+    const recipient = companyName !== "" ? `"${companyName}" <${recipientEmail}>` : (customerName !== "" ? `"${customerName}" <${recipientEmail}>` : recipientEmail);
 
     // Use custom subject if provided, otherwise use default
     const subject = options.subject || `Invoice: ${invoiceTitle}`;

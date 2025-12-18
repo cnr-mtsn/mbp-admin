@@ -1,77 +1,41 @@
 .notice {
-  background: #fff9e6;
-  border: 1px solid #ffe066;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 24px;
+  @apply bg-gray-800 border-yellow-100 rounded-md p-4 w-max my-8 mx-auto;
 }
 
 .content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  @apply flex items-center gap-6;
 }
 
 .icon {
-  font-size: 24px;
-  flex-shrink: 0;
+  @apply text-xl flex-shrink-0 text-yellow-200 mx-auto;
 }
 
 .text {
-  flex: 1;
-  color: #8b6914;
-  font-size: 14px;
+  @apply flex flex-col text-gray-50 text-sm;
 }
 
 .text strong {
-  display: block;
-  margin-bottom: 4px;
+  @apply font-bold
 }
 
 .success {
-  margin-top: 8px;
-  color: #0f5132;
-  background: #d1e7dd;
-  padding: 8px 12px;
-  border-radius: 4px;
+  @apply mt-4 text-green-800 bg-green-100 py-2 px-4 rounded;
 }
 
 .error {
-  margin-top: 8px;
-  color: #842029;
-  background: #f8d7da;
-  padding: 8px 12px;
-  border-radius: 4px;
+  @apply mt-4 text-red-800 bg-red-100 py-2 px-4 rounded;
 }
 
 .button {
-  background: #1f365c;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s;
-}
-
-.button:hover:not(:disabled) {
-  background: #152845;
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  @apply bg-blue-800/80 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white border-none py-2 px-4 rounded font-semibold cursor-pointer whitespace-nowrap transition-colors duration-200;
 }
 
 @media (max-width: 768px) {
   .content {
-    flex-direction: column;
-    align-items: flex-start;
+    @apply flex flex-col items-start;
   }
 
   .button {
-    width: 100%;
+    @apply w-full;
   }
 }

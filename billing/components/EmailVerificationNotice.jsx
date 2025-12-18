@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { authAPI } from '../api/client';
 import styles from '../styles/email-verification-notice.module.css';
+import Icon from './ui/Icon'
 
 export default function EmailVerificationNotice({ user, onVerificationSent }) {
   const [isSending, setIsSending] = useState(false);
@@ -33,9 +34,12 @@ export default function EmailVerificationNotice({ user, onVerificationSent }) {
   return (
     <div className={styles.notice}>
       <div className={styles.content}>
-        <div className={styles.icon}>⚠️</div>
+        <div className={styles.icon}>
+          <Icon name="alert-triangle" size={20} />
+        </div>
         <div className={styles.text}>
-          <strong>Email not verified.</strong> Please check your inbox for a verification email.
+          <strong>Email not verified.</strong> 
+          <span>Please check your inbox for a verification email.</span>
           {message && <div className={styles.success}>{message}</div>}
           {error && <div className={styles.error}>{error}</div>}
         </div>

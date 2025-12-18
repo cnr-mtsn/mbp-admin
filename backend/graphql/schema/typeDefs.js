@@ -579,6 +579,8 @@ export const typeDefs = gql`
     # Auth
     register(email: String!, password: String!, name: String!): AuthPayload!
     login(username: String!, password: String!): AuthPayload!
+    forgotPassword(email: String!): Boolean!
+    resetPassword(token: String!, newPassword: String!): Boolean!
 
     # Users (admin)
     updateUser(id: ID!, input: UserUpdateInput!): User!

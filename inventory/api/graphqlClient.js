@@ -13,6 +13,8 @@ import {
 import {
   LOGIN,
   REGISTER,
+  FORGOT_PASSWORD,
+  RESET_PASSWORD,
   CREATE_PRODUCT,
   UPDATE_PRODUCT,
   DELETE_PRODUCT,
@@ -53,6 +55,22 @@ export const authAPI = {
     // Note: This needs to be implemented on the backend
     // For now, throw an error
     throw new Error('Update profile not yet implemented in GraphQL');
+  },
+
+  forgotPassword: async (email) => {
+    const { data } = await client.mutate({
+      mutation: FORGOT_PASSWORD,
+      variables: { email },
+    });
+    return { data: data.forgotPassword };
+  },
+
+  resetPassword: async ({ token, newPassword }) => {
+    const { data } = await client.mutate({
+      mutation: RESET_PASSWORD,
+      variables: { token, newPassword },
+    });
+    return { data: data.resetPassword };
   },
 };
 

@@ -137,3 +137,40 @@
 .registerLink a:hover {
   color: var(--color-primary-hover);
 }
+
+.forgotPasswordLink {
+  @apply text-right text-sm;
+  margin-top: var(--spacing-xs);
+}
+
+.forgotPasswordLink a {
+  @apply font-medium no-underline;
+  color: var(--color-primary);
+}
+
+.forgotPasswordLink a:hover {
+  color: var(--color-primary-hover);
+}
+
+.formTitle {
+  @apply text-2xl font-bold text-center;
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-sm);
+}
+
+.formDescription {
+  @apply text-sm text-center;
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-md);
+}
+
+.successAlert {
+  @apply rounded-md p-4;
+  background-color: #d4edda;
+  border: var(--border-width) solid #28a745;
+}
+
+.successText {
+  @apply text-sm;
+  color: #155724;
+}

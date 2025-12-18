@@ -75,6 +75,12 @@ function Login() {
             </div>
           </div>
 
+          <div className={styles.forgotPasswordLink}>
+            <Link href="/account/forgot-password">
+              Forgot your password?
+            </Link>
+          </div>
+
           <div>
             <button
               type="submit"

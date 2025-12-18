@@ -8,10 +8,10 @@ import SeoHead from '../components/SeoHead'
 import { useAuthStore } from '../store/authStore';
 
 // Pages that don't require authentication
-const publicPages = ['/account/login', '/account/register'];
+const publicPages = ['/account/login', '/account/register', '/account/forgot-password', '/account/reset-password'];
 
 // Pages that don't use the main layout
-const noLayoutPages = ['/account/login', '/account/register'];
+const noLayoutPages = ['/account/login', '/account/register', '/account/forgot-password', '/account/reset-password'];
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();

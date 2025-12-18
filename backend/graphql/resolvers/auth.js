@@ -1,7 +1,22 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { query } from '../../config/database.js';
 import { toGid, extractUuid } from '../../utils/gid.js';
+import { sendPasswordResetEmail } from '../../services/emailService.js';
+
+// Rate limiting for password reset attempts
+const resetAttempts = new Map();
+
+// Cleanup old rate limit entries every hour
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, attempt] of resetAttempts.entries()) {
+    if (now > attempt.resetAt) {
+      resetAttempts.delete(email);
+    }
+  }
+}, 60 * 60 * 1000);
 
 export const authResolvers = {
   Query: {
@@ -123,6 +138,121 @@ export const authResolvers = {
         },
         token
       };
+    },
+
+    forgotPassword: async (_, { email }) => {
+      console.log('=== FORGOT PASSWORD REQUEST ===');
+      console.log('Email requested:', email);
+
+      try {
+        // Rate limiting check
+        const now = Date.now();
+        const attempt = resetAttempts.get(email);
+
+        if (attempt && attempt.count >= 3 && now < attempt.resetAt) {
+          console.log('Rate limit exceeded for:', email);
+          throw new Error('Too many password reset attempts. Please try again later.');
+        }
+
+        // Update rate limiting
+        if (attempt && now < attempt.resetAt) {
+          resetAttempts.set(email, { count: attempt.count + 1, resetAt: attempt.resetAt });
+        } else {
+          resetAttempts.set(email, { count: 1, resetAt: now + 60 * 60 * 1000 });
+        }
+
+        // Find user by email
+        console.log('Searching for user with email:', email);
+        const result = await query(
+          'SELECT id, email, first_name, last_name, username FROM users WHERE email = $1',
+          [email]
+        );
+
+        console.log('Users found:', result.rows.length);
+
+        // If user exists, generate token and send email
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
+
+          // Generate secure token (32 bytes = 64 hex characters)
+          const rawToken = crypto.randomBytes(32).toString('hex');
+          console.log(`Generated reset token for ${user.email}, length: ${rawToken.length}`);
+
+          // Hash token before storing
+          const hashedToken = await bcrypt.hash(rawToken, 10);
+
+          // Store hashed token and expiration (1 hour from now)
+          const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+          await query(
+            'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE id = $3',
+            [hashedToken, expiresAt, user.id]
+          );
+
+          console.log(`Stored hashed token for ${user.email}, expires: ${expiresAt}`);
+
+          // Send email with raw token
+          const userName = user.first_name || user.username || 'User';
+          await sendPasswordResetEmail(user.email, rawToken, userName);
+        }
+
+        // Always return true to prevent email enumeration
+        console.log('Forgot password request completed successfully');
+        return true;
+      } catch (error) {
+        // If it's a rate limiting error, rethrow it
+        if (error.message.includes('Too many password reset attempts')) {
+          console.log('Throwing rate limit error');
+          throw error;
+        }
+        // Log other errors but still return true to prevent email enumeration
+        console.error('Error in forgotPassword:', error);
+        console.log('Returning true despite error (email enumeration protection)');
+        return true;
+      }
+    },
+
+    resetPassword: async (_, { token, newPassword }) => {
+      // Validate password strength
+      if (newPassword.length < 8) {
+        throw new Error('Password must be at least 8 characters long');
+      }
+
+      console.log('Reset password attempt - Token length:', token?.length);
+
+      // Find all users with non-expired reset tokens
+      const result = await query(
+        'SELECT id, email, reset_token FROM users WHERE reset_token_expires > NOW() AND reset_token IS NOT NULL'
+      );
+
+      console.log('Users with active reset tokens:', result.rows.length);
+
+      // Compare provided token against each hashed token
+      let matchedUser = null;
+      for (const user of result.rows) {
+        console.log(`Comparing token for user ${user.email}...`);
+        const isMatch = await bcrypt.compare(token, user.reset_token);
+        console.log(`Token match for ${user.email}:`, isMatch);
+        if (isMatch) {
+          matchedUser = user;
+          break;
+        }
+      }
+
+      if (!matchedUser) {
+        console.log('No matching user found - token invalid or expired');
+        throw new Error('Invalid or expired reset token');
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update password and clear reset fields
+      await query(
+        'UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
+        [hashedPassword, matchedUser.id]
+      );
+
+      return true;
     },
   },
 };

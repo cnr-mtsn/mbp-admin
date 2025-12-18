@@ -409,3 +409,126 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
     throw error;
   }
 };
+
+/**
+ * Send password reset email with secure link
+ * @param {string} email - Recipient email address
+ * @param {string} resetToken - Raw reset token (not hashed)
+ * @param {string} userName - User's first name or username
+ */
+export const sendPasswordResetEmail = async (email, resetToken, userName) => {
+  try {
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+
+    // Determine the reset URL based on environment
+    // In development, default to billing app on localhost:5174
+    const resetUrl = isDevelopment
+      ? `http://localhost:5174/account/reset-password?token=${resetToken}`
+      : `https://billing.matsonbrotherspainting.com/account/reset-password?token=${resetToken}`;
+
+    // Generate HTML email with company branding
+    const htmlBody = `
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          max-width: 600px;
+          margin: 0 auto;
+          border: 1px solid #e6e9ed;
+          border-radius: 10px;
+          overflow: hidden;
+          background: #ffffff;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+        "
+      >
+        <div style="background: #1f365c; color: #ffffff; padding: 18px 22px">
+          <h2 style="margin: 0 0 4px; font-size: 20px">Password Reset Request</h2>
+          <p style="margin: 0; font-size: 14px">
+            Matson Brothers Painting - Security
+          </p>
+        </div>
+
+        <div style="padding: 22px">
+          <p style="margin: 0 0 12px; color: #1f365c">Hello ${userName},</p>
+
+          <p style="margin: 0 0 16px; color: #334357">
+            We received a request to reset your password for your Matson Brothers Painting account.
+            If you made this request, click the button below to reset your password.
+          </p>
+
+          <div style="text-align: center; margin: 24px 0;">
+            <a
+              href="${resetUrl}"
+              style="
+                display: inline-block;
+                background: #1f365c;
+                color: #ffffff;
+                text-decoration: none;
+                padding: 14px 28px;
+                border-radius: 6px;
+                font-weight: bold;
+                font-size: 16px;
+              "
+            >Reset Password</a>
+          </div>
+
+          <div
+            style="
+              background: #fff9e6;
+              border: 1px solid #ffe066;
+              border-radius: 8px;
+              padding: 14px;
+              margin: 20px 0;
+              color: #8b6914;
+              font-size: 14px;
+            "
+          >
+            <strong style="display: block; margin-bottom: 6px">⚠️ Security Notice</strong>
+            This link will expire in <strong>1 hour</strong> for your security.
+            If you didn't request a password reset, you can safely ignore this email.
+            Your password will not be changed unless you click the link above and create a new password.
+          </div>
+
+          <p style="margin: 0 0 12px; color: #334357; font-size: 14px">
+            If the button doesn't work, copy and paste this link into your browser:
+          </p>
+          <p style="margin: 0 0 16px; color: #1f365c; font-size: 13px; word-break: break-all">
+            ${resetUrl}
+          </p>
+
+          <p style="margin: 20px 0 0; color: #334357">
+            Thank you,<br />
+            <strong>Matson Brothers Painting</strong>
+          </p>
+
+          ${
+            isDevelopment
+              ? `<p style="color: #999; font-size: 12px; margin-top: 20px;">
+                  <em>This is a development email. In production, this would be sent to: ${email}</em>
+                </p>`
+              : ''
+          }
+        </div>
+      </div>
+    `;
+
+    // Create transporter
+    const transporter = createTransporter();
+
+    // Email options
+    const mailOptions = {
+      from: `Matson Brothers Painting - Security <${process.env.EMAIL_FROM}>`,
+      to: isDevelopment ? process.env.DEV_EMAIL_TO : email,
+      subject: 'Password Reset Request - Matson Brothers Painting',
+      html: htmlBody,
+    };
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log('Password reset email sent:', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw error;
+  }
+};

@@ -38,6 +38,18 @@ export const REGISTER = gql`
   }
 `;
 
+export const FORGOT_PASSWORD = gql`
+  mutation ForgotPassword($email: String!) {
+    forgotPassword(email: $email)
+  }
+`;
+
+export const RESET_PASSWORD = gql`
+  mutation ResetPassword($token: String!, $newPassword: String!) {
+    resetPassword(token: $token, newPassword: $newPassword)
+  }
+`;
+
 export const UPDATE_USER = gql`
   mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
     updateUser(id: $id, input: $input) {

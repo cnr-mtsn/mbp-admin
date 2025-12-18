@@ -9,10 +9,10 @@ import SeoHead from '../components/SeoHead';
 import apolloClient from '../lib/apolloClient';
 
 // Pages that don't require authentication
-const publicPages = ['/account/login', '/account/register'];
+const publicPages = ['/account/login', '/account/register', '/account/forgot-password', '/account/reset-password'];
 
 // Pages that don't use the main layout
-const noLayoutPages = ['/account/login', '/account/register'];
+const noLayoutPages = ['/account/login', '/account/register', '/account/forgot-password', '/account/reset-password'];
 
 
 

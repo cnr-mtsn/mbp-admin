@@ -9,6 +9,7 @@ export const REGISTER = gql`
         email
         name
         role
+        email_verified
       }
       token
     }
@@ -23,6 +24,7 @@ export const LOGIN = gql`
         email
         name
         role
+        email_verified
       }
       token
     }
@@ -38,6 +40,18 @@ export const FORGOT_PASSWORD = gql`
 export const RESET_PASSWORD = gql`
   mutation ResetPassword($token: String!, $newPassword: String!) {
     resetPassword(token: $token, newPassword: $newPassword)
+  }
+`;
+
+export const SEND_VERIFICATION_EMAIL = gql`
+  mutation SendVerificationEmail {
+    sendVerificationEmail
+  }
+`;
+
+export const VERIFY_EMAIL = gql`
+  mutation VerifyEmail($token: String!) {
+    verifyEmail(token: $token)
   }
 `;
 

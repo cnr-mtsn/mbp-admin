@@ -1,5 +1,5 @@
 import client from '../lib/apolloClient';
-import { LOGIN, REGISTER, FORGOT_PASSWORD, RESET_PASSWORD } from '../lib/graphql/mutations';
+import { LOGIN, REGISTER, FORGOT_PASSWORD, RESET_PASSWORD, SEND_VERIFICATION_EMAIL, VERIFY_EMAIL } from '../lib/graphql/mutations';
 
 // ==================== AUTH API ====================
 
@@ -36,5 +36,20 @@ export const authAPI = {
       variables: { token, newPassword },
     });
     return { data: data.resetPassword };
+  },
+
+  sendVerificationEmail: async () => {
+    const { data } = await client.mutate({
+      mutation: SEND_VERIFICATION_EMAIL,
+    });
+    return { data: data.sendVerificationEmail };
+  },
+
+  verifyEmail: async (token) => {
+    const { data } = await client.mutate({
+      mutation: VERIFY_EMAIL,
+      variables: { token },
+    });
+    return { data: data.verifyEmail };
   },
 };

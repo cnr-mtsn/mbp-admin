@@ -9,6 +9,7 @@ export const typeDefs = gql`
     last_name: String
     name: String!
     role: String!
+    email_verified: Boolean!
     created_at: String!
     updated_at: String
   }
@@ -581,6 +582,8 @@ export const typeDefs = gql`
     login(username: String!, password: String!): AuthPayload!
     forgotPassword(email: String!): Boolean!
     resetPassword(token: String!, newPassword: String!): Boolean!
+    sendVerificationEmail: Boolean!
+    verifyEmail(token: String!): Boolean!
 
     # Users (admin)
     updateUser(id: ID!, input: UserUpdateInput!): User!

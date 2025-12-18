@@ -8,6 +8,7 @@ export const ME = gql`
       email
       name
       role
+      email_verified
     }
   }
 `;

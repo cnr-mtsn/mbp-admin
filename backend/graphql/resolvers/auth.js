@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { query } from '../../config/database.js';
 import { toGid, extractUuid } from '../../utils/gid.js';
-import { sendPasswordResetEmail } from '../../services/emailService.js';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../../services/emailService.js';
 
 // Rate limiting for password reset attempts
 const resetAttempts = new Map();
@@ -33,7 +33,7 @@ export const authResolvers = {
 
       // Query the database directly by UUID (no need for partial matching)
       const result = await query(
-        `SELECT id, email, username, first_name, last_name, role, created_at FROM users WHERE id = $1`,
+        `SELECT id, email, username, first_name, last_name, role, email_verified, created_at FROM users WHERE id = $1`,
         [uuid]
       );
 
@@ -50,16 +50,14 @@ export const authResolvers = {
       return {
         ...userData,
         id: toGid('User', userData.id),
-        name
+        name,
+        email_verified: userData.email_verified || false
       };
     },
   },
 
   Mutation: {
-    register: async (_, { email, password, name }, { isBillingRequest }) => {
-      if (isBillingRequest) {
-        throw new Error('Registration is disabled for billing');
-      }
+    register: async (_, { email, password, name }) => {
       const existingUser = await query(
         'SELECT id FROM users WHERE email = $1',
         [email]
@@ -75,8 +73,8 @@ export const authResolvers = {
       const username = email.split('@')[0];
 
       const result = await query(
-        'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, email, username, role, created_at',
-        [username, email, hashedPassword, 'user']
+        'INSERT INTO users (username, email, password_hash, role, email_verified) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, username, role, email_verified, created_at',
+        [username, email, hashedPassword, 'user', false]
       );
 
       const user = result.rows[0];
@@ -87,11 +85,30 @@ export const authResolvers = {
         { expiresIn: '7d' }
       );
 
+      // Send verification email (non-blocking)
+      try {
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = await bcrypt.hash(verificationToken, 10);
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        await query(
+          'UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE id = $3',
+          [hashedToken, expiresAt, user.id]
+        );
+
+        const userName = user.username || 'User';
+        await sendVerificationEmail(user.email, verificationToken, userName);
+      } catch (error) {
+        console.error('Failed to send verification email:', error);
+        // Don't block registration if email fails
+      }
+
       return {
         user: {
           ...user,
           id: gid,
-          name: user.username
+          name: user.username,
+          email_verified: false
         },
         token
       };
@@ -99,7 +116,7 @@ export const authResolvers = {
 
     login: async (_, { username, password }, { isBillingRequest }) => {
       const result = await query(
-        'SELECT id, email, password_hash, username, first_name, last_name, role, created_at FROM users WHERE username = $1',
+        'SELECT id, email, password_hash, username, first_name, last_name, role, email_verified, created_at FROM users WHERE username = $1',
         [username]
       );
 
@@ -134,7 +151,8 @@ export const authResolvers = {
         user: {
           ...userWithoutPassword,
           id: toGid('User', user.id),
-          name
+          name,
+          email_verified: user.email_verified || false
         },
         token
       };
@@ -252,6 +270,95 @@ export const authResolvers = {
         [hashedPassword, matchedUser.id]
       );
 
+      return true;
+    },
+
+    sendVerificationEmail: async (_, __, { user }) => {
+      console.log('=== SEND VERIFICATION EMAIL REQUEST ===');
+
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      try {
+        const userIdString = String(user.id);
+        const uuid = userIdString.startsWith('gid://') ? extractUuid(userIdString) : userIdString;
+
+        // Find user
+        const result = await query(
+          'SELECT id, email, username, first_name, email_verified FROM users WHERE id = $1',
+          [uuid]
+        );
+
+        if (result.rows.length === 0) {
+          throw new Error('User not found');
+        }
+
+        const dbUser = result.rows[0];
+
+        // Check if already verified
+        if (dbUser.email_verified) {
+          throw new Error('Email already verified');
+        }
+
+        // Generate secure token
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = await bcrypt.hash(rawToken, 10);
+
+        // Store hashed token and expiration (24 hours)
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        await query(
+          'UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE id = $3',
+          [hashedToken, expiresAt, dbUser.id]
+        );
+
+        console.log(`Stored verification token for ${dbUser.email}, expires: ${expiresAt}`);
+
+        // Send email with raw token
+        const userName = dbUser.first_name || dbUser.username || 'User';
+        await sendVerificationEmail(dbUser.email, rawToken, userName);
+
+        console.log('Verification email sent successfully');
+        return true;
+      } catch (error) {
+        console.error('Error in sendVerificationEmail:', error);
+        throw error;
+      }
+    },
+
+    verifyEmail: async (_, { token }) => {
+      console.log('=== VERIFY EMAIL REQUEST ===');
+      console.log('Token length:', token?.length);
+
+      // Find all users with non-expired verification tokens
+      const result = await query(
+        'SELECT id, email, verification_token FROM users WHERE verification_token_expires > NOW() AND verification_token IS NOT NULL'
+      );
+
+      console.log('Users with active verification tokens:', result.rows.length);
+
+      // Compare provided token against each hashed token
+      let matchedUser = null;
+      for (const user of result.rows) {
+        const isMatch = await bcrypt.compare(token, user.verification_token);
+        if (isMatch) {
+          matchedUser = user;
+          break;
+        }
+      }
+
+      if (!matchedUser) {
+        console.log('No matching user found - token invalid or expired');
+        throw new Error('Invalid or expired verification token');
+      }
+
+      // Update user as verified and clear verification fields
+      await query(
+        'UPDATE users SET email_verified = TRUE, verification_token = NULL, verification_token_expires = NULL WHERE id = $1',
+        [matchedUser.id]
+      );
+
+      console.log(`Email verified successfully for ${matchedUser.email}`);
       return true;
     },
   },

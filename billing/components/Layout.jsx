@@ -9,6 +9,7 @@ import styles from '../styles/layout.module.css';
 import MobileClock from './MobileClock'
 import Icon from './ui/Icon'
 import Loading from './ui/Loading'
+import EmailVerificationNotice from './EmailVerificationNotice';
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -140,6 +141,7 @@ export default function Layout({ children }) {
       </nav>
 
       <main className={`container ${styles.main}`}>
+        <EmailVerificationNotice user={user} />
         <div key={asPath} className={styles.pageTransition}>
           {children}
         </div>

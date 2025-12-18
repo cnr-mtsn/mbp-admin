@@ -532,3 +532,124 @@ export const sendPasswordResetEmail = async (email, resetToken, userName) => {
     throw error;
   }
 };
+
+/**
+ * Send email verification email with secure link
+ * @param {string} email - Recipient email address
+ * @param {string} verificationToken - Raw verification token (not hashed)
+ * @param {string} userName - User's first name or username
+ */
+export const sendVerificationEmail = async (email, verificationToken, userName) => {
+  try {
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+
+    // Determine the verification URL based on environment
+    const verifyUrl = isDevelopment
+      ? `http://localhost:5174/account/verify?token=${verificationToken}`
+      : `https://billing.matsonbrotherspainting.com/account/verify?token=${verificationToken}`;
+
+    // Generate HTML email with company branding
+    const htmlBody = `
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          max-width: 600px;
+          margin: 0 auto;
+          border: 1px solid #e6e9ed;
+          border-radius: 10px;
+          overflow: hidden;
+          background: #ffffff;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+        "
+      >
+        <div style="background: #1f365c; color: #ffffff; padding: 18px 22px">
+          <h2 style="margin: 0 0 4px; font-size: 20px">Verify Your Email Address</h2>
+          <p style="margin: 0; font-size: 14px">
+            Matson Brothers Painting - Account Setup
+          </p>
+        </div>
+
+        <div style="padding: 22px">
+          <p style="margin: 0 0 12px; color: #1f365c">Hello ${userName},</p>
+
+          <p style="margin: 0 0 16px; color: #334357">
+            Thank you for registering with Matson Brothers Painting.
+            To complete your account setup, please verify your email address by clicking the button below.
+          </p>
+
+          <div style="text-align: center; margin: 24px 0;">
+            <a
+              href="${verifyUrl}"
+              style="
+                display: inline-block;
+                background: #1f365c;
+                color: #ffffff;
+                text-decoration: none;
+                padding: 14px 28px;
+                border-radius: 6px;
+                font-weight: bold;
+                font-size: 16px;
+              "
+            >Verify Email Address</a>
+          </div>
+
+          <div
+            style="
+              background: #e6f3ff;
+              border: 1px solid #4a9eff;
+              border-radius: 8px;
+              padding: 14px;
+              margin: 20px 0;
+              color: #1f365c;
+              font-size: 14px;
+            "
+          >
+            <strong style="display: block; margin-bottom: 6px">ℹ️ Important</strong>
+            This verification link will expire in <strong>24 hours</strong>.
+            If you didn't create an account with Matson Brothers Painting, you can safely ignore this email.
+          </div>
+
+          <p style="margin: 0 0 12px; color: #334357; font-size: 14px">
+            If the button doesn't work, copy and paste this link into your browser:
+          </p>
+          <p style="margin: 0 0 16px; color: #1f365c; font-size: 13px; word-break: break-all">
+            ${verifyUrl}
+          </p>
+
+          <p style="margin: 20px 0 0; color: #334357">
+            Thank you,<br />
+            <strong>Matson Brothers Painting</strong>
+          </p>
+
+          ${
+            isDevelopment
+              ? `<p style="color: #999; font-size: 12px; margin-top: 20px;">
+                  <em>This is a development email. In production, this would be sent to: ${email}</em>
+                </p>`
+              : ''
+          }
+        </div>
+      </div>
+    `;
+
+    // Create transporter
+    const transporter = createTransporter();
+
+    // Email options
+    const mailOptions = {
+      from: `Matson Brothers Painting <${process.env.EMAIL_FROM}>`,
+      to: isDevelopment ? process.env.DEV_EMAIL_TO : email,
+      subject: 'Verify Your Email - Matson Brothers Painting',
+      html: htmlBody,
+    };
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log('Verification email sent:', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    throw error;
+  }
+};

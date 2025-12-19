@@ -533,6 +533,18 @@ export const invoiceResolvers = {
 
       const deletedInvoice = invoiceResult.rows[0];
 
+      // Check if invoice has any associated payments
+      const paymentCheck = await query(
+        `SELECT COUNT(*) as payment_count
+         FROM payment_invoices
+         WHERE invoice_id = $1`,
+        [deletedInvoice.id]
+      );
+
+      if (paymentCheck.rows[0].payment_count > 0) {
+        throw new Error('Cannot delete invoice with associated payments. Please delete all payments first.');
+      }
+
       // Delete the invoice
       const result = await query(
         `DELETE FROM invoices WHERE REPLACE(id::text, '-', '') LIKE $1 RETURNING id`,

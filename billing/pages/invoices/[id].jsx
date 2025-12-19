@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_INVOICE } from '../../lib/graphql/queries';
-import { UPDATE_INVOICE, SEND_INVOICE } from '../../lib/graphql/mutations';
+import { UPDATE_INVOICE, SEND_INVOICE, DELETE_INVOICE } from '../../lib/graphql/mutations';
 import { extractUuid, toGid } from '../../lib/utils/gid';
 import { formatCustomerName, formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import InvoiceForm from '../../components/InvoiceForm';
@@ -30,8 +30,10 @@ export default function InvoiceDetail() {
   const { id } = router.query;
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [alert, setAlert] = useState({ isOpen: false, title: '', message: '', type: 'info' });
   const dialogRef = useRef(null);
+  const deleteDialogRef = useRef(null);
 
   const { data, loading, error, refetch } = useQuery(GET_INVOICE, {
     variables: { id: id ? toGid('Invoice', id) : null },
@@ -48,6 +50,8 @@ export default function InvoiceDetail() {
 
   const [sendInvoice, { loading: sendingInvoice }] = useMutation(SEND_INVOICE);
 
+  const [deleteInvoice] = useMutation(DELETE_INVOICE);
+
   // Handle dialog open/close
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -59,6 +63,17 @@ export default function InvoiceDetail() {
       dialog.close();
     }
   }, [showEditModal]);
+
+  useEffect(() => {
+    const dialog = deleteDialogRef.current;
+    if (!dialog) return;
+
+    if (showDeleteModal) {
+      dialog.showModal();
+    } else {
+      dialog.close();
+    }
+  }, [showDeleteModal]);
 
   const handleStatusChange = async (newStatus) => {
     try {
@@ -154,6 +169,24 @@ export default function InvoiceDetail() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteInvoice({
+        variables: { id: toGid('Invoice', id) },
+      });
+      router.push('/invoices');
+    } catch (err) {
+      console.error('Error deleting invoice:', err);
+      setShowDeleteModal(false);
+      setAlert({
+        isOpen: true,
+        title: 'Error',
+        message: err.message || 'Failed to delete invoice',
+        type: 'error'
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.centerState}>
@@ -226,6 +259,14 @@ export default function InvoiceDetail() {
             </button>
             <button onClick={() => setShowEditModal(true)} className="btn-secondary" title="Edit Invoice">
               <Icon name="edit" size={10} />
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="btn-secondary"
+              style={{ color: 'var(--color-danger)' }}
+              title="Delete Invoice"
+            >
+              <Icon name="trash" size={10} />
             </button>
             <BackButton href="/invoices" classes="btn-secondary" title="Back to Invoices" />
           </div>
@@ -481,6 +522,32 @@ export default function InvoiceDetail() {
         message={alert.message}
         type={alert.type}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <dialog ref={deleteDialogRef} className={styles.modal}>
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <h3>Delete Invoice</h3>
+            <button onClick={() => setShowDeleteModal(false)} className={styles.modalClose}>
+              <Icon name="close" size={10} />
+            </button>
+          </div>
+          <div style={{ padding: '1.5rem' }}>
+            <p>Are you sure you want to delete this invoice?</p>
+            <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)' }}>
+              This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
+              <button onClick={handleDelete} className="btn-primary" style={{ backgroundColor: 'var(--color-danger)' }}>
+                Delete
+              </button>
+              <button onClick={() => setShowDeleteModal(false)} className="btn-secondary">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </dialog>
 
       <style jsx>{`
         dialog::backdrop {

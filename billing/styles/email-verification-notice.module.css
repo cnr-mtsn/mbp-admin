@@ -1,5 +1,5 @@
 .notice {
-  @apply bg-gray-800 border-yellow-100 rounded-md p-4 w-max my-8 mx-auto;
+  @apply bg-white shadow-lg border border-gray-100 dark:bg-gray-800 rounded-md p-4 w-max my-8 mx-auto;
 }
 
 .content {
@@ -7,11 +7,11 @@
 }
 
 .icon {
-  @apply text-xl flex-shrink-0 text-yellow-200 mx-auto;
+  @apply text-xl flex-shrink-0 text-yellow-600 dark:text-yellow-200 mx-auto;
 }
 
 .text {
-  @apply flex flex-col text-gray-50 text-sm;
+  @apply flex flex-col text-gray-700 dark:text-gray-50 text-sm;
 }
 
 .text strong {
@@ -27,7 +27,7 @@
 }
 
 .button {
-  @apply bg-blue-800/80 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white border-none py-2 px-4 rounded font-semibold cursor-pointer whitespace-nowrap transition-colors duration-200;
+  @apply bg-blue-600/80 hover:bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed text-base text-white border-none py-2 px-4 rounded-md cursor-pointer whitespace-nowrap transition-colors duration-200;
 }
 
 @media (max-width: 768px) {

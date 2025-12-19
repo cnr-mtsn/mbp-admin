@@ -259,18 +259,18 @@
     --status-pending-border: #92400E;
 
     /* Status: Paid (Green) */
-    --status-paid-bg: rgba(220, 252, 231, 0.739);
-    --status-paid-text: rgb(22 101 52);
-    --status-paid-border: rgb(22 101 52);
+    --status-paid-bg: rgba(157, 215, 177, 0.739);
+    --status-paid-text: rgb(27, 117, 62);
+    --status-paid-border: rgb(27, 117, 62);
 
     /* Status: Sent (Blue) */
     --status-sent-bg: rgb(219 234 254);
-    --status-sent-text: rgb(30 64 175);
+    --status-sent-text: rgb(56, 86, 183);
     --status-sent-border: rgb(30 64 175);
 
     /* Status: Overdue (Red) */
     --status-overdue-bg: rgb(254 226 226);
-    --status-overdue-text: rgb(153 27 27);
+    --status-overdue-text: rgb(193, 43, 43);
     --status-overdue-border: rgb(153 27 27);
 
     /* Status: Draft (Gray) */
@@ -363,19 +363,19 @@
       --status-pending-border: #FCD34D;
 
       /* Status: Paid (Green) */
-      --status-paid-bg: rgba(80, 164, 113, 0.5);
-      --status-paid-text: rgb(15, 226, 89);
-      --status-paid-border: rgb(15, 226, 89);
+      --status-paid-bg: rgba(83, 135, 104, 0.5);
+      --status-paid-text: rgb(51, 181, 96);
+      --status-paid-border: rgb(51, 181, 96);
 
       /* Status: Sent (Blue) */
-      --status-sent-bg: rgba(107, 136, 214, 0.5);
-      --status-sent-text: rgb(191 219 254);
-      --status-sent-border: rgb(191 219 254);
+      --status-sent-bg: rgba(114, 127, 163, 0.5);
+      --status-sent-text: rgb(107, 156, 215);
+      --status-sent-border: rgb(107, 156, 215);
 
       /* Status: Overdue (Red) */
-      --status-overdue-bg: rgb(127 29 29 / 0.4);
-      --status-overdue-text: rgb(254 202 202);
-      --status-overdue-border: rgb(254 202 202);
+      --status-overdue-bg: rgba(127, 77, 77, 0.4);
+      --status-overdue-text: rgb(214, 127, 127);
+      --status-overdue-border: rgb(214, 127, 127);
 
       /* Status: Draft (Gray) */
       --status-draft-bg: rgba(152, 152, 152, 0.5);
@@ -464,9 +464,7 @@
   }
 
   .card {
-    @apply bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl shadow-md p-6 h-full;
-    transition: all var(--transition-normal);
-    cursor: pointer;
+    @apply bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl shadow-md p-6 h-full cursor-pointer;
   }
 
   a > .card:hover {

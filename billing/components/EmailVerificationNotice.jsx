@@ -48,7 +48,7 @@ export default function EmailVerificationNotice({ user, onVerificationSent }) {
           disabled={isSending}
           className={styles.button}
         >
-          {isSending ? 'Sending...' : 'Resend verification email'}
+          {isSending ? 'Sending...' : 'Verify email'}
         </button>
       </div>
     </div>

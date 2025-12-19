@@ -10,25 +10,19 @@ import MobileClock from './MobileClock'
 import Icon from './ui/Icon'
 import Loading from './ui/Loading'
 import EmailVerificationNotice from './EmailVerificationNotice';
+import { useAuthStore } from '../store/authStore';
 
 export default function Layout({ children }) {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const { user, hydrate, logout } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const { events, asPath } = router;
 
-  // Load user from localStorage
+  // Hydrate auth store from localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Failed to parse user from localStorage', e);
-      }
-    }
-  }, []);
+    hydrate();
+  }, [hydrate]);
 
   useEffect(() => {
     const handleStart = (url) => {
@@ -51,8 +45,7 @@ export default function Layout({ children }) {
   }, [asPath, events]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     setIsMobileMenuOpen(false);
     router.push('/account/login');
   };

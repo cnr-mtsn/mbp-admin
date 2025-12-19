@@ -1,6 +1,6 @@
 import { query } from '../../config/database.js';
 import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
-import { extractUuid } from '../../utils/gid.js';
+import { extractUuid, toGid } from '../../utils/gid.js';
 import { fetchPaymentsWithInvoices } from './payments.js';
 import { cachedResolver, invalidateCache, generateListTags } from '../../utils/cachedResolver.js';
 
@@ -297,7 +297,7 @@ export const jobResolvers = {
       // Invalidate cache after creating job
       invalidateCache([
         'job:all',
-        `job:customer:${customerUuid}`,
+        `job:customer:${toGid('Customer', customerUuid)}`,
         'dashboard:analytics',
       ]);
 
@@ -496,16 +496,16 @@ export const jobResolvers = {
       const updatedJob = result.rows[0];
 
       // Invalidate cache after updating job
-      const hexId = extractUuid(id);
+      const updatedJobGid = toGidFormat(updatedJob, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
       invalidateCache([
         'job:all',
-        `job:${hexId}`,
-        `job:customer:${existingJob.customer_id}`,
-        ...(updates.customer_id !== existingJob.customer_id ? [`job:customer:${updates.customer_id}`] : []),
+        `job:${updatedJobGid.id}`,
+        `job:customer:${toGid('Customer', existingJob.customer_id)}`,
+        ...(updates.customer_id !== existingJob.customer_id ? [`job:customer:${toGid('Customer', updates.customer_id)}`] : []),
         'dashboard:analytics',
       ]);
 
-      return toGidFormat(updatedJob, 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
+      return updatedJobGid;
     },
 
     deleteJob: async (_, { id }, { user }) => {
@@ -530,10 +530,11 @@ export const jobResolvers = {
       );
 
       // Invalidate cache after deleting job
+      const deletedJobGid = toGid('Job', result.rows[0].id);
       invalidateCache([
         'job:all',
-        `job:${hexPrefix}`,
-        `job:customer:${customerId}`,
+        `job:${deletedJobGid}`,
+        `job:customer:${toGid('Customer', customerId)}`,
         'dashboard:analytics',
       ]);
 
@@ -663,7 +664,7 @@ export const jobResolvers = {
       // Invalidate cache after accepting estimate and creating job
       invalidateCache([
         'job:all',
-        `job:customer:${estimate.customer_id}`,
+        `job:customer:${toGid('Customer', estimate.customer_id)}`,
         'invoice:all',
         'dashboard:analytics',
       ]);
@@ -729,17 +730,17 @@ export const jobResolvers = {
       );
 
       // Invalidate cache after linking invoices to job
-      const jobHexId = extractUuid(job_id);
+      const updatedJobGid = toGidFormat(updatedJobResult.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
       invalidateCache([
         'job:all',
-        `job:${jobHexId}`,
-        `job:customer:${job.customer_id}`,
+        `job:${updatedJobGid.id}`,
+        `job:customer:${toGid('Customer', job.customer_id)}`,
         'invoice:all',
-        ...invoice_ids.map(inv_id => `invoice:${extractUuid(inv_id)}`),
+        ...invoice_ids.map(inv_id => `invoice:${inv_id}`),
         'dashboard:analytics',
       ]);
 
-      return toGidFormat(updatedJobResult.rows[0], 'Job', { foreignKeys: ['customer_id', 'estimate_id'] });
+      return updatedJobGid;
     },
   },
 };

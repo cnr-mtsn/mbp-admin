@@ -1,6 +1,7 @@
 import { query } from '../../config/database.js';
 import { toGidFormat, extractUuidForQuery } from '../../utils/resolverHelpers.js';
 import { toGid, extractUuid } from '../../utils/gid.js';
+import { invalidateCache } from '../../utils/cachedResolver.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -166,6 +167,18 @@ export const expenseResolvers = {
 
       const row = result.rows[0];
       const expense = toGidFormat(row, 'Expense', { foreignKeys: ['job_id'] });
+
+      // Invalidate cache after creating expense
+      invalidateCache([
+        'expense:all',
+        ...(row.job_id ? [
+          `expense:job:${toGid('Job', row.job_id)}`,
+          `job:${toGid('Job', row.job_id)}`,
+          'job:all',
+        ] : []),
+        'dashboard:analytics',
+      ]);
+
       return {
         ...expense,
         subtotal: row.subtotal ? parseFloat(row.subtotal) : null,
@@ -298,6 +311,27 @@ export const expenseResolvers = {
 
       const row = result.rows[0];
       const expense = toGidFormat(row, 'Expense', { foreignKeys: ['job_id'] });
+
+      // Get the old job_id to invalidate its cache if it changed
+      const oldJobId = existing.rows[0].job_id;
+
+      // Invalidate cache after updating expense
+      invalidateCache([
+        'expense:all',
+        `expense:${expense.id}`,
+        ...(row.job_id ? [
+          `expense:job:${toGid('Job', row.job_id)}`,
+          `job:${toGid('Job', row.job_id)}`,
+          'job:all',
+        ] : []),
+        // If job changed, also invalidate old job
+        ...(oldJobId && oldJobId !== row.job_id ? [
+          `expense:job:${toGid('Job', oldJobId)}`,
+          `job:${toGid('Job', oldJobId)}`,
+        ] : []),
+        'dashboard:analytics',
+      ]);
+
       return {
         ...expense,
         subtotal: row.subtotal ? parseFloat(row.subtotal) : null,
@@ -340,6 +374,17 @@ export const expenseResolvers = {
 
       const row = result.rows[0];
       const expense = toGidFormat(row, 'Expense', { foreignKeys: ['job_id'] });
+
+      // Invalidate cache after assigning expense to job
+      invalidateCache([
+        'expense:all',
+        `expense:${expense.id}`,
+        `expense:job:${toGid('Job', jobUuid)}`,
+        `job:${toGid('Job', jobUuid)}`,
+        'job:all',
+        'dashboard:analytics',
+      ]);
+
       return {
         ...expense,
         subtotal: row.subtotal ? parseFloat(row.subtotal) : null,
@@ -353,14 +398,36 @@ export const expenseResolvers = {
       requireAuth(context.user);
 
       const hexPrefix = extractUuid(id);
+
+      // Get the expense first to know which job to invalidate
+      const expenseResult = await query(
+        `SELECT * FROM expenses WHERE REPLACE(id::text, '-', '') LIKE $1`,
+        [`${hexPrefix}%`]
+      );
+
+      if (expenseResult.rows.length === 0) {
+        throw new Error('Expense not found');
+      }
+
+      const deletedExpense = expenseResult.rows[0];
+
       const result = await query(
         `DELETE FROM expenses WHERE REPLACE(id::text, '-', '') LIKE $1 RETURNING id`,
         [`${hexPrefix}%`]
       );
 
-      if (result.rows.length === 0) {
-        throw new Error('Expense not found');
-      }
+      // Invalidate cache after deleting expense
+      const deletedExpenseGid = toGid('Expense', deletedExpense.id);
+      invalidateCache([
+        'expense:all',
+        `expense:${deletedExpenseGid}`,
+        ...(deletedExpense.job_id ? [
+          `expense:job:${toGid('Job', deletedExpense.job_id)}`,
+          `job:${toGid('Job', deletedExpense.job_id)}`,
+          'job:all',
+        ] : []),
+        'dashboard:analytics',
+      ]);
 
       return true;
     },

@@ -1,6 +1,6 @@
 import { query } from '../../config/database.js';
 import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
-import { extractUuid } from '../../utils/gid.js';
+import { extractUuid, toGid } from '../../utils/gid.js';
 import { fetchPaymentsWithInvoices } from './payments.js';
 import { cachedResolver, invalidateCache, generateListTags } from '../../utils/cachedResolver.js';
 
@@ -364,8 +364,8 @@ export const invoiceResolvers = {
         'invoice:all',
         'invoice:unlinked',
         ...(jobUuid ? [
-          `invoice:job:${jobUuid}`,
-          `job:${jobUuid}`,
+          `invoice:job:${toGid('Job', jobUuid)}`,
+          `job:${toGid('Job', jobUuid)}`,
           'job:all',
         ] : []),
         'dashboard:analytics',
@@ -494,20 +494,19 @@ export const invoiceResolvers = {
       const invoice = toGidFormat(updatedInvoice, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] });
 
       // Invalidate cache after updating invoice
-      const hexId = extractUuid(id);
       invalidateCache([
         'invoice:all',
         'invoice:unlinked',
-        `invoice:${hexId}`,
+        `invoice:${invoice.id}`,
         ...(updatedInvoice.job_id ? [
-          `invoice:job:${updatedInvoice.job_id}`,
-          `job:${updatedInvoice.job_id}`,
+          `invoice:job:${toGid('Job', updatedInvoice.job_id)}`,
+          `job:${toGid('Job', updatedInvoice.job_id)}`,
           'job:all',
         ] : []),
         // If job changed, also invalidate old job
         ...(existingInvoice.job_id && existingInvoice.job_id !== updatedInvoice.job_id ? [
-          `invoice:job:${existingInvoice.job_id}`,
-          `job:${existingInvoice.job_id}`,
+          `invoice:job:${toGid('Job', existingInvoice.job_id)}`,
+          `job:${toGid('Job', existingInvoice.job_id)}`,
         ] : []),
         'dashboard:analytics',
       ]);
@@ -560,13 +559,14 @@ export const invoiceResolvers = {
       }
 
       // Invalidate cache after deleting invoice
+      const deletedInvoiceGid = toGid('Invoice', deletedInvoice.id);
       invalidateCache([
         'invoice:all',
         'invoice:unlinked',
-        `invoice:${hexPrefix}`,
+        `invoice:${deletedInvoiceGid}`,
         ...(deletedInvoice.job_id ? [
-          `invoice:job:${deletedInvoice.job_id}`,
-          `job:${deletedInvoice.job_id}`,
+          `invoice:job:${toGid('Job', deletedInvoice.job_id)}`,
+          `job:${toGid('Job', deletedInvoice.job_id)}`,
           'job:all',
         ] : []),
         'dashboard:analytics',

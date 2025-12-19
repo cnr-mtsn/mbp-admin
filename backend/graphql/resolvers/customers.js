@@ -210,7 +210,7 @@ export const customerResolvers = {
       // Invalidate cache after updating customer
       invalidateCache([
         'customer:all',
-        `customer:${hexPrefix}`,
+        `customer:${customer.id}`,
       ]);
 
       return customer;
@@ -229,9 +229,10 @@ export const customerResolvers = {
       }
 
       // Invalidate cache after deleting customer
+      const deletedCustomerGid = toGid('Customer', result.rows[0].id);
       invalidateCache([
         'customer:all',
-        `customer:${hexPrefix}`,
+        `customer:${deletedCustomerGid}`,
       ]);
 
       return true;

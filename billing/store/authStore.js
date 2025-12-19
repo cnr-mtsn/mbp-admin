@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { authAPI } from '../api/client';
+import client from '../lib/apolloClient';
+import { ME } from '../lib/graphql/queries';
 
 export const useAuthStore = create((set) => ({
   user: null,
@@ -48,6 +50,36 @@ export const useAuthStore = create((set) => ({
         isAuthenticated: !!token && canAccess,
         isHydrated: true,
       });
+    }
+  },
+
+  // Refresh user data from backend
+  refreshUser: async () => {
+    if (typeof window === 'undefined') return;
+
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const { data } = await client.query({
+        query: ME,
+        fetchPolicy: 'network-only', // Always fetch fresh data
+      });
+
+      if (data?.me) {
+        const user = data.me;
+        const canAccess = useAuthStore.getState().enforceBillingAccess(user);
+
+        if (canAccess) {
+          localStorage.setItem('user', JSON.stringify(user));
+          set({
+            user,
+            isAuthenticated: true,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
     }
   },
 

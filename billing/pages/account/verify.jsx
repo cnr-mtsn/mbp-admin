@@ -8,7 +8,7 @@ import styles from '../../styles/login.module.css';
 function VerifyEmail() {
   const router = useRouter();
   const { token } = router.query;
-  const { hydrate } = useAuthStore();
+  const { refreshUser } = useAuthStore();
 
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -35,8 +35,8 @@ function VerifyEmail() {
       await authAPI.verifyEmail(token);
       setIsSuccess(true);
 
-      // Refresh user data in store
-      hydrate();
+      // Refresh user data from backend to get updated email_verified status
+      await refreshUser();
 
       // Redirect to home after 2 seconds
       setTimeout(() => {

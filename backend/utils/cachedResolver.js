@@ -53,6 +53,11 @@ export function cachedResolver(resolver, options = {}) {
     // Store in cache with tags
     cache.set(cacheKey, result, { ttl, tags });
 
+    // Log cache storage
+    if (process.env.NODE_ENV === 'development' && tags.length > 0) {
+      console.log(`[Cache SET] ${operationName} tagged with:`, tags.slice(0, 5).join(', ') + (tags.length > 5 ? '...' : ''));
+    }
+
     return result;
   };
 }
@@ -65,10 +70,16 @@ export function cachedResolver(resolver, options = {}) {
  * @returns {number} Number of cache entries invalidated
  */
 export function invalidateCache(tags) {
+  // Log before invalidation (always log, not just in development)
+  console.log(`[Cache INVALIDATE] Clearing cache for tags:`, tags);
+
   const count = cache.invalidateTags(tags);
 
-  if (process.env.NODE_ENV === 'development' && count > 0) {
-    console.log(`[Cache INVALIDATE] ${count} entries cleared for tags:`, tags);
+  // Log results
+  if (count > 0) {
+    console.log(`[Cache INVALIDATE] ✓ Successfully cleared ${count} cache entries`);
+  } else {
+    console.log(`[Cache INVALIDATE] ⚠ No cache entries found for these tags (cache may be empty or already cleared)`);
   }
 
   return count;

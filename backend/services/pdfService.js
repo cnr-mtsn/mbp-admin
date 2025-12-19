@@ -194,6 +194,11 @@ export const generateInvoicePDF = (invoice) => {
       addRightLine('Due Date', dueDate);
       addRightLine('Status', status);
 
+      // Payment Stage in top section
+      if (invoice.payment_stage) {
+        addRightLine('Payment Stage', `${capitalize(invoice.payment_stage)}${invoice.percentage ? ` (${invoice.percentage}%)` : ''}`);
+      }
+
       yPosition = Math.max(leftBlockEnd, rightY) + 24;
 
       // Divider line
@@ -336,27 +341,6 @@ export const generateInvoicePDF = (invoice) => {
       addTotalLine('Subtotal', formatMoney(invoice.subtotal || 0), false, textSecondary);
       addTotalLine('Tax', formatMoney(invoice.tax || 0), false, textSecondary);
       addTotalLine('Total', formatMoney(invoice.total || 0), true, accent);
-
-      // Payment Information
-      if (invoice.payment_stage) {
-        yPosition += 4;
-        doc
-          .font('Helvetica')
-          .fontSize(9)
-          .fillColor(textSecondary)
-          .text('Payment Stage', totalsX, yPosition, { width: 120, align: 'left' });
-        doc
-          .font('Helvetica')
-          .fontSize(10)
-          .fillColor(textColor)
-          .text(
-            `${capitalize(invoice.payment_stage)}${invoice.percentage ? ` (${invoice.percentage}%)` : ''}`,
-            totalsX + 120,
-            yPosition,
-            { width: 120, align: 'right' }
-          );
-        yPosition = doc.y + 20;
-      }
 
       // Notes Section - modern styling
       if (invoice.notes) {

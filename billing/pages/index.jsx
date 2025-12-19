@@ -49,7 +49,7 @@ export default function Dashboard() {
         {user?.role === 'superadmin' && (
           <div className={`card ${dashboardStyles.metricCard}`}>
             <div className={dashboardStyles.metricHeader}>
-              <Icon name="dollar-sign" size={5} />
+              <Icon name="dollar-sign" size={10} />
               <p className={dashboardStyles.metricLabel}>{currentYear} Revenue</p>
             </div>
             <p className={dashboardStyles.metricValueRevenue}>
@@ -63,7 +63,7 @@ export default function Dashboard() {
           className={`card ${dashboardStyles.metricCard}`}
         >
           <div className={dashboardStyles.metricHeader}>
-            <Icon name="clock" size={5} />
+            <Icon name="clock" size={10} />
             <p className={dashboardStyles.metricLabel}>Outstanding</p>
           </div>
           <p className={dashboardStyles.metricValueOutstanding}>
@@ -79,7 +79,7 @@ export default function Dashboard() {
           className={`card ${dashboardStyles.metricCard}`}
         >
           <div className={dashboardStyles.metricHeader}>
-            <Icon name="alert-circle" size={5} />
+            <Icon name="alert-circle" size={10} />
             <p className={dashboardStyles.metricLabel}>Overdue</p>
           </div>
           <p className={dashboardStyles.metricValueOverdue}>
@@ -95,7 +95,7 @@ export default function Dashboard() {
           className={`card ${dashboardStyles.metricCard}`}
         >
           <div className={dashboardStyles.metricHeader}>
-            <Icon name="briefcase" size={5} />
+            <Icon name="briefcase" size={10} />
             <p className={dashboardStyles.metricLabel}>Active Jobs</p>
           </div>
           <p className={dashboardStyles.metricValue}>

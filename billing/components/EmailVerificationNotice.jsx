@@ -27,7 +27,7 @@ export default function EmailVerificationNotice({ user, onVerificationSent }) {
   };
 
   // Don't show if user is already verified
-  if (user?.email_verified) {
+  if (!user || user?.email_verified) {
     return null;
   }
 
@@ -46,7 +46,7 @@ export default function EmailVerificationNotice({ user, onVerificationSent }) {
         <button
           onClick={handleSendVerification}
           disabled={isSending}
-          className={styles.button}
+          className={`btn-primary`}
         >
           {isSending ? 'Sending...' : 'Verify email'}
         </button>

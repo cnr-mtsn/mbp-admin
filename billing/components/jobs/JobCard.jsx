@@ -16,7 +16,8 @@ export default function JobCard({ job }) {
     const statusClass = statusStyles[job.status] || statusStyles.pending;
 
     // Calculate realized profit based on payments received minus expenses
-    const amountPaid = job.amount_paid || 0;
+    console.log("Job data:", job);
+    const amountPaid = job.amount_paid || job.total_amount || 0;
     const totalExpenses = job.total_expenses || 0;
     const realizedProfit = amountPaid - totalExpenses;
     const profitMargin = amountPaid > 0 ? (realizedProfit / amountPaid) * 100 : 0;

@@ -232,31 +232,31 @@
     --transition-slow: 300ms ease-in-out;
 
     /* Button Colors - Primary (Blue) */
-    --btn-primary-bg: rgb(59 130 246);
+    --btn-primary-bg: rgb(84, 128, 198);
     --btn-primary-text: rgb(255 255 255);
     --btn-primary-border: rgb(59 130 246);
     --btn-primary-hover-bg: rgb(37 99 235);
 
     /* Button Colors - Secondary (Gray) */
     --btn-secondary-bg: rgb(243 244 246);
-    --btn-secondary-text: rgb(31 41 55);
-    --btn-secondary-border: rgb(229 231 235);
+    --btn-secondary-text: var(--btn-primary-bg);
+    --btn-secondary-border: var(--btn-primary-bg);
     --btn-secondary-hover-bg: rgb(229 231 235);
 
     /* Status: Completed (Green) */
-    --status-completed-bg: #D1FAE5;
+    --status-completed-bg: rgba(134, 239, 172, 0.8);
     --status-completed-text: #065F46;
-    --status-completed-border: #065F46;
+    --status-completed-border: #059669;
 
-    /* Status: In Progress (Blue) */
-    --status-in-progress-bg: #DBEAFE;
-    --status-in-progress-text: #1E40AF;
-    --status-in-progress-border: #1E40AF;
+    /* Status: In Progress (Yellow) */
+    --status-in-progress-bg: rgba(253, 224, 71, 0.8);
+    --status-in-progress-text: #713F12;
+    --status-in-progress-border: #CA8A04;
 
     /* Status: Pending (Amber) */
-    --status-pending-bg: #FEF3C7;
-    --status-pending-text: #92400E;
-    --status-pending-border: #92400E;
+    --status-pending-bg: rgba(252, 211, 77, 0.8);
+    --status-pending-text: #78350F;
+    --status-pending-border: #D97706;
 
 /* Status: Paid (Green) */
     --status-paid-bg: rgba(157, 215, 177, 0.739);
@@ -352,10 +352,10 @@
       --status-completed-text: #A7F3D0;
       --status-completed-border: #A7F3D0;
 
-      /* Status: In Progress (Blue) */
-      --status-in-progress-bg: rgba(59, 130, 246, 0.4);
-      --status-in-progress-text: #BFDBFE;
-      --status-in-progress-border: #BFDBFE;
+      /* Status: In Progress (Yellow) */
+      --status-in-progress-bg: rgba(234, 179, 8, 0.4);
+      --status-in-progress-text: #FEF08A;
+      --status-in-progress-border: #FEF08A;
 
       /* Status: Pending (Amber) */
       --status-pending-bg: rgba(245, 158, 11, 0.4);
@@ -417,7 +417,7 @@
 
 @layer components {
   .btn-primary {
-    @apply font-medium py-2 px-4 rounded-lg transition-colors shadow-sm;
+    @apply font-medium py-2 px-4 rounded-lg transition-all duration-200 ease-in-out shadow-sm;
     background-color: var(--btn-primary-bg);
     color: var(--btn-primary-text);
     border: 1px solid var(--btn-primary-border);
@@ -428,7 +428,7 @@
   }
 
   .btn-primary-sm {
-    @apply font-medium text-sm px-3 py-2 rounded-lg transition-colors shadow-sm;
+    @apply font-medium text-sm px-3 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm;
     background-color: var(--btn-primary-bg);
     color: var(--btn-primary-text);
     border: 1px solid var(--btn-primary-border);
@@ -439,7 +439,7 @@
   }
 
   .btn-secondary {
-    @apply font-medium py-2 px-4 rounded-lg transition-colors shadow-sm;
+    @apply font-medium py-2 px-4 rounded-lg transition-all duration-200 ease-in-out shadow-sm;
     background-color: var(--btn-secondary-bg);
     color: var(--btn-secondary-text);
     border: 1px solid var(--btn-secondary-border);
@@ -450,7 +450,7 @@
   }
 
   .btn-secondary-sm {
-    @apply font-medium text-sm px-3 py-2 rounded-lg transition-colors shadow-sm;
+    @apply font-medium text-sm px-3 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm;
     background-color: var(--btn-secondary-bg);
     color: var(--btn-secondary-text);
     border: 1px solid var(--btn-secondary-border);

@@ -258,7 +258,7 @@
     --status-pending-text: #92400E;
     --status-pending-border: #92400E;
 
-    /* Status: Paid (Green) */
+/* Status: Paid (Green) */
     --status-paid-bg: rgba(157, 215, 177, 0.739);
     --status-paid-text: rgb(27, 117, 62);
     --status-paid-border: rgb(27, 117, 62);
@@ -376,6 +376,7 @@
       --status-overdue-bg: rgba(127, 77, 77, 0.4);
       --status-overdue-text: rgb(214, 127, 127);
       --status-overdue-border: rgb(214, 127, 127);
+
 
       /* Status: Draft (Gray) */
       --status-draft-bg: rgba(152, 152, 152, 0.5);

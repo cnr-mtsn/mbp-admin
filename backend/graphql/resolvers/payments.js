@@ -1,6 +1,7 @@
 import { query } from '../../config/database.js';
 import { toGidFormat } from '../../utils/resolverHelpers.js';
 import { toGid, extractUuid } from '../../utils/gid.js';
+import { invalidateCache } from '../../utils/cachedResolver.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -294,6 +295,8 @@ export const paymentResolvers = {
 
       const payment = paymentResult.rows[0];
       const affectedInvoices = [];
+      const invoiceGids = [];
+      const jobGids = [];
 
       // Process each invoice
       for (const invoiceInput of invoiceInputs) {
@@ -301,7 +304,7 @@ export const paymentResolvers = {
 
         // Get invoice UUID and current details
         const invoiceResult = await query(
-          `SELECT id, total FROM invoices WHERE REPLACE(id::text, '-', '') LIKE $1`,
+          `SELECT id, total, job_id FROM invoices WHERE REPLACE(id::text, '-', '') LIKE $1`,
           [`${invoiceHexPrefix}%`]
         );
 
@@ -319,6 +322,10 @@ export const paymentResolvers = {
         }
 
         affectedInvoices.push(invoiceUuid);
+        invoiceGids.push(toGid('Invoice', invoiceUuid));
+        if (invoiceResult.rows[0].job_id) {
+          jobGids.push(toGid('Job', invoiceResult.rows[0].job_id));
+        }
 
         // Create payment_invoice record
         await query(
@@ -329,6 +336,16 @@ export const paymentResolvers = {
       }
 
       await recalcInvoices(affectedInvoices);
+
+      // Invalidate cache for affected invoices and related entities
+      invalidateCache([
+        'invoice:all',
+        ...invoiceGids.map(gid => `invoice:${gid}`),
+        ...jobGids.map(gid => `job:${gid}`),
+        ...jobGids.map(gid => `invoice:job:${gid}`),
+        'job:all',
+        'dashboard:analytics',
+      ]);
 
       return {
         ...toGidFormat(payment, 'Payment', { foreignKeys: ['customer_id'] }),
@@ -391,7 +408,34 @@ export const paymentResolvers = {
         `SELECT DISTINCT invoice_id FROM payment_invoices WHERE payment_id = $1`,
         [updated.id]
       );
-      await recalcInvoices(invoiceLinks.rows.map(row => row.invoice_id));
+      const affectedInvoiceIds = invoiceLinks.rows.map(row => row.invoice_id);
+      await recalcInvoices(affectedInvoiceIds);
+
+      // Invalidate cache for affected invoices
+      const invoiceGids = [];
+      const jobGids = [];
+      for (const invoiceId of affectedInvoiceIds) {
+        const invoiceResult = await query(
+          `SELECT id, job_id FROM invoices WHERE id = $1`,
+          [invoiceId]
+        );
+        if (invoiceResult.rows.length > 0) {
+          const inv = invoiceResult.rows[0];
+          invoiceGids.push(toGid('Invoice', inv.id));
+          if (inv.job_id) {
+            jobGids.push(toGid('Job', inv.job_id));
+          }
+        }
+      }
+
+      invalidateCache([
+        'invoice:all',
+        ...invoiceGids.map(gid => `invoice:${gid}`),
+        ...jobGids.map(gid => `job:${gid}`),
+        ...jobGids.map(gid => `invoice:job:${gid}`),
+        'job:all',
+        'dashboard:analytics',
+      ]);
 
       return {
         ...toGidFormat(updated, 'Payment', { foreignKeys: ['customer_id'] }),
@@ -423,7 +467,34 @@ export const paymentResolvers = {
         [`${hexPrefix}%`]
       );
 
-      await recalcInvoices(invoiceLinks.rows.map(row => row.invoice_id));
+      const affectedInvoiceIds = invoiceLinks.rows.map(row => row.invoice_id);
+      await recalcInvoices(affectedInvoiceIds);
+
+      // Invalidate cache for affected invoices
+      const invoiceGids = [];
+      const jobGids = [];
+      for (const invoiceId of affectedInvoiceIds) {
+        const invoiceResult = await query(
+          `SELECT id, job_id FROM invoices WHERE id = $1`,
+          [invoiceId]
+        );
+        if (invoiceResult.rows.length > 0) {
+          const inv = invoiceResult.rows[0];
+          invoiceGids.push(toGid('Invoice', inv.id));
+          if (inv.job_id) {
+            jobGids.push(toGid('Job', inv.job_id));
+          }
+        }
+      }
+
+      invalidateCache([
+        'invoice:all',
+        ...invoiceGids.map(gid => `invoice:${gid}`),
+        ...jobGids.map(gid => `job:${gid}`),
+        ...jobGids.map(gid => `invoice:job:${gid}`),
+        'job:all',
+        'dashboard:analytics',
+      ]);
 
       return true;
     },

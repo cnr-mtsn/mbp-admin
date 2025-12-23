@@ -8,7 +8,8 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "migrate": "node scripts/migrate.js",
-    "mark-overdue": "node scripts/mark-overdue-invoices.js"
+    "mark-overdue": "node scripts/mark-overdue-invoices.js",
+    "live-logs": "render logs billing-backend --tail"
   },
   "keywords": [
     "painting",

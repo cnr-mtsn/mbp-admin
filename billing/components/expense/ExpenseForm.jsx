@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_JOBS } from '../../lib/graphql/queries';
+import { formatCustomerName, formatDate } from '../../lib/utils/helpers';
+import SearchableSelect from '../ui/SearchableSelect';
 import styles from '../../styles/pages.module.css';
 
 export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLabel = 'Create Expense' }) {
@@ -22,6 +24,29 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
     variables: { first: 100 }
   });
   const jobs = jobsData?.jobs || [];
+
+  // Transform jobs into searchable options
+  const jobOptions = useMemo(() => {
+    return jobs.map(job => ({
+      value: job.id,
+      label: job.title,
+      secondary: `${formatCustomerName(job.customer, 'No customer')} • ${
+        job.start_date ? formatDate(job.start_date) : 'No start date'
+      }`,
+      job // Keep reference for filtering
+    }));
+  }, [jobs]);
+
+  // Custom filter to search by job title AND customer name
+  const filterJobs = useCallback((option, query) => {
+    if (!query) return true;
+    const searchLower = query.toLowerCase();
+    return (
+      option.label?.toLowerCase().includes(searchLower) ||
+      option.job?.customer?.name?.toLowerCase().includes(searchLower) ||
+      option.job?.customer?.company_name?.toLowerCase().includes(searchLower)
+    );
+  }, []);
 
   const initialExpenseType = initialData?.expense_type || 'labor';
   const initialRate = initialExpenseType === 'labor' ? (initialData?.rate || defaultLaborRate) : '';
@@ -177,20 +202,19 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
           <label htmlFor="job_id" className={styles.formLabel}>
             Job (Optional)
           </label>
-          <select
+          <SearchableSelect
             id="job_id"
             name="job_id"
             value={formData.job_id}
-            onChange={handleChange}
-            className={styles.formInput}
-          >
-            <option value="">No job assigned</option>
-            {jobs.map(job => (
-              <option key={job.id} value={job.id}>
-                {job.title}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => handleChange({ target: { name: 'job_id', value } })}
+            options={[
+              { value: '', label: 'No job assigned', secondary: '' },
+              ...jobOptions
+            ]}
+            filterFn={filterJobs}
+            placeholder="Search jobs..."
+            emptyMessage="No jobs found"
+          />
         </div>
       </div>
 

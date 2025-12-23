@@ -225,6 +225,7 @@ export const GET_JOBS = gql`
       total_expenses
       net_profit
       created_at
+      start_date
     }
   }
 `;

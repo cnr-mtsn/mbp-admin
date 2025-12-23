@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useQuery, useMutation } from '@apollo/client';
@@ -12,6 +12,7 @@ import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton';
 import Loading from '../../components/ui/Loading';
 import ExpenseForm from '../../components/expense/ExpenseForm';
+import SearchableSelect from '../../components/ui/SearchableSelect';
 import Icon from '../../components/ui/Icon'
 
 export default function ExpenseDetail() {
@@ -38,6 +39,29 @@ export default function ExpenseDetail() {
 
   const expense = data?.expense;
   const jobs = jobsData?.jobs || [];
+
+  // Transform jobs into searchable options
+  const jobOptions = useMemo(() => {
+    return jobs.map(job => ({
+      value: job.id,
+      label: job.title,
+      secondary: `${formatCustomerName(job.customer, 'No customer')} • ${
+        job.start_date ? formatDate(job.start_date) : 'No start date'
+      }`,
+      job // Keep reference for filtering
+    }));
+  }, [jobs]);
+
+  // Custom filter to search by job title AND customer name
+  const filterJobs = useCallback((option, query) => {
+    if (!query) return true;
+    const searchLower = query.toLowerCase();
+    return (
+      option.label?.toLowerCase().includes(searchLower) ||
+      option.job?.customer?.name?.toLowerCase().includes(searchLower) ||
+      option.job?.customer?.company_name?.toLowerCase().includes(searchLower)
+    );
+  }, []);
 
   useEffect(() => {
     if (showEditModal && dialogRef.current) {
@@ -299,20 +323,19 @@ export default function ExpenseDetail() {
               <p className="muted" style={{ marginBottom: '1rem' }}>
                 This expense is not assigned to a job yet.
               </p>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <select
-                  value={selectedJobId}
-                  onChange={(e) => setSelectedJobId(e.target.value)}
-                  className={styles.formInput}
-                  style={{ flex: 1 }}
-                >
-                  <option value="">Select a job</option>
-                  {jobs.map((job) => (
-                    <option key={job.id} value={job.id}>
-                      {job.title}
-                    </option>
-                  ))}
-                </select>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <SearchableSelect
+                    id="job_assignment"
+                    name="job_assignment"
+                    value={selectedJobId}
+                    onChange={(value) => setSelectedJobId(value)}
+                    options={jobOptions}
+                    filterFn={filterJobs}
+                    placeholder="Search jobs..."
+                    emptyMessage="No jobs found"
+                  />
+                </div>
                 <button onClick={handleAssignJob} className="btn-primary">
                   Assign
                 </button>

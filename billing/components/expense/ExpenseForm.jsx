@@ -182,7 +182,7 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
       <div className={styles.formRow}>
         <div className={styles.formGroup}>
           <label htmlFor="expense_type" className={styles.formLabel}>
-            Expense Type <span style={{ color: 'var(--color-danger)' }}>*</span>
+            Expense Type <span className={styles.requiredIndicator}>*</span>
           </label>
           <select
             id="expense_type"
@@ -222,7 +222,7 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label htmlFor="vendor" className={styles.formLabel}>
-              Vendor {formData.expense_type === 'materials' && <span style={{ color: 'var(--color-danger)' }}>*</span>}
+              Vendor {formData.expense_type === 'materials' && <span className={styles.requiredIndicator}>*</span>}
             </label>
             <input
               type="text"
@@ -257,7 +257,7 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label htmlFor="quantity" className={styles.formLabel}>
-              Hours <span style={{ color: 'var(--color-danger)' }}>*</span>
+              Hours <span className={styles.requiredIndicator}>*</span>
             </label>
             <input
               type="number"
@@ -276,7 +276,7 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
 
           <div className={styles.formGroup}>
             <label htmlFor="rate" className={styles.formLabel}>
-              Rate (per hour) <span style={{ color: 'var(--color-danger)' }}>*</span>
+              Rate (per hour) <span className={styles.requiredIndicator}>*</span>
             </label>
             <input
               type="number"
@@ -312,7 +312,7 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
 
         <div className={styles.formGroup}>
           <label htmlFor="total" className={styles.formLabel}>
-            Total <span style={{ color: 'var(--color-danger)' }}>*</span>
+            Total <span className={styles.requiredIndicator}>*</span>
           </label>
           <input
             type="number"
@@ -328,7 +328,7 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
             required
           />
           {formData.expense_type === 'labor' && (
-            <p className="muted" style={{ marginTop: '0.25rem' }}>
+            <p className={styles.formHint}>
               Calculated as hours x rate
             </p>
           )}

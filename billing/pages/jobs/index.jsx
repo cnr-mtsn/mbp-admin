@@ -128,7 +128,7 @@ export default function Jobs() {
           <p className={styles.pageLabel}>Pipeline</p>
           <h2 className={styles.pageTitle}>Jobs</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex gap-2">
           <Link href="/jobs/new" className="btn-primary">
             <Icon name="add" size={10} />
           </Link>

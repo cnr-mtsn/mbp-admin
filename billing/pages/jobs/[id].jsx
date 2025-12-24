@@ -154,7 +154,7 @@ export default function JobDetail() {
           </div>
           {job.description && <p className={styles.pageSubtitle}>{job.description}</p>}
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="flex gap-2">
           {job.status !== 'paid' && invoices.some(inv => inv.status !== 'paid') && (
             <Link href="/payments/new" className="btn-secondary" title="Record Payment">
               <Icon name="money" size={10} />
@@ -261,18 +261,18 @@ export default function JobDetail() {
         {job.notes && (
           <div className={`card ${cardStyles.detailSection}`}>
             <h3 className={cardStyles.detailSectionTitle}>Notes</h3>
-            <p className={cardStyles.detailValue} style={{ whiteSpace: 'pre-line' }}>{job.notes}</p>
+            <p className={`${cardStyles.detailValue} ${styles.whitespacePreLine}`}>{job.notes}</p>
           </div>
         )}
       </div>
 
-      <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+      <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
         <div className={cardStyles.itemHeader}>
           <div className={cardStyles.itemHeaderContent}>
             <h3 className={cardStyles.detailSectionTitle}>Invoices</h3>
             <p className={cardStyles.itemDescription}>Payment schedule across this job</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="flex gap-2">
             <button 
               title="Create New Invoice"
               onClick={() => setShowCreateModal(true)} 
@@ -294,7 +294,7 @@ export default function JobDetail() {
 
       </div>
 
-      <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+      <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
         <div className={cardStyles.itemHeader}>
           <div className={cardStyles.itemHeaderContent}>
             <h3 className={cardStyles.detailSectionTitle}>Payments</h3>
@@ -316,7 +316,7 @@ export default function JobDetail() {
                 <h3 className={cardStyles.detailSectionTitle}>Expenses</h3>
                 <p className={cardStyles.itemDescription}>Material and labor costs for this job</p>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="flex gap-2">
                 <Link href={`/expenses/unassigned`} className="btn-secondary-sm" title="Link expense(s) to this job">
                   <Icon name="link" size={10} />
                 </Link>
@@ -334,34 +334,22 @@ export default function JobDetail() {
             </div>
 
           {/* Expense Summary */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '1.5rem',
-            padding: '1.5rem',
-            backgroundColor: 'var(--card-bg)',
-            borderRadius: '0.5rem',
-            marginTop: '1rem'
-          }}>
+          <div className={styles.summaryGrid}>
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Total Expenses</p>
-              <p style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-danger)' }}>
+              <p className={styles.summaryLabel}>Total Expenses</p>
+              <p className={styles.summaryValueDanger}>
                 {formatMoney(job.total_expenses || 0)}
               </p>
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Total Revenue</p>
-              <p style={{ fontSize: '1.25rem', fontWeight: '600' }}>
+              <p className={styles.summaryLabel}>Total Revenue</p>
+              <p className={styles.summaryValue}>
                 {formatMoney(job.amount_paid || 0)}
               </p>
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Net Profit</p>
-              <p style={{
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                color: (job.net_profit || 0) >= 0 ? 'var(--status-paid-text)' : 'var(--status-overdue-text)'
-              }}>
+              <p className={styles.summaryLabel}>Net Profit</p>
+              <p className={(job.net_profit || 0) >= 0 ? styles.summaryValueProfit : styles.summaryValueLoss}>
                 {formatMoney(job.net_profit || 0)}
               </p>
             </div>
@@ -369,37 +357,29 @@ export default function JobDetail() {
 
           {/* Expenses List */}
           {job.expenses && job.expenses.length > 0 ? (
-            <div style={{ marginTop: '1.5rem' }}>
+            <div className="mt-6">
               {job.expenses.map(expense => (
                 <Link
                   key={expense.id}
                   href={`/expenses/${extractUuid(expense.id)}`}
-                  style={{
-                    display: 'block',
-                    padding: '1rem',
-                    marginBottom: '0.5rem',
-                    border: '1px solid var(--border-default)',
-                    borderRadius: '0.5rem',
-                    textDecoration: 'none',
-                    color: 'inherit'
-                  }}
+                  className={styles.listItemCard}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="flex justify-between items-center">
                     <div>
-                      <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>
+                      <p className={styles.listItemTitle}>
                         {expense.vendor || 'Manual Expense'}
                         {expense.invoice_number && ` - #${expense.invoice_number}`}
                       </p>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                      <p className={styles.listItemMeta}>
                         {expense.expense_type === 'labor' ? 'Labor' : 'Materials'}
                         {expense.invoice_date && ` • ${formatDate(expense.invoice_date)}`}
                       </p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontWeight: 600, fontSize: '1.125rem' }}>
+                    <div className={styles.textRight}>
+                      <p className={styles.listItemAmount}>
                         {formatMoney(expense.total)}
                       </p>
-                      <span className={`pill ${expense.status === 'approved' ? styles.statusPaid : styles.statusSent}`} style={{ fontSize: '0.75rem' }}>
+                      <span className={`pill ${styles.pillSmall} ${expense.status === 'approved' ? styles.statusPaid : styles.statusSent}`}>
                         {formatStatus(expense.status?.replace('_', ' '))}
                       </span>
                     </div>
@@ -408,7 +388,7 @@ export default function JobDetail() {
               ))}
             </div>
           ) : (
-            <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>
+            <p className={`${styles.textMuted} ${styles.textCenter} py-8`}>
               No expenses recorded for this job yet.
             </p>
           )}
@@ -420,48 +400,38 @@ export default function JobDetail() {
         <div className={styles.modalOverlay}>
           <div className={`card ${styles.modalContent} ${styles.modalContentSmall}`}>
             <h3 className={cardStyles.detailSectionTitle}>Link Existing Invoices</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+            <p className={`${styles.textMuted} mb-6`}>
               Select invoices to link to this job. Only invoices not already linked to a job are shown.
             </p>
 
             {linkError && (
-              <div style={{
-                padding: '1rem',
-                marginBottom: '1rem',
-                backgroundColor: 'var(--status-overdue-bg)',
-                color: 'var(--status-overdue-text)',
-                borderRadius: '0.5rem'
-              }}>
+              <div className={styles.alertError}>
                 Error: {linkError.message}
               </div>
             )}
 
             {unlinkedInvoices.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)', padding: '2rem 0', textAlign: 'center' }}>
+              <p className={`${styles.textMuted} ${styles.textCenter} py-8`}>
                 No unlinked invoices available.
               </p>
             ) : (
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div className="mb-6">
                 {unlinkedInvoices.map(invoice => (
-                  <div key={invoice.id} style={{
-                    padding: '1rem',
-                    marginBottom: '0.5rem',
-                    border: '1px solid var(--border-default)',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    backgroundColor: selectedInvoices.includes(invoice.id) ? 'var(--status-sent-bg)' : 'transparent'
-                  }}
-                  onClick={() => handleToggleInvoice(invoice.id)}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div
+                    key={invoice.id}
+                    className={`${styles.selectableItem} ${selectedInvoices.includes(invoice.id) ? styles.selectableItemSelected : ''}`}
+                    onClick={() => handleToggleInvoice(invoice.id)}
+                  >
+                    <div className="flex items-center gap-4">
                       <input
                         type="checkbox"
                         checked={selectedInvoices.includes(invoice.id)}
                         onChange={() => handleToggleInvoice(invoice.id)}
-                        style={{ cursor: 'pointer' }}
+                        className="cursor-pointer"
                       />
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{invoice.title}</p>
-                        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                      <div className="flex-1">
+                        <p className={styles.listItemTitle}>{invoice.title}</p>
+                        <p className={styles.listItemMeta}>
                           {formatCustomerName(invoice.customer)} • {formatMoney(invoice.total || 0)} • {formatStatus(invoice.status)}
                         </p>
                       </div>
@@ -471,7 +441,7 @@ export default function JobDetail() {
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+            <div className="flex gap-2 justify-end">
               <button
                 onClick={() => {
                   setShowLinkModal(false);
@@ -501,13 +471,7 @@ export default function JobDetail() {
             <h3 className={cardStyles.detailSectionTitle}>Create New Invoice for Job</h3>
 
             {createError && (
-              <div style={{
-                padding: '1rem',
-                marginBottom: '1rem',
-                backgroundColor: 'var(--status-overdue-bg)',
-                color: 'var(--status-overdue-text)',
-                borderRadius: '0.5rem'
-              }}>
+              <div className={styles.alertError}>
                 Error: {createError.message}
               </div>
             )}

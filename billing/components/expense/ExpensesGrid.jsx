@@ -1,7 +1,9 @@
 import ExpenseCard from "./ExpenseCard"
 import styles from '../../styles/pages.module.css';
 import { useState } from "react"
-import Loading from "../ui/Loading"
+import FilterButtons from "../ui/FilterButtons"
+import EmptyState from "../ui/EmptyState"
+import LoadMoreButton from "../ui/LoadMoreButton"
 
 export default function ExpensesGrid({ expenses, onLoadMore, hasMore = false, loading = false }) {
   const [statusFilter, setStatusFilter] = useState('all');
@@ -11,7 +13,7 @@ export default function ExpensesGrid({ expenses, onLoadMore, hasMore = false, lo
     ? expenses
     : expenses.filter(expense => expense.status === statusFilter);
 
-  const filters = ['all', 'pending_review', 'assigned', 'approved']
+  const filters = ['all', 'pending_review', 'assigned', 'approved'];
 
   const filterLabels = {
     all: 'All',
@@ -20,46 +22,40 @@ export default function ExpensesGrid({ expenses, onLoadMore, hasMore = false, lo
     approved: 'Approved'
   };
 
+  const getCount = (filter) => {
+    return filter === "all"
+      ? expenses.length
+      : (expenses.filter(e => e.status === filter)?.length || 0);
+  };
+
+  const getEmptyMessage = () => {
+    return statusFilter === 'all'
+      ? 'No expenses found'
+      : `No ${filterLabels[statusFilter].toLowerCase()} expenses found`;
+  };
+
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap gap-3 mb-6">
-        {filters.map(filter => {
-          const count = filter === "all" ? expenses.length : (expenses.filter(e => e.status === filter)?.length || 0)
-          const classes = `${statusFilter === filter ? 'btn-primary' : 'btn-secondary'}`
-          const displayText = `${filterLabels[filter]} (${count})`
-          return (
-            <button
-              onClick={() => setStatusFilter(filter)}
-              className={classes}
-              key={`filter-${filter}`}
-            >
-              {displayText}
-            </button>
-          )
-        })}
-      </div>
+      <FilterButtons
+        filters={filters}
+        activeFilter={statusFilter}
+        onFilterChange={setStatusFilter}
+        getCount={getCount}
+        labels={filterLabels}
+        capitalize={false}
+      />
       {filteredExpenses.length === 0 ? (
-        <div className={`card ${styles.emptyState}`}>
-          <p className="muted">
-            {statusFilter === 'all' ? 'No expenses found' : `No ${filterLabels[statusFilter].toLowerCase()} expenses found`}
-          </p>
-        </div>
+        <EmptyState message={getEmptyMessage()} />
       ) : (
         <>
-          <div className={styles.cardGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+          <div className={styles.autoFillCardGrid}>
             {filteredExpenses.map((expense) => <ExpenseCard key={expense.id} expense={expense} />)}
           </div>
-
-          {/* Show More Button */}
-          {hasMore && onLoadMore && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-              {loading ? <Loading /> : (
-                <button onClick={onLoadMore} className="btn-primary">
-                  Show More
-                </button>
-              )}
-            </div>
-          )}
+          <LoadMoreButton
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={onLoadMore}
+          />
         </>
       )}
     </div>

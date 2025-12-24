@@ -38,13 +38,7 @@ export default function NewJob() {
       </div>
 
       {error && (
-        <div style={{
-          padding: '1rem',
-          marginBottom: '1rem',
-          backgroundColor: 'rgb(254 226 226)',
-          color: 'rgb(153 27 27)',
-          borderRadius: '0.5rem'
-        }}>
+        <div className={styles.alertError}>
           Error creating job: {error.message}
         </div>
       )}

@@ -4,6 +4,7 @@ import cardStyles from '../../styles/cardItems.module.css'
 import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
 import { formatCustomerName, formatDate, formatMoney, formatStatus } from "../../lib/utils/helpers"
+import { getInvoiceStatusClass } from "../../lib/utils/statusStyles"
 
 
 
@@ -11,14 +12,7 @@ export default function InvoiceCard({ invoice }) {
     const router = useRouter();
 
     const displayCustomerName = formatCustomerName(invoice.customer, 'No customer');
-    const invoiceStatusStyles = {
-      paid: styles.statusPaid,
-      sent: styles.statusSent,
-      overdue: styles.statusOverdue,
-      draft: styles.statusDraft,
-    };
-
-    const invoiceClass = invoiceStatusStyles[invoice.status] || invoiceStatusStyles.draft;
+    const invoiceClass = getInvoiceStatusClass(invoice.status);
     const paymentLink = (invoice.payments || []).find(payment =>
       (payment.invoices || []).some(pi => extractUuid(pi.invoice_id) === extractUuid(invoice.id))
     );
@@ -57,7 +51,7 @@ export default function InvoiceCard({ invoice }) {
     const paymentStageDisplay = getPaymentStageDisplay();
 
     return (
-        <Link href={`/invoices/${extractUuid(invoice.id)}`} style={{ height: '100%' }}>
+        <Link href={`/invoices/${extractUuid(invoice.id)}`} className="h-full block">
             <div key={invoice.id} className={cardStyles.lineItem}>
                 <div className={cardStyles.itemHeader}>
                     <div className={cardStyles.itemHeaderContent}>
@@ -68,14 +62,14 @@ export default function InvoiceCard({ invoice }) {
                     <div className={cardStyles.itemTags}>
                         <span className={`pill ${invoiceClass}`}>{formatStatus(invoice.status)}</span>
                         {paymentStageDisplay && (
-                            <span style={{ backgroundColor: 'rgba(150, 150, 255, 0.5)', fontSize: ".7rem" }} className={cardStyles.itemTag}>
+                            <span className={`${cardStyles.itemTag} ${styles.paymentStageTag}`}>
                                 {paymentStageDisplay}
                             </span>
                         )}
                     </div>
                 </div>
 
-                <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>
+                <div className={cardStyles.itemFooter}>
                     <p className={cardStyles.itemTitle}>{formatMoney(invoice.total || 0)}</p>
                     {paymentLink ? (
                       <button

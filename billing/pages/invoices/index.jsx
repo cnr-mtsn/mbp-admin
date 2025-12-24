@@ -89,7 +89,7 @@ export default function Invoices() {
           <p className={styles.pageLabel}>Billing</p>
           <h2 className={styles.pageTitle}>Invoices</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex gap-2">
           <Link href="/payments/new" className="btn-primary">
             <Icon name="money" size={10} />
           </Link>
@@ -98,12 +98,12 @@ export default function Invoices() {
       </div>
 
       {/* Total Unpaid Balance */}
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+      <div className={`card ${styles.cardSpacing}`}>
+        <div className={styles.summaryCardItem}>
+          <p className={styles.summaryCardLabel}>
             Total Unpaid Balance
           </p>
-          <p style={{ fontSize: '2rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+          <p className={styles.summaryValueLargeLoss}>
             {formatMoney(unpaidBalance)}
           </p>
         </div>

@@ -87,6 +87,7 @@
   justify-content: space-between;
   padding-top: 0.75rem;
   border-top: 1px solid var(--border-color);
+  margin-top: auto;
 }
 
 .itemFooterText {
@@ -155,6 +156,7 @@
 
 .detailItem {
   /* Individual detail item */
+  @apply mb-4;
 }
 
 .detailLabel {

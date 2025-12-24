@@ -390,7 +390,7 @@ export default function InvoiceForm({ initialData, jobId, onSubmit, onCancel, su
         <h3 className={styles.formSectionTitle}>Line Items</h3>
 
         {lineItems.map((item, index) => (
-          <div key={index} style={{ marginBottom: '1.5rem' }}>
+          <div key={index} className={styles.lineItemMargin}>
             <div className={styles.lineItemRow}>
               <div className={`${styles.formGroup} ${styles.lineItemName}`}>
                 <label className={styles.formLabel}>
@@ -507,7 +507,7 @@ export default function InvoiceForm({ initialData, jobId, onSubmit, onCancel, su
             <span>{formatMoney(calculateSubtotal())}</span>
           </div>
 
-          <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+          <div className={`${styles.formGroup} ${styles.formGroupMarginTop}`}>
             <label className={styles.formLabel} htmlFor="tax">
               Tax Amount
             </label>
@@ -523,7 +523,7 @@ export default function InvoiceForm({ initialData, jobId, onSubmit, onCancel, su
             />
           </div>
 
-          <div className={styles.totalRow} style={{ fontWeight: 'bold', fontSize: '1.2rem', marginTop: '1rem' }}>
+          <div className={`${styles.totalRow} ${styles.totalRowBold} ${styles.formGroupMarginTop}`}>
             <span>Total:</span>
             <span>{formatMoney(calculateTotal())}</span>
           </div>

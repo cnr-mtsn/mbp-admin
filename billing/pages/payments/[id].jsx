@@ -250,7 +250,7 @@ export default function PaymentDetail() {
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Amount Received</label>
-                <p className={paymentStyles.paymentAmount} style={{ margin: 0 }}>
+                <p className={`${paymentStyles.paymentAmount} ${styles.noMargin}`}>
                   {formatMoney(payment.total_amount || 0)}
                 </p>
               </div>
@@ -292,7 +292,7 @@ export default function PaymentDetail() {
         </div>
       </div>
 
-      <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+      <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
         <div className={cardStyles.itemHeader}>
           <div className={cardStyles.itemHeaderContent}>
             <h3 className={cardStyles.detailSectionTitle}>Applied Invoices</h3>

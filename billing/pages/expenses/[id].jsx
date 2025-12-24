@@ -162,21 +162,21 @@ export default function ExpenseDetail() {
         <div className={styles.pageHeaderContent}>
           <p className={styles.pageLabel}>Expense</p>
           <h2 className={styles.pageTitle}>
-            {expense.vendor || 'Manual Expense'} {expense.invoice_number && `- #${expense.invoice_number}`}
+            {expense.vendor || 'Manual Expense'}
           </h2>
+          {expense.invoice_number && <h3 className={styles.pageSubtitle}>#{expense.invoice_number}</h3>}
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            onClick={() => setShowEditModal(true)} 
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowEditModal(true)}
             className="btn-secondary"
             title="Edit Expense"
           >
             <Icon name="edit" size={10} />
           </button>
-          <button 
-            onClick={() => setShowDeleteModal(true)} 
-            className="btn-secondary" 
-            style={{ color: 'var(--color-danger)' }}
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className={`btn-secondary ${styles.btnDanger}`}
             title="Delete Expense"
           >
             <Icon name="trash" size={10} />
@@ -186,7 +186,7 @@ export default function ExpenseDetail() {
       </div>
 
       {/* Main Content */}
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
+      <div className={`card ${styles.cardSpacing}`}>
         <div className={cardStyles.detailSection}>
           <div className={cardStyles.itemHeader}>
             <div className={cardStyles.itemHeaderContent}>
@@ -235,7 +235,7 @@ export default function ExpenseDetail() {
 
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Total</dt>
-              <dd className={cardStyles.detailValue} style={{ fontWeight: '600', fontSize: '1.25rem' }}>
+              <dd className={`${cardStyles.detailValue} ${styles.valueLarge}`}>
                 {formatMoney(expense.total)}
               </dd>
             </div>
@@ -256,94 +256,80 @@ export default function ExpenseDetail() {
           </dl>
 
           {expense.description && (
-            <div style={{ marginTop: '1.5rem' }}>
+            <div className="mt-6">
               <h4 className={cardStyles.detailLabel}>Description</h4>
               <p className={cardStyles.detailValue}>{formatExpenseDescription(expense.description)}</p>
             </div>
           )}
 
           {expense.notes && (
-            <div style={{ marginTop: '1.5rem' }}>
+            <div className="mt-6">
               <h4 className={cardStyles.detailLabel}>Notes</h4>
               <p className={cardStyles.detailValue}>{expense.notes}</p>
             </div>
           )}
+
+          {/* Job Assignment - integrated into details card */}
+          <div className={styles.jobAssignmentSection}>
+            <h4 className={cardStyles.detailLabel}>Job Assignment</h4>
+            {expense.job ? (
+              <div className={styles.jobAssignmentContent}>
+                <Link href={`/jobs/${extractUuid(expense.job.id)}`} className={styles.jobAssignmentLink}>
+                  {expense.job.title}
+                </Link>
+                {expense.job.customer && (
+                  <span className={styles.jobAssignmentCustomer}>
+                    {formatCustomerName(expense.job.customer)}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className={styles.jobAssignmentUnassigned}>
+                <SearchableSelect
+                  id="job_assignment"
+                  name="job_assignment"
+                  value={selectedJobId}
+                  onChange={(value) => setSelectedJobId(value)}
+                  options={jobOptions}
+                  filterFn={filterJobs}
+                  placeholder="Search jobs..."
+                  emptyMessage="No jobs found"
+                />
+                <button onClick={handleAssignJob} className="btn-primary" disabled={!selectedJobId}>
+                  Assign
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Line Items */}
       {expense.line_items && expense.line_items.length > 0 && (
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className={`card ${styles.cardSpacing}`}>
           <div className={cardStyles.detailSection}>
             <h3 className={cardStyles.detailSectionTitle}>Line Items</h3>
-            <table style={{ width: '100%', marginTop: '1rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ textAlign: 'left', padding: '0.5rem' }}>Description</th>
-                  <th style={{ textAlign: 'right', padding: '0.5rem' }}>Qty</th>
-                  <th style={{ textAlign: 'right', padding: '0.5rem' }}>Unit Price</th>
-                  <th style={{ textAlign: 'right', padding: '0.5rem' }}>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expense.line_items.map((item, index) => (
-                  <tr key={index} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '0.5rem' }}>{formatExpenseDescription(item.description)}</td>
-                    <td style={{ textAlign: 'right', padding: '0.5rem' }}>{item.quantity || '-'}</td>
-                    <td style={{ textAlign: 'right', padding: '0.5rem' }}>
-                      {item.unit_price ? formatMoney(item.unit_price) : '-'}
-                    </td>
-                    <td style={{ textAlign: 'right', padding: '0.5rem' }}>{formatMoney(item.amount)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className={styles.lineItemsList}>
+              {expense.line_items.map((item, index) => (
+                <div key={index} className={styles.lineItemRow}>
+                  <div className={styles.lineItemDesc}>
+                    <p className={styles.lineItemDescText}>{formatExpenseDescription(item.description)}</p>
+                    <p className={styles.lineItemMeta}>
+                      {item.quantity ? item.quantity : ''}
+                      {item.quantity && item.unit_price ? ' × ' : ''}
+                      {item.unit_price ? formatMoney(item.unit_price) : ''}
+                    </p>
+                  </div>
+                  <div className={styles.lineItemAmountCol}>
+                    {formatMoney(item.amount)}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Job Assignment */}
-      <div className="card">
-        <div className={cardStyles.detailSection}>
-          <h3 className={cardStyles.detailSectionTitle}>Job Assignment</h3>
-          {expense.job ? (
-            <div style={{ marginTop: '1rem' }}>
-              <p className={cardStyles.detailLabel}>Assigned to:</p>
-              <Link href={`/jobs/${extractUuid(expense.job.id)}`} className={cardStyles.detailValue} style={{ color: 'var(--color-primary)' }}>
-                {expense.job.title}
-              </Link>
-              {expense.job.customer && (
-                <p className="muted" style={{ marginTop: '0.5rem' }}>
-                  Customer: {formatCustomerName(expense.job.customer)}
-                </p>
-              )}
-            </div>
-          ) : (
-            <div style={{ marginTop: '1rem' }}>
-              <p className="muted" style={{ marginBottom: '1rem' }}>
-                This expense is not assigned to a job yet.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                <div style={{ flex: 1 }}>
-                  <SearchableSelect
-                    id="job_assignment"
-                    name="job_assignment"
-                    value={selectedJobId}
-                    onChange={(value) => setSelectedJobId(value)}
-                    options={jobOptions}
-                    filterFn={filterJobs}
-                    placeholder="Search jobs..."
-                    emptyMessage="No jobs found"
-                  />
-                </div>
-                <button onClick={handleAssignJob} className="btn-primary">
-                  Assign
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Edit Modal */}
       <dialog ref={dialogRef} className={styles.modal}>
@@ -372,13 +358,13 @@ export default function ExpenseDetail() {
               ×
             </button>
           </div>
-          <div style={{ padding: '1.5rem' }}>
+          <div className={styles.modalBody}>
             <p>Are you sure you want to delete this expense?</p>
-            <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)' }}>
+            <p className={`${styles.textMuted} mt-2`}>
               This action cannot be undone.
             </p>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
-              <button onClick={handleDelete} className="btn-primary" style={{ backgroundColor: 'var(--color-danger)' }}>
+            <div className="flex gap-2 mt-6">
+              <button onClick={handleDelete} className={`btn-primary ${styles.btnDangerBg}`}>
                 Delete
               </button>
               <button onClick={() => setShowDeleteModal(false)} className="btn-secondary">

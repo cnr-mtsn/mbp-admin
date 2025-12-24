@@ -243,7 +243,7 @@ export default function InvoiceDetail() {
         </div>
         <div className="flex flex-col items-end gap-4 h-full justify-between">
           <span className={`pill ${statusClass} mt-4`}>{formatStatus(invoice.status)}</span>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="flex gap-2">
             {invoice.status !== 'paid' && (
               <Link href="/payments/new" className="btn-secondary" title="Record Payment">
                 <Icon name="money" size={10} />
@@ -262,8 +262,7 @@ export default function InvoiceDetail() {
             </button>
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="btn-secondary"
-              style={{ color: 'var(--color-danger)' }}
+              className={`btn-secondary ${styles.btnDanger}`}
               title="Delete Invoice"
             >
               <Icon name="trash" size={10} />
@@ -389,7 +388,7 @@ export default function InvoiceDetail() {
         )}
       </div>
 
-      <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+      <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
         <div className={cardStyles.itemHeader}>
           <div className={cardStyles.itemHeaderContent}>
             <h3 className={cardStyles.detailSectionTitle}>Payments</h3>
@@ -403,7 +402,7 @@ export default function InvoiceDetail() {
       </div>
 
       {invoice.line_items && invoice.line_items.length > 0 && (
-        <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+        <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
           <div className={cardStyles.itemHeader}>
             <h3 className={cardStyles.detailSectionTitle}>Line Items</h3>
           </div>
@@ -440,9 +439,9 @@ export default function InvoiceDetail() {
       )}
 
       {invoice.notes && (
-        <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+        <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
           <h3 className={cardStyles.detailSectionTitle}>Notes</h3>
-          <p className={cardStyles.detailValue} style={{ whiteSpace: 'pre-line' }}>{invoice.notes}</p>
+          <p className={`${cardStyles.detailValue} ${styles.whitespacePreLine}`}>{invoice.notes}</p>
         </div>
       )}
 
@@ -464,13 +463,7 @@ export default function InvoiceDetail() {
               <Icon name="close" size={10} />
             </button>
           {updateError && (
-            <div style={{
-              padding: '1rem',
-              marginBottom: '1rem',
-              backgroundColor: 'var(--status-overdue-bg)',
-              color: 'var(--status-overdue-text)',
-              borderRadius: '0.5rem'
-            }}>
+            <div className={styles.alertError}>
               Error: {updateError.message}
             </div>
           )}
@@ -532,13 +525,13 @@ export default function InvoiceDetail() {
               <Icon name="close" size={10} />
             </button>
           </div>
-          <div style={{ padding: '1.5rem' }}>
+          <div className={styles.modalBody}>
             <p>Are you sure you want to delete this invoice?</p>
-            <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)' }}>
+            <p className={`${styles.textMuted} mt-2`}>
               This action cannot be undone.
             </p>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
-              <button onClick={handleDelete} className="btn-primary" style={{ backgroundColor: 'var(--color-danger)' }}>
+            <div className="flex gap-2 mt-6">
+              <button onClick={handleDelete} className={`btn-primary ${styles.btnDangerBg}`}>
                 Delete
               </button>
               <button onClick={() => setShowDeleteModal(false)} className="btn-secondary">

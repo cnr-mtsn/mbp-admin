@@ -51,9 +51,9 @@ export default function Estimates() {
           <p className={styles.pageLabel}>Sales</p>
           <h2 className={styles.pageTitle}>Estimates</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex gap-2">
           <Link href="/estimates/new" className="btn-primary">
-            <Icon name="add" size={10} />        
+            <Icon name="add" size={10} />
           </Link>
           <BackButton href="/" classes="btn-secondary" title="Back to Dashboard" />
         </div>

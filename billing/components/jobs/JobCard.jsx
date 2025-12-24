@@ -1,22 +1,14 @@
 import Link from "next/link"
 import cardStyles from '../../styles/cardItems.module.css'
-import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
 import { formatCustomerName, formatMoney, formatStatus } from "../../lib/utils/helpers"
+import { getJobStatusClass } from "../../lib/utils/statusStyles"
 
 export default function JobCard({ job }) {
 
-    const statusStyles = {
-      completed: styles.statusCompleted,
-      in_progress: styles.statusInProgress,
-      pending: styles.statusPending,
-      paid: styles.statusPaid,
-    };
-
-    const statusClass = statusStyles[job.status] || statusStyles.pending;
+    const statusClass = getJobStatusClass(job.status);
 
     // Calculate realized profit based on payments received minus expenses
-    console.log("Job data:", job);
     const amountPaid = job.amount_paid || job.total_amount || 0;
     const totalExpenses = job.total_expenses || 0;
     const realizedProfit = amountPaid - totalExpenses;
@@ -28,7 +20,7 @@ export default function JobCard({ job }) {
     const hasSuspiciousMargin = amountPaid > 0 && profitMargin > SUSPICIOUS_MARGIN_THRESHOLD;
 
     return (
-        <Link href={`/jobs/${extractUuid(job.id)}`} style={{ height: '100%' }}>
+        <Link href={`/jobs/${extractUuid(job.id)}`} className="h-full block">
             <div className={cardStyles.lineItem}>
                 <div className={cardStyles.itemHeader}>
                     <div className={cardStyles.itemHeaderContent}>
@@ -49,7 +41,7 @@ export default function JobCard({ job }) {
                     </div>
                 </div>
 
-                <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>
+                <div className={cardStyles.itemFooter}>
                     <div>
                         <p className={cardStyles.itemTitle}>
                             {formatMoney(job.total_amount || 0)}
@@ -59,13 +51,13 @@ export default function JobCard({ job }) {
                         </p>
                     </div>
                     <div>
-                        <p className={cardStyles.itemTitle} style={{ color: isProfitable ? '#10b981' : '#ef4444' }}>
+                        <p className={`${cardStyles.itemTitle} ${isProfitable ? 'text-emerald-500' : 'text-red-500'}`}>
                             {isProfitable ? '+' : ''}{formatMoney(realizedProfit)}
                         </p>
-                        <p className={cardStyles.itemDescription} style={{ display: 'flex', flexDirection: "column", alignItems: 'center', gap: '0.25rem' }}>
+                        <p className={`${cardStyles.itemDescription} flex flex-col items-center gap-1`}>
                             {profitMargin.toFixed(1)}% margin
                             {hasSuspiciousMargin && (
-                                <span style={{ color: '#f59e0b', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                                <span className="flex items-center gap-1 text-amber-500 text-xs">
                                     ⚠️ verify expenses
                                 </span>
                             )}

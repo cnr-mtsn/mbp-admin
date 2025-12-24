@@ -76,7 +76,7 @@ export default function Expenses() {
           <p className={styles.pageLabel}>Job Expenses</p>
           <h2 className={styles.pageTitle}>All Expenses</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div className="flex gap-2 items-center">
           {unassignedCount > 0 && (
             <Link href="/expenses/unassigned" className="btn-secondary hidden md:inline-flex">
               Unassigned ({unassignedCount})
@@ -84,15 +84,7 @@ export default function Expenses() {
           )}
           <Link
             href="/expenses/new"
-            className="btn-primary"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: '2.5rem',
-              minHeight: '2.5rem',
-              padding: '0.5rem'
-            }}
+            className={`btn-primary ${styles.iconButton}`}
           >
             <Icon name="add" size={10} />
           </Link>
@@ -101,29 +93,23 @@ export default function Expenses() {
       </div>
 
       {/* Summary Card */}
-      <div className="card" style={{ marginBottom: '1.5rem', cursor: 'default' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', padding: '1rem 0' }}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-              Total Expenses
-            </p>
-            <p style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--color-danger)' }}>
+      <div className={`card ${styles.cardSpacing} ${styles.cardStatic}`}>
+        <div className={styles.summaryCardGrid}>
+          <div className={styles.summaryCardItem}>
+            <p className={styles.summaryCardLabel}>Total Expenses</p>
+            <p className={`${styles.summaryCardValue} ${styles.summaryValueDanger}`}>
               {formatMoney(totalExpenses)}
             </p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-              Pending Review
-            </p>
-            <p style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+          <div className={styles.summaryCardItem}>
+            <p className={styles.summaryCardLabel}>Pending Review</p>
+            <p className={styles.summaryCardValueWarning}>
               {pendingCount}
             </p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-              Unassigned
-            </p>
-            <p style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+          <div className={styles.summaryCardItem}>
+            <p className={styles.summaryCardLabel}>Unassigned</p>
+            <p className={styles.summaryCardValueWarning}>
               {unassignedCount}
             </p>
           </div>
@@ -132,14 +118,14 @@ export default function Expenses() {
 
       {/* Unassigned Expenses Card - Mobile Navigation */}
       {unassignedCount > 0 && (
-        <Link href="/expenses/unassigned" style={{ marginBottom: '1.5rem', display: 'block' }}>
+        <Link href="/expenses/unassigned" className={`${styles.cardSpacing} block`}>
           <div className="card md:hidden">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="flex items-center justify-between">
               <div>
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                <p className={styles.listItemMeta}>
                   View Unassigned Expenses
                 </p>
-                <p style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+                <p className={styles.summaryValueLoss}>
                   {unassignedCount} expense{unassignedCount !== 1 ? 's' : ''} need assignment
                 </p>
               </div>

@@ -173,8 +173,8 @@ export default function CustomerDetail() {
       </div>
 
       {/* Jobs Section */}
-      <div style={{ marginTop: '3rem' }}>
-        <h3 className={cardStyles.detailSectionTitle} style={{ marginBottom: '1.5rem' }}>
+      <div className="mt-12">
+        <h3 className={`${cardStyles.detailSectionTitle} mb-6`}>
           Jobs
         </h3>
 
@@ -197,8 +197,8 @@ export default function CustomerDetail() {
       </div>
 
       {/* Invoices Section */}
-      <div style={{ marginTop: '3rem' }}>
-        <h3 className={cardStyles.detailSectionTitle} style={{ marginBottom: '1.5rem' }}>
+      <div className="mt-12">
+        <h3 className={`${cardStyles.detailSectionTitle} mb-6`}>
           Invoices
         </h3>
 
@@ -206,12 +206,12 @@ export default function CustomerDetail() {
           <>
             {/* Total Unpaid Balance */}
             {unpaidBalance > 0 && (
-              <div className="card" style={{ marginBottom: '1.5rem' }}>
-                <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+              <div className={`card ${styles.cardSpacing}`}>
+                <div className={`${styles.summaryCardItem} py-4`}>
+                  <p className={styles.summaryCardLabel}>
                     Unpaid Balance
                   </p>
-                  <p style={{ fontSize: '2rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+                  <p className={`text-3xl font-semibold ${styles.summaryValueLoss}`}>
                     {formatMoney(unpaidBalance)}
                   </p>
                 </div>

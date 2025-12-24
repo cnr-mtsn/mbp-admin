@@ -59,9 +59,7 @@
 }
 
 .pageTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--color-gray-900);
+  @apply text-xl md:text-3xl font-bold text-[var(--color-gray-900)];
 }
 
 .pageSubtitle {
@@ -442,6 +440,7 @@
   .lineItemRow {
     display: flex;
     flex-direction: row;
+
     flex-wrap: wrap;
     gap: 0.75rem;
     align-items: flex-end;
@@ -641,4 +640,466 @@
   margin-bottom: 0.5rem;
   font-size: 1rem;
   color: var(--color-gray-700);
+}
+
+/* ========================================
+   Utility Classes (extracted from inline styles)
+   ======================================== */
+
+/* Grid/Flex layout containers */
+.loadMoreContainer {
+  @apply flex justify-center mt-8;
+}
+
+.autoFillCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Inline style replacements */
+.sortLabel {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  align-self: center;
+}
+
+.filterSelectAuto {
+  width: auto;
+}
+
+/* Card layout styles */
+.cardFlexColumn {
+  @apply flex flex-col h-full;
+  min-height: 200px;
+}
+
+.flexGrowSection {
+  min-height: 3rem;
+  flex: 1 0 auto;
+}
+
+/* Text/color styles */
+.profitPositive {
+  color: #10b981;
+}
+
+.profitNegative {
+  color: #ef4444;
+}
+
+.warningText {
+  @apply flex items-center gap-1;
+  color: #f59e0b;
+  font-size: 0.75rem;
+}
+
+.overdueText {
+  color: var(--status-overdue-text);
+  font-weight: 600;
+}
+
+.flexColumnCenter {
+  @apply flex flex-col items-center gap-1;
+}
+
+/* Payment stage tag */
+.paymentStageTag {
+  background-color: rgba(150, 150, 255, 0.5);
+  font-size: 0.7rem;
+}
+
+/* Detail page sections */
+.sectionCard {
+  margin-top: 2rem;
+}
+
+/* Expense summary grid */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.summaryLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.summaryValue {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.summaryValueDanger {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.summaryValueProfit {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--status-paid-text);
+}
+
+.summaryValueLoss {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--status-overdue-text);
+}
+
+/* List item card (for expense lists, invoice lists, etc.) */
+.listItemCard {
+  display: block;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border-default);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.listItemCard:hover {
+  background-color: var(--card-bg);
+}
+
+.listItemTitle {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.listItemMeta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.listItemAmount {
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+/* Selectable list item */
+.selectableItem {
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border-default);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.selectableItemSelected {
+  background-color: var(--status-sent-bg);
+}
+
+/* Alert/Error box */
+.alertError {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--status-overdue-bg);
+  color: var(--status-overdue-text);
+  border-radius: 0.5rem;
+}
+
+/* Muted text helpers */
+.textMuted {
+  color: var(--text-muted);
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.textRight {
+  text-align: right;
+}
+
+/* Whitespace pre-line */
+.whitespacePreLine {
+  white-space: pre-line;
+}
+
+/* Pill size small */
+.pillSmall {
+  font-size: 0.75rem;
+}
+
+/* Table styles */
+.dataTable {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.dataTable th,
+.dataTable td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dataTable th {
+  text-align: left;
+}
+
+.dataTableRight {
+  text-align: right;
+}
+
+/* Large value display */
+.valueLarge {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+/* Danger button color */
+.btnDanger {
+  color: var(--color-danger);
+}
+
+.btnDangerBg {
+  background-color: var(--color-danger);
+}
+
+/* Card spacing */
+.cardSpacing {
+  margin-bottom: 1.5rem;
+}
+
+/* Modal body padding */
+.modalBody {
+  padding: 1.5rem;
+}
+
+/* Link primary color */
+.linkPrimary {
+  color: var(--color-primary);
+}
+
+/* Summary card grid (wider variant) */
+.summaryCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.summaryCardItem {
+  text-align: center;
+}
+
+.summaryCardLabel {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.summaryCardValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.summaryCardValueWarning {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--status-overdue-text);
+}
+
+/* Icon button sizing */
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem;
+}
+
+/* Non-interactive card */
+.cardStatic {
+  cursor: default;
+}
+
+/* Radio button row */
+.radioRow {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+/* Line item margin */
+.lineItemMargin {
+  margin-bottom: 1.5rem;
+}
+
+/* Invoice select list */
+.invoiceSelectList {
+  border: 1px solid var(--form-border);
+  border-radius: 0.375rem;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+.invoiceSelectItem {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+.invoiceSelectItem:hover {
+  background-color: var(--primary-bg);
+}
+
+.invoiceSelectItemSelected {
+  background-color: var(--secondary-bg);
+}
+
+.invoiceSelectMeta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Totals styling in forms */
+.totalRowBold {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Responsive line items (replaces table) */
+.lineItemsList {
+  margin-top: 1rem;
+}
+
+.lineItemRow {
+  cursor: default;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+
+.lineItemDesc {
+  min-width: 0;
+}
+
+.lineItemDescText {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.lineItemMeta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.lineItemAmountCol {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* Required field indicator */
+.requiredIndicator {
+  color: var(--color-danger);
+}
+
+/* Modal description text */
+.modalDescription {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Modal footer with buttons */
+.modalFooter {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+/* Narrow modal content */
+.modalContentNarrow {
+  max-width: 32rem;
+}
+
+/* Large summary value with loss/warning color */
+.summaryValueLargeLoss {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--status-overdue-text);
+}
+
+/* Form group with top margin */
+.formGroupMarginTop {
+  margin-top: 1rem;
+}
+
+/* Remove margin */
+.noMargin {
+  margin: 0;
+}
+
+/* Container max width */
+.containerNarrow {
+  max-width: 80rem;
+}
+
+/* Job Assignment Section (inline within expense details) */
+.jobAssignmentSection {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.jobAssignmentContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.jobAssignmentLink {
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.jobAssignmentLink:hover {
+  text-decoration: underline;
+}
+
+.jobAssignmentCustomer {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.jobAssignmentCustomer::before {
+  content: '•';
+  margin-right: 0.75rem;
+}
+
+.jobAssignmentUnassigned {
+  @apply flex flex-col md:flex-row items-center gap-4 mt-2;
+
+  & button {
+    @apply w-full md:w-auto disabled:bg-[var(--color-gray-200)];
+  }
 }

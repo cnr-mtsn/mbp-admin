@@ -15,8 +15,8 @@ export default function CustomerCard({ customer }) {
     const outstandingBalance = customer.outstanding_balance || 0;
 
     return (
-        <Link href={`/customers/${extractUuid(customer.id)}`} style={{ height: '100%' }}>
-            <div key={customer.id} className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '200px' }}>
+        <Link href={`/customers/${extractUuid(customer.id)}`} className="h-full block">
+            <div key={customer.id} className={`card ${styles.cardFlexColumn}`}>
                 <div className={cardStyles.itemHeader}>
                     <div className={cardStyles.itemHeaderContent}>
                         <p className={cardStyles.itemLabel}>Customer</p>
@@ -29,7 +29,7 @@ export default function CustomerCard({ customer }) {
                 </div>
 
                 <div className="flex justify-between">
-                    <div className={cardStyles.itemContact} style={{ minHeight: '3rem', flex: '1 0 auto' }}>
+                    <div className={`${cardStyles.itemContact} ${styles.flexGrowSection}`}>
                         {phone && (
                             <p className={cardStyles.itemContactText}>
                                 <Icon name="phone"  size={6}/>{phone}
@@ -41,22 +41,22 @@ export default function CustomerCard({ customer }) {
                             </p>
                         )}
                     </div>
-                    <div className={cardStyles.itemContact} style={{ minHeight: '3rem', flex: '1 0 auto' }}>
+                    <div className={`${cardStyles.itemContact} ${styles.flexGrowSection}`}>
 
                         {hasOpenInvoices && (
-                            <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
+                            <p className={`${cardStyles.itemContactText} ${styles.overdueText}`}>
                                 <Icon name="file-text" size={6} /> {customer.open_invoice_count} open invoice{customer.open_invoice_count !== 1 ? 's' : ''}
                             </p>
                         )}
                         {outstandingBalance > 0 && (
-                            <p className={cardStyles.itemContactText} style={{ color: 'var(--status-overdue-text)', fontWeight: '600' }}>
+                            <p className={`${cardStyles.itemContactText} ${styles.overdueText}`}>
                                 <Icon name="dollar-sign" size={6} /> {formatMoney(outstandingBalance)} outstanding
                             </p>
                         )}
                     </div>
                 </div>
 
-                <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>
+                <div className={cardStyles.itemFooter}>
                     <span className={cardStyles.itemFooterText}>
                         Joined {customer.created_at ? formatDate(customer.created_at) : '-'}
                     </span>

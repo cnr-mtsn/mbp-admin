@@ -1,24 +1,18 @@
-import Link from 'next/link'
 import styles from '../../styles/pages.module.css';
-import cardStyles from '../../styles/cardItems.module.css';
 import { useState } from 'react'
 import { formatCustomerName } from '../../lib/utils/helpers'
-import { extractUuid } from '../../lib/utils/gid'
 import CustomerCard from './CustomerCard'
+import EmptyState from '../ui/EmptyState'
 
 
 export default function CustomersGrid({ customers }) {
-    
+
     const [filter, setFilter] = useState(null)
 
     const handleFilterChange = e => setFilter(e.target.value)
 
     if(customers.length === 0) {
-        return (
-            <div className={`card ${styles.emptyState}`}>
-                <p className="muted">No customers found</p>
-            </div>
-        )
+        return <EmptyState message="No customers found" />;
     }
 
     const filteredCustomers = !filter ? customers : customers.filter(customer => {
@@ -32,11 +26,7 @@ export default function CustomersGrid({ customers }) {
     });
 
     if(filteredCustomers.length === 0) {
-        return (
-            <div className={`card ${styles.emptyState}`}>
-                <p className="muted">No customers match your search</p>
-            </div>
-        )
+        return <EmptyState message="No customers match your search" />;
     }
 
     return (

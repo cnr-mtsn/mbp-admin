@@ -427,7 +427,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
         <h3 className={styles.formSectionTitle}>Line Items</h3>
 
         {lineItems.map((item, index) => (
-          <div key={index} style={{ marginBottom: '1.5rem' }}>
+          <div key={index} className={styles.lineItemMargin}>
             <div className={styles.lineItemRow}>
               <div className={`${styles.formGroup} ${styles.lineItemName}`}>
                 <label className={styles.formLabel}>
@@ -537,8 +537,8 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
           + Add Line Item
         </button>
 
-        <div className={styles.estimateTotals} style={{ marginTop: '1.5rem' }}>
-          <div className={styles.totalRow} style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+        <div className={`${styles.estimateTotals} mt-6`}>
+          <div className={`${styles.totalRow} ${styles.totalRowBold}`}>
             <span>Total:</span>
             <span>{formatMoney(calculateSubtotal())}</span>
           </div>
@@ -552,8 +552,8 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
           <label className={styles.formLabel}>
             How should invoices be handled?
           </label>
-          <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <div className={styles.radioRow}>
+            <label className={styles.radioLabel}>
               <input
                 type="radio"
                 name="invoice_mode"
@@ -563,7 +563,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
               />
               <span>Generate invoices</span>
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+            <label className={styles.radioLabel}>
               <input
                 type="radio"
                 name="invoice_mode"
@@ -582,50 +582,27 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
               Select Invoices ({unlinkedInvoices.length} available)
             </label>
             {unlinkedInvoices.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '0.5rem' }}>
+              <p className={`${styles.textMuted} italic mt-2`}>
                 No unlinked invoices available
               </p>
             ) : (
-              <div style={{
-                border: '1px solid var(--form-border)',
-                borderRadius: '0.375rem',
-                maxHeight: '300px',
-                overflowY: 'auto',
-                marginTop: '0.5rem'
-              }}>
+              <div className={styles.invoiceSelectList}>
                 {unlinkedInvoices.map((invoice) => (
                   <label
                     key={invoice.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '0.75rem',
-                      borderBottom: '1px solid var(--border-subtle)',
-                      cursor: 'pointer',
-                      backgroundColor: selectedInvoiceIds.includes(invoice.id) ? 'var(--secondary-bg)' : 'transparent'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!selectedInvoiceIds.includes(invoice.id)) {
-                        e.currentTarget.style.backgroundColor = 'var(--primary-bg)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!selectedInvoiceIds.includes(invoice.id)) {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }
-                    }}
+                    className={`${styles.invoiceSelectItem} ${selectedInvoiceIds.includes(invoice.id) ? styles.invoiceSelectItemSelected : ''}`}
                   >
                     <input
                       type="checkbox"
                       checked={selectedInvoiceIds.includes(invoice.id)}
                       onChange={() => handleInvoiceToggle(invoice.id)}
-                      style={{ marginRight: '0.75rem' }}
+                      className="mr-3"
                     />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '500' }}>
+                    <div className="flex-1">
+                      <div className="font-medium">
                         #{invoice.invoice_number} - {invoice.title}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                      <div className={styles.invoiceSelectMeta}>
                         {formatCustomerName(invoice.customer, 'No customer')} • {formatMoney(invoice.total)} • {formatStatus(invoice.status)}
                       </div>
                     </div>
@@ -634,7 +611,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, submitLabel =
               </div>
             )}
             {selectedInvoiceIds.length > 0 && (
-              <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              <p className={`${styles.invoiceSelectMeta} mt-2`}>
                 {selectedInvoiceIds.length} invoice{selectedInvoiceIds.length !== 1 ? 's' : ''} selected
               </p>
             )}

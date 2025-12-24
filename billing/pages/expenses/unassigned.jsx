@@ -77,15 +77,15 @@ export default function UnassignedExpenses() {
       </div>
 
       {/* Summary Card */}
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+      <div className={`card ${styles.cardSpacing}`}>
+        <div className={`${styles.summaryCardItem} py-4`}>
+          <p className={styles.summaryCardLabel}>
             Total Unassigned Expenses
           </p>
-          <p style={{ fontSize: '2rem', fontWeight: '600', color: 'var(--status-overdue-text)' }}>
+          <p className={`text-3xl font-semibold ${styles.summaryValueLoss}`}>
             {formatMoney(totalUnassigned)}
           </p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+          <p className={`${styles.summaryCardLabel} mt-2`}>
             {expenses.length} {expenses.length === 1 ? 'expense' : 'expenses'} awaiting assignment
           </p>
         </div>
@@ -94,13 +94,13 @@ export default function UnassignedExpenses() {
       {expenses.length === 0 ? (
         <div className={`card ${styles.emptyState}`}>
           <p className="muted">No unassigned expenses found</p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+          <p className={`${styles.listItemMeta} mt-2`}>
             All expenses have been assigned to jobs
           </p>
         </div>
       ) : (
         <>
-          <div className={styles.cardGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+          <div className={styles.autoFillCardGrid}>
             {expenses.map((expense) => (
               <ExpenseCard key={expense.id} expense={expense} />
             ))}
@@ -108,7 +108,7 @@ export default function UnassignedExpenses() {
 
           {/* Show More Button */}
           {hasMore && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+            <div className={styles.loadMoreContainer}>
               {loadingMore ? (
                 <Loading />
               ) : (

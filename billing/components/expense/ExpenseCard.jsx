@@ -1,20 +1,14 @@
 import Link from "next/link"
 import cardStyles from '../../styles/cardItems.module.css'
-import styles from '../../styles/pages.module.css';
 import { extractUuid } from "../../lib/utils/gid"
 import { formatDate, formatMoney, formatStatus } from "../../lib/utils/helpers"
+import { getExpenseStatusClass } from "../../lib/utils/statusStyles"
 
 export default function ExpenseCard({ expense, compact = false }) {
-  const expenseStatusStyles = {
-    pending_review: styles.statusOverdue, // Orange
-    assigned: styles.statusSent, // Blue
-    approved: styles.statusPaid, // Green
-  };
-
-  const expenseClass = expenseStatusStyles[expense.status] || styles.statusDraft;
+  const expenseClass = getExpenseStatusClass(expense.status);
 
   return (
-    <Link href={`/expenses/${extractUuid(expense.id)}`} style={{ height: '100%' }}>
+    <Link href={`/expenses/${extractUuid(expense.id)}`} className="h-full block">
       <div key={expense.id} className={cardStyles.lineItem}>
         <div className={cardStyles.itemHeader}>
           <div className={cardStyles.itemHeaderContent}>
@@ -40,7 +34,7 @@ export default function ExpenseCard({ expense, compact = false }) {
           </span>
         </div>
 
-        <div className={cardStyles.itemFooter} style={{ marginTop: 'auto' }}>
+        <div className={cardStyles.itemFooter}>
           <p className={cardStyles.itemTitle}>{formatMoney(expense.total || 0)}</p>
           {expense.invoice_date && (
             <p className={cardStyles.itemDescription}>

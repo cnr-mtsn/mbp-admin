@@ -226,3 +226,8 @@
   font-size: var(--font-size-xs);
   color: var(--color-gray-500);
 }
+
+/* Container max width */
+.containerNarrow {
+  max-width: 80rem;
+}

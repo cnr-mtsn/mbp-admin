@@ -71,7 +71,7 @@ export default function Layout({ children }) {
       />
 
       <nav className={styles.nav}>
-        <div className="container" style={{ maxWidth: '80rem' }}>
+        <div className={`container ${styles.containerNarrow}`}>
           <div className={styles.navContainer}>
             <div className={styles.navLeft}>
               {/* Mobile Hamburger Button */}

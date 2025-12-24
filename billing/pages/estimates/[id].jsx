@@ -100,7 +100,7 @@ export default function EstimateDetail() {
           </div>
           {estimate.description && <p className={styles.pageSubtitle}>{estimate.description}</p>}
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex gap-2">
           {estimate.status !== 'accepted' && (
             <button onClick={() => setShowAcceptModal(true)} className="btn-primary">
               Accept & Create Job
@@ -157,7 +157,7 @@ export default function EstimateDetail() {
       </div>
 
       {estimate.line_items && estimate.line_items.length > 0 && (
-        <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+        <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
           <div className={cardStyles.itemHeader}>
             <h3 className={cardStyles.detailSectionTitle}>Line Items</h3>
           </div>
@@ -194,29 +194,23 @@ export default function EstimateDetail() {
       )}
 
       {estimate.notes && (
-        <div className={`card ${cardStyles.detailSection}`} style={{ marginTop: '2rem' }}>
+        <div className={`card ${cardStyles.detailSection} ${styles.sectionCard}`}>
           <h3 className={cardStyles.detailSectionTitle}>Notes</h3>
-          <p className={cardStyles.detailValue} style={{ whiteSpace: 'pre-line' }}>{estimate.notes}</p>
+          <p className={`${cardStyles.detailValue} ${styles.whitespacePreLine}`}>{estimate.notes}</p>
         </div>
       )}
 
       {/* Accept Estimate Modal */}
       {showAcceptModal && (
         <div className={styles.modalOverlay}>
-          <div className={`card ${styles.modalContent}`} style={{ maxWidth: '32rem' }}>
+          <div className={`card ${styles.modalContent} ${styles.modalContentNarrow}`}>
             <h3 className={cardStyles.detailSectionTitle}>Accept Estimate & Create Job</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+            <p className={styles.modalDescription}>
               This will create a new job from this estimate and generate invoices based on the selected payment schedule.
             </p>
 
             {acceptError && (
-              <div style={{
-                padding: '1rem',
-                marginBottom: '1rem',
-                backgroundColor: 'var(--status-overdue-bg)',
-                color: 'var(--status-overdue-text)',
-                borderRadius: '0.5rem'
-              }}>
+              <div className={styles.alertError}>
                 Error: {acceptError.message}
               </div>
             )}
@@ -266,7 +260,7 @@ export default function EstimateDetail() {
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+            <div className={styles.modalFooter}>
               <button
                 onClick={() => setShowAcceptModal(false)}
                 className="btn-secondary"

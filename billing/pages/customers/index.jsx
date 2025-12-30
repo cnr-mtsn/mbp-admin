@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import { GET_CUSTOMERS } from '../../lib/graphql/queries';
@@ -6,10 +5,9 @@ import styles from '../../styles/pages.module.css';
 import CustomersGrid from '../../components/customers/CustomersGrid'
 import BackButton from '../../components/ui/BackButton'
 import Loading from '../../components/ui/Loading'
+import Icon from '../../components/ui/Icon'
 
 export default function Customers() {
-  const router = useRouter();
-
   const { data, loading, error } = useQuery(GET_CUSTOMERS, {
     variables: { sortKey: 'open_invoices' }
   });
@@ -46,7 +44,15 @@ export default function Customers() {
           <p className={styles.pageLabel}>Directory</p>
           <h2 className={styles.pageTitle}>Customers</h2>
         </div>
-        <BackButton href="/" classes="btn-secondary" />
+        <div className="flex gap-2 items-center">
+          <Link
+            href="/customers/new"
+            className={`btn-primary ${styles.iconButton}`}
+          >
+            <Icon name="add" size={10} />
+          </Link>
+          <BackButton href="/" classes="btn-secondary" />
+        </div>
       </div>
       <CustomersGrid customers={customers} />
     </div>

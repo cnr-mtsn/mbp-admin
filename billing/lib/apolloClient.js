@@ -81,8 +81,9 @@ const client = new ApolloClient({
             // Merge strategy for paginated queries
             keyArgs: ['filters', 'sortKey'],
             merge(existing = [], incoming, { args }) {
-              // If offset is 0, replace the cache (new query)
-              if (!args || args.offset === 0) {
+              // If offset is 0 or not provided, replace the cache (new query)
+              // Note: args.offset can be undefined when not provided, so use !args?.offset
+              if (!args?.offset) {
                 return incoming;
               }
               // Otherwise, append new results (pagination)
@@ -92,7 +93,7 @@ const client = new ApolloClient({
           invoices: {
             keyArgs: ['filters', 'sortKey'],
             merge(existing = [], incoming, { args }) {
-              if (!args || args.offset === 0) {
+              if (!args?.offset) {
                 return incoming;
               }
               return [...existing, ...incoming];
@@ -104,7 +105,7 @@ const client = new ApolloClient({
           expenses: {
             keyArgs: ['filters', 'sortKey'],
             merge(existing = [], incoming, { args }) {
-              if (!args || args.offset === 0) {
+              if (!args?.offset) {
                 return incoming;
               }
               return [...existing, ...incoming];

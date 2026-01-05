@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_JOBS } from '../../lib/graphql/queries';
 import { formatCustomerName, formatDate } from '../../lib/utils/helpers';
@@ -70,13 +70,17 @@ export default function ExpenseForm({ initialData, onSubmit, onCancel, submitLab
 
   const [errors, setErrors] = useState({});
 
-  const jobIdFromInitial = initialData?.job_id;
+  // Sync form with initialData when initialData changes (e.g., modal reopened with different expense)
+  // Using a ref to track the previous initialData.job_id to avoid resetting user edits
+  const prevInitialJobId = useRef(initialData?.job_id);
 
   useEffect(() => {
-    if (jobIdFromInitial && jobIdFromInitial !== formData.job_id) {
-      setFormData(prev => ({ ...prev, job_id: jobIdFromInitial }));
+    // Only update if the initial data actually changed (different expense loaded)
+    if (initialData?.job_id !== prevInitialJobId.current) {
+      prevInitialJobId.current = initialData?.job_id;
+      setFormData(prev => ({ ...prev, job_id: initialData?.job_id || '' }));
     }
-  }, [jobIdFromInitial, formData.job_id]);
+  }, [initialData?.job_id]);
 
   useEffect(() => {
     if (formData.expense_type !== 'labor') {

@@ -105,7 +105,7 @@ export const CREATE_ESTIMATE = gql`
 `;
 
 export const UPDATE_ESTIMATE = gql`
-  mutation UpdateEstimate($id: ID!, $input: EstimateInput!) {
+  mutation UpdateEstimate($id: ID!, $input: EstimateUpdateInput!) {
     updateEstimate(id: $id, input: $input) {
       id
       title
@@ -118,6 +118,12 @@ export const UPDATE_ESTIMATE = gql`
 export const DELETE_ESTIMATE = gql`
   mutation DeleteEstimate($id: ID!) {
     deleteEstimate(id: $id)
+  }
+`;
+
+export const SEND_ESTIMATE = gql`
+  mutation SendEstimate($id: ID!, $recipientEmail: String, $ccEmails: [String!], $subject: String, $body: String) {
+    sendEstimate(id: $id, recipientEmail: $recipientEmail, ccEmails: $ccEmails, subject: $subject, body: $body)
   }
 `;
 

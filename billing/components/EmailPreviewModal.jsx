@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { PREVIEW_INVOICE_EMAIL } from '../lib/graphql/queries';
+import { PREVIEW_INVOICE_EMAIL, PREVIEW_ESTIMATE_EMAIL } from '../lib/graphql/queries';
 import { extractUuid } from '../lib/utils/gid';
 import Icon from './ui/Icon';
 import styles from '../styles/emailPreviewModal.module.css';
 
-export default function EmailPreviewModal({ invoice, isOpen, onClose, onSend }) {
+export default function EmailPreviewModal({ invoice, estimate, type = 'invoice', isOpen, onClose, onSend }) {
   const [recipientEmail, setRecipientEmail] = useState('');
   const [ccEmails, setCcEmails] = useState(['']);
   const [subject, setSubject] = useState('');
@@ -13,22 +13,28 @@ export default function EmailPreviewModal({ invoice, isOpen, onClose, onSend }) 
   const [sending, setSending] = useState(false);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
 
+  // Determine which query to use and which data to fetch
+  const query = type === 'estimate' ? PREVIEW_ESTIMATE_EMAIL : PREVIEW_INVOICE_EMAIL;
+  const id = type === 'estimate' ? estimate?.id : invoice?.id;
+  const shouldSkip = !isOpen || (type === 'estimate' ? !estimate : !invoice);
+
   // Fetch email preview data using GraphQL
-  const { data, loading, error } = useQuery(PREVIEW_INVOICE_EMAIL, {
-    variables: { id: invoice?.id },
-    skip: !isOpen || !invoice,
+  const { data, loading, error } = useQuery(query, {
+    variables: { id },
+    skip: shouldSkip,
   });
 
   // Update state when preview data loads
   useEffect(() => {
-    if (data?.previewInvoiceEmail) {
-      const preview = data.previewInvoiceEmail;
+    const previewKey = type === 'estimate' ? 'previewEstimateEmail' : 'previewInvoiceEmail';
+    if (data?.[previewKey]) {
+      const preview = data[previewKey];
       setRecipientEmail(preview.to || '');
       setCcEmails(preview.cc.length > 0 ? preview.cc : ['']);
       setSubject(preview.subject || '');
       setBody(preview.body || '');
     }
-  }, [data]);
+  }, [data, type]);
 
   const handleAddCcEmail = () => {
     setCcEmails([...ccEmails, '']);
@@ -70,15 +76,17 @@ export default function EmailPreviewModal({ invoice, isOpen, onClose, onSend }) 
   };
 
   const getPdfPreviewUrl = () => {
-    if (!invoice) return '';
+    const item = type === 'estimate' ? estimate : invoice;
+    if (!item) return '';
     // Pass the full GID - backend will handle the conversion
     // Encode the GID for URL safety (it contains :// which needs encoding)
-    const encodedInvoiceId = encodeURIComponent(invoice.id);
+    const encodedId = encodeURIComponent(item.id);
     const token = localStorage.getItem('token');
     // Use the GraphQL URL base (remove /graphql) to get the API base
     const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql';
     const apiBaseUrl = graphqlUrl.replace('/graphql', '');
-    return `${apiBaseUrl}/api/invoices/${encodedInvoiceId}/preview-pdf?token=${token}`;
+    const endpoint = type === 'estimate' ? 'estimates' : 'invoices';
+    return `${apiBaseUrl}/api/${endpoint}/${encodedId}/preview-pdf?token=${token}`;
   };
 
   const handleDownloadPdf = () => {
@@ -92,7 +100,7 @@ export default function EmailPreviewModal({ invoice, isOpen, onClose, onSend }) 
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Preview & Send Invoice Email</h2>
+          <h2>Preview & Send {type === 'estimate' ? 'Estimate' : 'Invoice'} Email</h2>
           <button className={styles.closeButton} onClick={onClose}>
             <Icon name="x" />
           </button>
@@ -203,7 +211,7 @@ export default function EmailPreviewModal({ invoice, isOpen, onClose, onSend }) 
                     <div className={styles.pdfPreview}>
                       <iframe
                         src={getPdfPreviewUrl()}
-                        title="Invoice PDF Preview"
+                        title={`${type === 'estimate' ? 'Estimate' : 'Invoice'} PDF Preview`}
                         className={styles.pdfIframe}
                       />
                     </div>

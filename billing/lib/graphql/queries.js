@@ -449,6 +449,19 @@ export const PREVIEW_INVOICE_EMAIL = gql`
   }
 `;
 
+export const PREVIEW_ESTIMATE_EMAIL = gql`
+  query PreviewEstimateEmail($id: ID!) {
+    previewEstimateEmail(id: $id) {
+      from
+      to
+      cc
+      subject
+      body
+      attachmentName
+    }
+  }
+`;
+
 export const GET_UNLINKED_INVOICES = gql`
   query GetUnlinkedInvoices {
     unlinkedInvoices {

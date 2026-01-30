@@ -366,6 +366,18 @@ export const typeDefs = gql`
     status: String
   }
 
+  input EstimateUpdateInput {
+    customer_id: ID
+    title: String
+    description: String
+    line_items: [LineItemInput!]
+    subtotal: Float
+    tax: Float
+    total: Float
+    notes: String
+    status: String
+  }
+
   input JobInput {
     customer_id: ID!
     estimate_id: ID
@@ -537,6 +549,7 @@ export const typeDefs = gql`
     # Estimates
     estimates: [Estimate!]!
     estimate(id: ID!): Estimate
+    previewEstimateEmail(id: ID!): EmailPreview!
 
     # Jobs
     jobs(filters: JobFilters, sortKey: String, first: Int, offset: Int): [Job!]!
@@ -596,8 +609,9 @@ export const typeDefs = gql`
 
     # Estimates
     createEstimate(input: EstimateInput!): Estimate!
-    updateEstimate(id: ID!, input: EstimateInput!): Estimate!
+    updateEstimate(id: ID!, input: EstimateUpdateInput!): Estimate!
     deleteEstimate(id: ID!): Boolean!
+    sendEstimate(id: ID!, recipientEmail: String, ccEmails: [String!], subject: String, body: String): Boolean!
     acceptEstimate(id: ID!, payment_schedule: String!): Job!
 
     # Jobs

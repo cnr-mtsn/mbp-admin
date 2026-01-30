@@ -1,10 +1,71 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import { query } from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { toGidFormat, extractUuidForQuery, toGidFormatArray } from '../utils/resolverHelpers.js';
+import { generateEstimatePDF } from '../services/pdfService.js';
 
 const router = express.Router();
 
+// Custom auth middleware for PDF endpoint that accepts token from query params
+const authenticatePdfRequest = (req, res, next) => {
+  const token = req.query.token || req.headers.authorization?.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+};
+
+// PDF Preview endpoint MUST come BEFORE router.use(authenticateToken)
+// This allows it to use its own auth middleware (authenticatePdfRequest)
+router.get('/:id/preview-pdf', authenticatePdfRequest, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hexPrefix = extractUuidForQuery(id);
+
+    // Get estimate with customer data
+    const estimateResult = await query(
+      `SELECT e.*, c.name as customer_name, c.company_name, c.email as customer_email,
+              c.phone as customer_phone, c.address as customer_address
+       FROM estimates e
+       LEFT JOIN customers c ON e.customer_id = c.id
+       WHERE REPLACE(e.id::text, '-', '') LIKE $1`,
+      [`${hexPrefix}%`]
+    );
+
+    if (estimateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Estimate not found' });
+    }
+
+    const estimate = estimateResult.rows[0];
+    estimate.line_items = typeof estimate.line_items === 'string'
+      ? JSON.parse(estimate.line_items)
+      : estimate.line_items;
+
+    // Generate PDF
+    const pdfBuffer = await generateEstimatePDF(estimate);
+
+    // Set headers for PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename=estimate-${estimate.id.slice(0, 8)}.pdf`);
+
+    // Send PDF
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Generate estimate PDF error:', error);
+    res.status(500).json({ error: 'Failed to generate estimate PDF' });
+  }
+});
+
+// Apply authenticateToken middleware to all routes defined AFTER this line
 router.use(authenticateToken);
 
 router.get('/', async (req, res) => {

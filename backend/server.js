@@ -9,6 +9,7 @@ import { resolvers } from './graphql/resolvers/index.js';
 import { initializeCronJobs } from './services/cronService.js';
 import cache from './utils/cacheManager.js';
 import invoicesRouter from './routes/invoices.js';
+import estimatesRouter from './routes/estimates.js';
 
 dotenv.config();
 
@@ -134,6 +135,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // REST API routes
 app.use('/api/invoices', invoicesRouter);
+app.use('/api/estimates', estimatesRouter);
 
 // GraphQL endpoint
 app.use(

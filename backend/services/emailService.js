@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { generateInvoicePDF } from './pdfService.js';
+import { generateInvoicePDF, generateEstimatePDF } from './pdfService.js';
 
 // Create reusable transporter (single config shared by all environments)
 const createTransporter = () => {
@@ -321,14 +321,15 @@ const getDefaultCcEmails = () => {
  * @returns {Object} Email preview data
  */
 export const getInvoiceEmailPreview = (invoice) => {
-  const isDevelopment = process.env.NODE_ENV !== 'production';
   const invoiceTitle = invoice.title || 'Your invoice';
-  const recipientEmail = isDevelopment ? process.env.DEV_EMAIL_TO : invoice.customer_email;
+  // For preview, always show the customer's actual email (not dev override)
+  // The dev override only applies when actually sending
+  const recipientEmail = invoice.customer_email;
   const customerName = invoice?.customer_name || ""
   const companyName = invoice?.company_name || ""
   const recipient = companyName !== "" ? `"${companyName}" <${recipientEmail}>` : (customerName !== "" ? `"${customerName}" <${recipientEmail}>` : recipientEmail);
   const subject = `MBP Invoice #${invoice.invoice_number}: ${invoiceTitle}`;
-  
+
   return {
     from: `Matson Brothers Painting - Billing <${process.env.EMAIL_FROM}>`,
     to: recipient,
@@ -406,6 +407,267 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
+    throw error;
+  }
+};
+
+/**
+ * Generate email HTML content for estimate
+ * @param {Object} estimate - Estimate data from database
+ * @param {Object} options - Optional parameters
+ * @returns {string} HTML content for email
+ */
+const generateEstimateEmailHTML = (estimate, options = {}) => {
+  console.log("generate email for estimate: ", estimate)
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const estimateNumber = estimate.id ? `EST-${estimate.id.slice(0, 8).toUpperCase()}` : 'EST-DRAFT';
+  const totalAmount = formatMoney(estimate.total);
+  const status = estimate.status ? estimate.status.toUpperCase() : '—';
+  const customerName = estimate.customer_name || 'Customer';
+  const companyName = estimate.company_name || ''
+  const estimateTitle = estimate.title || 'Your estimate';
+
+  // Use custom body if provided, otherwise use default template
+  if (options.body) {
+    return options.body;
+  }
+
+  return `
+    <div
+      style="
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        border: 1px solid #e6e9ed;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+      "
+    >
+      <div style="background: #1f365c; color: #ffffff; padding: 18px 22px">
+        <h2 style="margin: 0 0 4px; font-size: 20px">Estimate from Matson Brothers Painting</h2>
+        <p style="margin: 0; font-size: 14px">
+          Estimate ${estimateNumber}
+        </p>
+      </div>
+
+      <div style="padding: 22px">
+        <p style="margin: 0 0 12px; color: #1f365c">Hello ${companyName || customerName},</p>
+        <p style="margin: 0 0 16px; color: #1f365c">
+          Project: <strong>${estimateTitle}</strong>
+        </p>
+        <p style="margin: 0 0 12px; color: #334357">
+          View full estimate details in the attached PDF.
+        </p>
+
+        <table
+          style="
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin: 0 0 16px;
+          "
+        >
+          <tr>
+            <td
+              style="
+                width: 50%;
+                background: #f7f9fc;
+                padding: 12px;
+                border: 1px solid #e6e9ed;
+                color: #1f365c;
+              "
+            >
+              <strong>Total Amount</strong>
+            </td>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e6e9ed;
+                text-align: right;
+                color: #1f365c;
+              "
+            >
+              ${totalAmount}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                width: 50%;
+                background: #f7f9fc;
+                padding: 12px;
+                border: 1px solid #e6e9ed;
+                color: #1f365c;
+              "
+            >
+              <strong>Status</strong>
+            </td>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e6e9ed;
+                text-align: right;
+                color: #1f365c;
+              "
+            >
+              ${status}
+            </td>
+          </tr>
+        </table>
+
+        ${
+          estimate.notes
+            ? `<div
+                style="
+                  background: #f7f9fc;
+                  border: 1px solid #e6e9ed;
+                  border-radius: 8px;
+                  padding: 12px 14px;
+                  margin: 0 0 16px;
+                  color: #334357;
+                  font-size: 14px;
+                "
+              >
+                <strong style="display: block; margin-bottom: 6px">Notes</strong>
+                ${estimate.notes.replace(/\n/g, '<br>')}
+              </div>`
+            : ''
+        }
+
+        <div
+          style="
+            background: #fff9e6;
+            border: 1px solid #ffe066;
+            border-radius: 8px;
+            padding: 14px;
+            margin: 0 0 16px;
+            color: #8b6914;
+            font-size: 14px;
+          "
+        >
+          <strong style="display: block; margin-bottom: 6px">📅 Validity</strong>
+          This estimate is valid for 30 days from the date of issue.
+        </div>
+
+        <p style="margin: 0 0 18px; color: #334357">
+          If you have any questions about this estimate or would like to proceed,
+          please reply to this email and we will be happy to help.
+        </p>
+
+        <p style="margin: 20px 0 0; color: #334357">
+          Thank you,<br />
+          <strong>Matson Brothers Painting</strong>
+        </p>
+
+        ${
+          isDevelopment
+            ? `<p style="color: #999; font-size: 12px; margin-top: 20px;">
+                <em>This is a development email. In production, this would be sent to: ${estimate.customer_email}</em>
+              </p>`
+            : ''
+        }
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Get email preview data without sending
+ * @param {Object} estimate - Estimate data from database
+ * @returns {Object} Email preview data
+ */
+export const getEstimateEmailPreview = (estimate) => {
+  const estimateTitle = estimate.title || 'Your estimate';
+  // For preview, always show the customer's actual email (not dev override)
+  // The dev override only applies when actually sending
+  const recipientEmail = estimate.customer_email;
+  const customerName = estimate?.customer_name || ""
+  const companyName = estimate?.company_name || ""
+  const recipient = companyName !== "" ? `"${companyName}" <${recipientEmail}>` : (customerName !== "" ? `"${customerName}" <${recipientEmail}>` : recipientEmail);
+  const estimateNumber = estimate.id ? `EST-${estimate.id.slice(0, 8).toUpperCase()}` : 'EST-DRAFT';
+  const subject = `MBP Estimate ${estimateNumber}: ${estimateTitle}`;
+
+  return {
+    from: `Matson Brothers Painting - Billing <${process.env.EMAIL_FROM}>`,
+    to: recipient,
+    cc: getDefaultCcEmails(),
+    subject: subject,
+    body: generateEstimateEmailHTML(estimate),
+    attachmentName: `estimate-${estimateNumber}.pdf`,
+  };
+};
+
+/**
+ * Send estimate email with PDF attachment
+ * @param {Object} estimate - Estimate data from database
+ * @param {Object} options - Optional custom email parameters
+ * @param {string} options.recipientEmail - Override recipient email
+ * @param {Array<string>} options.ccEmails - CC email addresses
+ * @param {string} options.subject - Override subject line
+ * @param {string} options.body - Override email body HTML
+ */
+export const sendEstimateEmail = async (estimate, options = {}) => {
+  try {
+    // Generate PDF
+    const pdfBuffer = await generateEstimatePDF(estimate);
+
+    // Create transporter
+    const transporter = createTransporter();
+
+    // For development, override recipient email
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    const estimateTitle = estimate.title || 'Your estimate';
+
+    // Use custom recipient email if provided, otherwise fall back to default behavior
+    const recipientEmail = options.recipientEmail ||
+      (isDevelopment ? process.env.DEV_EMAIL_TO : estimate.customer_email);
+
+    const customerName = estimate?.customer_name || ""
+    const companyName = estimate?.company_name || ""
+    const recipient = companyName !== "" ? `"${companyName}" <${recipientEmail}>` : (customerName !== "" ? `"${customerName}" <${recipientEmail}>` : recipientEmail);
+
+    const estimateNumber = estimate.id ? `EST-${estimate.id.slice(0, 8).toUpperCase()}` : 'EST-DRAFT';
+
+    // Use custom subject if provided, otherwise use default
+    const subject = options.subject || `MBP Estimate ${estimateNumber}: ${estimateTitle}`;
+
+    // Generate HTML body (uses custom body if provided in options)
+    const htmlBody = generateEstimateEmailHTML(estimate, options);
+
+    // Email options
+    const mailOptions = {
+      from: `Matson Brothers Painting - Billing <${process.env.EMAIL_FROM}>`,
+      to: recipient,
+      subject: subject,
+      html: htmlBody,
+      attachments: [
+        {
+          filename: `estimate-${estimateNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
+    };
+
+    // Add CC emails - merge default CC emails with any provided in options
+    const defaultCcEmails = getDefaultCcEmails();
+    const allCcEmails = options.ccEmails && options.ccEmails.length > 0
+      ? [...new Set([...defaultCcEmails, ...options.ccEmails])] // Merge and remove duplicates
+      : defaultCcEmails;
+
+    if (allCcEmails.length > 0) {
+      mailOptions.cc = allCcEmails.join(', ');
+    }
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log('Estimate email sent:', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('Error sending estimate email:', error);
     throw error;
   }
 };

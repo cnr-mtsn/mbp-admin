@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
 import { generateInvoicePDF, generateEstimatePDF } from './pdfService.js';
 
 // Create reusable transporter (single config shared by all environments)
@@ -412,6 +413,24 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
 };
 
 /**
+ * Generate a secure token for estimate approval/decline
+ * @param {string} estimateId - Estimate ID
+ * @param {string} action - 'approve' or 'decline'
+ * @returns {string} JWT token
+ */
+const generateEstimateActionToken = (estimateId, action) => {
+  return jwt.sign(
+    {
+      estimateId,
+      action,
+      type: 'estimate_action'
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '30d' } // Token valid for 30 days
+  );
+};
+
+/**
  * Generate email HTML content for estimate
  * @param {Object} estimate - Estimate data from database
  * @param {Object} options - Optional parameters
@@ -431,6 +450,18 @@ const generateEstimateEmailHTML = (estimate, options = {}) => {
   if (options.body) {
     return options.body;
   }
+
+  // Generate secure tokens for approve/decline actions
+  const approveToken = generateEstimateActionToken(estimate.id, 'approve');
+  const declineToken = generateEstimateActionToken(estimate.id, 'decline');
+
+  // Determine the base URL based on environment
+  const baseUrl = isDevelopment
+    ? 'http://localhost:4000'
+    : process.env.API_BASE_URL || 'https://api.matsonbrotherspainting.com';
+
+  const approveUrl = `${baseUrl}/api/estimates/${estimate.id}/approve?token=${approveToken}`;
+  const declineUrl = `${baseUrl}/api/estimates/${estimate.id}/decline?token=${declineToken}`;
 
   return `
     <div
@@ -551,8 +582,42 @@ const generateEstimateEmailHTML = (estimate, options = {}) => {
           This estimate is valid for 30 days from the date of issue.
         </div>
 
+        <div style="text-align: center; margin: 24px 0;">
+          <p style="margin: 0 0 12px; color: #334357; font-size: 14px">
+            <strong>Ready to get started?</strong>
+          </p>
+          <a
+            href="${approveUrl}"
+            style="
+              display: inline-block;
+              background: #16a34a;
+              color: #ffffff;
+              text-decoration: none;
+              padding: 12px 24px;
+              border-radius: 6px;
+              font-weight: bold;
+              font-size: 14px;
+              margin: 0 8px;
+            "
+          >✓ Approve Estimate</a>
+          <a
+            href="${declineUrl}"
+            style="
+              display: inline-block;
+              background: #dc2626;
+              color: #ffffff;
+              text-decoration: none;
+              padding: 12px 24px;
+              border-radius: 6px;
+              font-weight: bold;
+              font-size: 14px;
+              margin: 0 8px;
+            "
+          >✗ Decline Estimate</a>
+        </div>
+
         <p style="margin: 0 0 18px; color: #334357">
-          If you have any questions about this estimate or would like to proceed,
+          If you have any questions about this estimate,
           please reply to this email and we will be happy to help.
         </p>
 

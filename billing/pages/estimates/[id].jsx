@@ -8,6 +8,7 @@ import { formatCustomerName, formatDate, formatMoney, formatStatus } from '../..
 import { extractUuid, toGid } from '../../lib/utils/gid';
 import EstimateForm from '../../components/EstimateForm';
 import EmailPreviewModal from '../../components/EmailPreviewModal';
+import ActivityTimeline from '../../components/ActivityTimeline';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton';
@@ -357,6 +358,11 @@ export default function EstimateDetail() {
           <h3 className={cardStyles.detailSectionTitle}>Notes</h3>
           <p className={`${cardStyles.detailValue} ${styles.whitespacePreLine}`}>{estimate.notes}</p>
         </div>
+      )}
+
+      {/* Activity Timeline */}
+      {estimate.activity_logs && (
+        <ActivityTimeline activities={estimate.activity_logs} />
       )}
 
       {/* Edit Estimate Dialog */}

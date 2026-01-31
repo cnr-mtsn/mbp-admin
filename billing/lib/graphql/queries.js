@@ -198,6 +198,13 @@ export const GET_ESTIMATE = gql`
       status
       created_at
       updated_at
+      activity_logs {
+        id
+        activity_type
+        user_name
+        metadata
+        created_at
+      }
     }
   }
 `;
@@ -432,6 +439,13 @@ export const GET_INVOICE = gql`
       }
       created_at
       updated_at
+      activity_logs {
+        id
+        activity_type
+        user_name
+        metadata
+        created_at
+      }
     }
   }
 `;

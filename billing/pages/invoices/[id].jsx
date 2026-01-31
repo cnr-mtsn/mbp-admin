@@ -8,6 +8,7 @@ import { extractUuid, toGid } from '../../lib/utils/gid';
 import { formatCustomerName, formatDate, formatMoney, formatStatus } from '../../lib/utils/helpers';
 import InvoiceForm from '../../components/InvoiceForm';
 import EmailPreviewModal from '../../components/EmailPreviewModal';
+import ActivityTimeline from '../../components/ActivityTimeline';
 import styles from '../../styles/pages.module.css';
 import cardStyles from '../../styles/cardItems.module.css';
 import BackButton from '../../components/ui/BackButton'
@@ -443,6 +444,11 @@ export default function InvoiceDetail() {
           <h3 className={cardStyles.detailSectionTitle}>Notes</h3>
           <p className={`${cardStyles.detailValue} ${styles.whitespacePreLine}`}>{invoice.notes}</p>
         </div>
+      )}
+
+      {/* Activity Timeline */}
+      {invoice.activity_logs && (
+        <ActivityTimeline activities={invoice.activity_logs} />
       )}
 
       {/* Edit Invoice Dialog */}

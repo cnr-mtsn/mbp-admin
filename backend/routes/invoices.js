@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { query } from '../config/database.js';
 import { extractUuidForQuery } from '../utils/resolverHelpers.js';
+import { logActivity } from '../services/activityLogService.js';
 
 const router = express.Router();
 
@@ -21,6 +22,61 @@ const authenticatePdfRequest = (req, res, next) => {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
+
+// Email tracking pixel endpoint (public, no auth required)
+// Returns a 1x1 transparent GIF and logs when customer opens the email
+router.get('/:id/track-open', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { token } = req.query;
+
+    // Verify token if provided (optional for tracking)
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.type === 'invoice_email') {
+          // Log the email open activity
+          await logActivity({
+            entityType: 'invoice',
+            entityId: id,
+            activityType: 'viewed',
+            userName: 'Customer',
+            metadata: {
+              ip: req.ip || req.connection.remoteAddress,
+              userAgent: req.headers['user-agent'],
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
+      } catch (err) {
+        // Token invalid or expired - still return pixel but don't log
+        console.log('Tracking pixel token validation failed:', err.message);
+      }
+    }
+
+    // Return a transparent 1x1 GIF
+    const pixel = Buffer.from(
+      'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+      'base64'
+    );
+
+    res.setHeader('Content-Type', 'image/gif');
+    res.setHeader('Content-Length', pixel.length);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.send(pixel);
+  } catch (error) {
+    console.error('Track email open error:', error);
+    // Still return a pixel even on error
+    const pixel = Buffer.from(
+      'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+      'base64'
+    );
+    res.setHeader('Content-Type', 'image/gif');
+    res.send(pixel);
+  }
+});
 
 // PDF Preview endpoint - returns binary PDF data
 router.get('/:id/preview-pdf', authenticatePdfRequest, async (req, res) => {

@@ -51,6 +51,7 @@ export const typeDefs = gql`
     status: String!
     created_at: String!
     updated_at: String!
+    activity_logs: [ActivityLog!]
   }
 
   type Job {
@@ -92,6 +93,17 @@ export const typeDefs = gql`
     attachmentName: String!
   }
 
+  type ActivityLog {
+    id: ID!
+    entity_type: String!
+    entity_id: ID!
+    activity_type: String!
+    user_id: ID
+    user_name: String
+    metadata: JSON
+    created_at: String!
+  }
+
   type Invoice {
     id: ID!
     customer_id: ID!
@@ -117,6 +129,7 @@ export const typeDefs = gql`
     payments: [Payment!]!
     created_at: String!
     updated_at: String!
+    activity_logs: [ActivityLog!]
   }
 
   type Payment {

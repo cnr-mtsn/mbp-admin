@@ -2,6 +2,7 @@ import { query } from '../../config/database.js';
 import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
 import { extractUuid } from '../../utils/gid.js';
 import { getEstimateEmailPreview, sendEstimateEmail } from '../../services/emailService.js';
+import { logActivity, getActivityLogs } from '../../services/activityLogService.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -75,6 +76,26 @@ export const estimateResolvers = {
       );
       return toGidFormat(result.rows[0], 'Customer');
     },
+
+    activity_logs: async (parent) => {
+      // Get the full UUID from the database
+      const hexPrefix = extractUuid(parent.id);
+      const result = await query(
+        `SELECT id FROM estimates WHERE REPLACE(id::text, '-', '') LIKE $1`,
+        [`${hexPrefix}%`]
+      );
+
+      if (result.rows.length === 0) {
+        return [];
+      }
+
+      const fullUuid = result.rows[0].id;
+      const logs = await getActivityLogs('estimate', fullUuid);
+      return logs.map(log => ({
+        ...log,
+        id: toGidFormat({ id: log.id }, 'ActivityLog').id
+      }));
+    },
   },
 
   Mutation: {
@@ -103,6 +124,21 @@ export const estimateResolvers = {
       );
 
       const estimate = toGidFormat(result.rows[0], 'Estimate', { foreignKeys: ['customer_id'] });
+
+      // Log activity
+      await logActivity({
+        entityType: 'estimate',
+        entityId: result.rows[0].id,
+        activityType: 'created',
+        userId: user.id,
+        userName: user.name || user.email,
+        metadata: {
+          title,
+          total,
+          status: status || 'draft'
+        }
+      });
+
       return {
         ...estimate,
         line_items: typeof estimate.line_items === 'string' ? JSON.parse(estimate.line_items) : estimate.line_items
@@ -207,6 +243,21 @@ export const estimateResolvers = {
       }
 
       const estimate = toGidFormat(result.rows[0], 'Estimate', { foreignKeys: ['customer_id'] });
+
+      // Log activity
+      await logActivity({
+        entityType: 'estimate',
+        entityId: result.rows[0].id,
+        activityType: 'updated',
+        userId: user.id,
+        userName: user.name || user.email,
+        metadata: {
+          updatedFields: Object.keys(input),
+          title: result.rows[0].title,
+          status: result.rows[0].status
+        }
+      });
+
       return {
         ...estimate,
         line_items: typeof estimate.line_items === 'string' ? JSON.parse(estimate.line_items) : estimate.line_items
@@ -255,7 +306,10 @@ export const estimateResolvers = {
       }
 
       // Send email
-      const options = {};
+      const options = {
+        userId: user.id,
+        userName: user.name || user.email
+      };
       if (recipientEmail) options.recipientEmail = recipientEmail;
       if (ccEmails) options.ccEmails = ccEmails;
       if (subject) options.subject = subject;

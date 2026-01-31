@@ -3,6 +3,7 @@ import { toGidFormat, toGidFormatArray } from '../../utils/resolverHelpers.js';
 import { extractUuid, toGid } from '../../utils/gid.js';
 import { fetchPaymentsWithInvoices } from './payments.js';
 import { cachedResolver, invalidateCache, generateListTags } from '../../utils/cachedResolver.js';
+import { logActivity, getActivityLogs } from '../../services/activityLogService.js';
 
 const requireAuth = (user) => {
   if (!user) {
@@ -258,6 +259,26 @@ export const invoiceResolvers = {
         ttl: 300000, // 5 minutes
       }
     ),
+
+    activity_logs: async (parent) => {
+      // Get the full UUID from the database
+      const hexPrefix = extractUuid(parent.id);
+      const result = await query(
+        `SELECT id FROM invoices WHERE REPLACE(id::text, '-', '') LIKE $1`,
+        [`${hexPrefix}%`]
+      );
+
+      if (result.rows.length === 0) {
+        return [];
+      }
+
+      const fullUuid = result.rows[0].id;
+      const logs = await getActivityLogs('invoice', fullUuid);
+      return logs.map(log => ({
+        ...log,
+        id: toGid('ActivityLog', log.id)
+      }));
+    },
   },
 
   Mutation: {
@@ -358,6 +379,21 @@ export const invoiceResolvers = {
       }
 
       const invoice = toGidFormat(result.rows[0], 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] });
+
+      // Log activity
+      await logActivity({
+        entityType: 'invoice',
+        entityId: result.rows[0].id,
+        activityType: 'created',
+        userId: user.id,
+        userName: user.name || user.email,
+        metadata: {
+          title,
+          total,
+          status: status || 'unpaid',
+          invoiceNumber: nextInvoiceNumber.toString()
+        }
+      });
 
       // Invalidate cache after creating invoice
       invalidateCache([
@@ -493,6 +529,22 @@ export const invoiceResolvers = {
 
       const invoice = toGidFormat(updatedInvoice, 'Invoice', { foreignKeys: ['customer_id', 'job_id', 'estimate_id'] });
 
+      // Log activity (only if authenticated user - skip for webhooks)
+      if (user) {
+        await logActivity({
+          entityType: 'invoice',
+          entityId: updatedInvoice.id,
+          activityType: 'updated',
+          userId: user.id,
+          userName: user.name || user.email,
+          metadata: {
+            updatedFields: Object.keys(input),
+            title: updatedInvoice.title,
+            status: updatedInvoice.status
+          }
+        });
+      }
+
       // Invalidate cache after updating invoice
       invalidateCache([
         'invoice:all',
@@ -621,7 +673,9 @@ export const invoiceResolvers = {
         recipientEmail,
         ccEmails,
         subject,
-        body
+        body,
+        userId: user.id,
+        userName: user.name || user.email
       });
 
       return true;

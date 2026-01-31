@@ -6,6 +6,7 @@ import { query } from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { toGidFormat, extractUuidForQuery, toGidFormatArray } from '../utils/resolverHelpers.js';
 import { generateEstimatePDF } from '../services/pdfService.js';
+import { logActivity } from '../services/activityLogService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -71,6 +72,61 @@ router.get('/:id/preview-pdf', authenticatePdfRequest, async (req, res) => {
   } catch (error) {
     console.error('Generate estimate PDF error:', error);
     res.status(500).json({ error: 'Failed to generate estimate PDF' });
+  }
+});
+
+// Email tracking pixel endpoint (public, no auth required)
+// Returns a 1x1 transparent GIF and logs when customer opens the email
+router.get('/:id/track-open', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { token } = req.query;
+
+    // Verify token if provided (optional for tracking)
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.type === 'estimate_action') {
+          // Log the email open activity
+          await logActivity({
+            entityType: 'estimate',
+            entityId: id,
+            activityType: 'viewed',
+            userName: 'Customer',
+            metadata: {
+              ip: req.ip || req.connection.remoteAddress,
+              userAgent: req.headers['user-agent'],
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
+      } catch (err) {
+        // Token invalid or expired - still return pixel but don't log
+        console.log('Tracking pixel token validation failed:', err.message);
+      }
+    }
+
+    // Return a transparent 1x1 GIF
+    const pixel = Buffer.from(
+      'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+      'base64'
+    );
+
+    res.setHeader('Content-Type', 'image/gif');
+    res.setHeader('Content-Length', pixel.length);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.send(pixel);
+  } catch (error) {
+    console.error('Track email open error:', error);
+    // Still return a pixel even on error
+    const pixel = Buffer.from(
+      'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+      'base64'
+    );
+    res.setHeader('Content-Type', 'image/gif');
+    res.send(pixel);
   }
 });
 
@@ -224,11 +280,130 @@ router.get('/:id/approve', async (req, res) => {
       `);
     }
 
+    // Parse line_items if needed
+    const lineItems = typeof estimate.line_items === 'string'
+      ? JSON.parse(estimate.line_items)
+      : estimate.line_items;
+
+    // Create job from estimate data (using default 100% payment schedule)
+    const payment_schedule = '100'; // Default: pay on completion
+    const jobResult = await query(
+      `INSERT INTO jobs (customer_id, estimate_id, title, description, total_amount, payment_schedule, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+       RETURNING *`,
+      [
+        estimate.customer_id,
+        estimate.id,
+        estimate.title,
+        estimate.description,
+        estimate.total,
+        payment_schedule
+      ]
+    );
+
+    const job = jobResult.rows[0];
+
     // Update estimate status to accepted
     await query(
       `UPDATE estimates SET status = 'accepted', updated_at = NOW()
        WHERE id = $1`,
       [id]
+    );
+
+    // Log the acceptance activity
+    await logActivity({
+      entityType: 'estimate',
+      entityId: id,
+      activityType: 'accepted',
+      userName: 'Customer',
+      metadata: {
+        customerEmail: estimate.customer_email,
+        ip: req.ip || req.connection.remoteAddress,
+        userAgent: req.headers['user-agent'],
+        approvedAt: new Date().toISOString()
+      }
+    });
+
+    // Auto-create invoices based on payment schedule
+    const schedule = payment_schedule.split('/').map(p => parseInt(p));
+
+    // Define stages and descriptions based on schedule length
+    let stages, stageDescriptions;
+    if (schedule.length === 1) {
+      // 100% - due on completion
+      stages = ['completion'];
+      stageDescriptions = ['Payment due on completion'];
+    } else if (schedule.length === 2) {
+      // 50/50
+      stages = ['start', 'completion'];
+      stageDescriptions = [
+        'Initial payment - Job start',
+        'Final payment - Painting completion'
+      ];
+    } else {
+      // 50/40/10 or custom
+      stages = ['start', 'completion', 'touchup'];
+      stageDescriptions = [
+        'Initial payment - Job start',
+        'Second payment - Painting completion',
+        'Final payment - After touch-ups'
+      ];
+    }
+
+    // Get next invoice number
+    const lastInvoiceResult = await query(
+      `SELECT invoice_number FROM invoices
+       WHERE invoice_number ~ '^[0-9]+$'
+       ORDER BY CAST(invoice_number AS INTEGER) DESC
+       LIMIT 1`
+    );
+    let nextInvoiceNumber = 1;
+    if (lastInvoiceResult.rows.length > 0 && lastInvoiceResult.rows[0].invoice_number) {
+      nextInvoiceNumber = parseInt(lastInvoiceResult.rows[0].invoice_number) + 1;
+    }
+
+    // Create invoices for each payment stage
+    for (let i = 0; i < schedule.length; i++) {
+      const percentage = schedule[i];
+      const amount = (estimate.total * percentage / 100).toFixed(2);
+      const invoiceNumber = (nextInvoiceNumber + i).toString();
+
+      // For 100% payment schedule, use title without payment info
+      const invoiceTitle = schedule.length === 1
+        ? estimate.title
+        : `${estimate.title} - Payment ${i + 1} (${percentage}%)`;
+
+      await query(
+        `INSERT INTO invoices (customer_id, job_id, estimate_id, invoice_number, title, description, line_items, subtotal, tax, total, payment_stage, percentage, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'unpaid')`,
+        [
+          estimate.customer_id,
+          job.id,
+          estimate.id,
+          invoiceNumber,
+          invoiceTitle,
+          stageDescriptions[i] || `Payment ${i + 1}`,
+          JSON.stringify(lineItems || []),
+          estimate.subtotal,
+          estimate.tax,
+          amount,
+          stages[i] || `payment_${i + 1}`,
+          percentage
+        ]
+      );
+    }
+
+    // Update job total_amount with sum of all invoice totals
+    await query(
+      `UPDATE jobs
+       SET total_amount = (
+         SELECT COALESCE(SUM(total), 0)
+         FROM invoices
+         WHERE job_id = $1
+       ),
+       updated_at = NOW()
+       WHERE id = $1`,
+      [job.id]
     );
 
     // Return success page
@@ -466,6 +641,20 @@ router.get('/:id/decline', async (req, res) => {
        WHERE id = $1`,
       [id]
     );
+
+    // Log the rejection activity
+    await logActivity({
+      entityType: 'estimate',
+      entityId: id,
+      activityType: 'rejected',
+      userName: 'Customer',
+      metadata: {
+        customerEmail: estimate.customer_email,
+        ip: req.ip || req.connection.remoteAddress,
+        userAgent: req.headers['user-agent'],
+        rejectedAt: new Date().toISOString()
+      }
+    });
 
     // Return confirmation page
     res.send(`

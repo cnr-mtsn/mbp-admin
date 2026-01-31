@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
 import { generateInvoicePDF, generateEstimatePDF } from './pdfService.js';
+import { logActivity } from './activityLogService.js';
 
 // Create reusable transporter (single config shared by all environments)
 const createTransporter = () => {
@@ -91,6 +92,14 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
   if (options.body) {
     return options.body;
   }
+
+  // Generate tracking token for email open tracking
+  const trackingToken = generateInvoiceEmailToken(invoice.id);
+
+  // Determine the base URL based on environment
+  const baseUrl = isDevelopment
+    ? 'http://localhost:4000'
+    : process.env.API_BASE_URL || 'https://api.matsonbrotherspainting.com';
 
   return `
     <div
@@ -297,6 +306,8 @@ const generateInvoiceEmailHTML = (invoice, options = {}) => {
             : ''
         }
       </div>
+      <!-- Email tracking pixel -->
+      <img src="${baseUrl}/api/invoices/${invoice.id}/track-open?token=${trackingToken}" width="1" height="1" style="display:block" alt="" />
     </div>
   `;
 };
@@ -405,6 +416,22 @@ export const sendInvoiceEmail = async (invoice, options = {}) => {
     const info = await transporter.sendMail(mailOptions);
 
     console.log('Email sent:', info.messageId);
+
+    // Log activity
+    await logActivity({
+      entityType: 'invoice',
+      entityId: invoice.id,
+      activityType: 'sent',
+      userId: options.userId || null,
+      userName: options.userName || 'System',
+      metadata: {
+        recipientEmail,
+        ccEmails: allCcEmails,
+        subject,
+        messageId: info.messageId
+      }
+    });
+
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -424,6 +451,22 @@ const generateEstimateActionToken = (estimateId, action) => {
       estimateId,
       action,
       type: 'estimate_action'
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '30d' } // Token valid for 30 days
+  );
+};
+
+/**
+ * Generate a tracking token for invoice emails
+ * @param {string} invoiceId - Invoice UUID
+ * @returns {string} JWT token
+ */
+const generateInvoiceEmailToken = (invoiceId) => {
+  return jwt.sign(
+    {
+      invoiceId,
+      type: 'invoice_email'
     },
     process.env.JWT_SECRET,
     { expiresIn: '30d' } // Token valid for 30 days
@@ -634,6 +677,8 @@ const generateEstimateEmailHTML = (estimate, options = {}) => {
             : ''
         }
       </div>
+      <!-- Email tracking pixel -->
+      <img src="${baseUrl}/api/estimates/${estimate.id}/track-open?token=${approveToken}" width="1" height="1" style="display:block" alt="" />
     </div>
   `;
 };
@@ -730,6 +775,22 @@ export const sendEstimateEmail = async (estimate, options = {}) => {
     const info = await transporter.sendMail(mailOptions);
 
     console.log('Estimate email sent:', info.messageId);
+
+    // Log activity
+    await logActivity({
+      entityType: 'estimate',
+      entityId: estimate.id,
+      activityType: 'sent',
+      userId: options.userId || null,
+      userName: options.userName || 'System',
+      metadata: {
+        recipientEmail,
+        ccEmails: allCcEmails,
+        subject,
+        messageId: info.messageId
+      }
+    });
+
     return info;
   } catch (error) {
     console.error('Error sending estimate email:', error);

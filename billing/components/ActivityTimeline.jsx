@@ -84,12 +84,16 @@ export default function ActivityTimeline({ activities = [] }) {
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    // if (diffDays < 7) return `${diffDays}d ago`;
+    const overAYear = now.getFullYear() !== date.getFullYear();
 
     return date.toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric',
-      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      day: '2-digit',
+      year: overAYear ? 'numeric' : undefined,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     });
   };
 
@@ -118,7 +122,7 @@ export default function ActivityTimeline({ activities = [] }) {
     if (isNaN(date.getTime())) return '';
 
     return date.toLocaleString('en-US', {
-      month: 'short',
+      month: 'long',
       day: 'numeric',
       year: 'numeric',
       hour: 'numeric',

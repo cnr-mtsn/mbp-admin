@@ -243,8 +243,8 @@ export default function EstimateDetail() {
           <span className={`pill ${statusClass} mt-4`}>{formatStatus(estimate.status)}</span>
           <div className="flex gap-2">
             {estimate.status !== 'accepted' && (
-              <button onClick={() => setShowAcceptModal(true)} className="btn-primary">
-                Accept & Create Job
+              <button onClick={() => setShowAcceptModal(true)} className="btn-secondary" title="Accept estimate & create job">
+                <Icon name="checkmark" size={10} />
               </button>
             )}
             <button
@@ -274,12 +274,12 @@ export default function EstimateDetail() {
         <div className={`card ${cardStyles.detailSection}`}>
           <h3 className={cardStyles.detailSectionTitle}>Estimate Information</h3>
           <dl className={cardStyles.detailList}>
-            <div className={cardStyles.detailItem}>
+            {/* <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Status</dt>
               <dd className={cardStyles.detailValue}>
                 <span className={`pill ${statusClass}`}>{formatStatus(estimate.status)}</span>
               </dd>
-            </div>
+            </div> */}
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Created</dt>
               <dd className={cardStyles.detailValue}>{formatDate(estimate.created_at)}</dd>
@@ -302,11 +302,15 @@ export default function EstimateDetail() {
             </div>
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Email</dt>
-              <dd className={cardStyles.detailLink}>{estimate.customer?.email}</dd>
+              <dd className={cardStyles.detailLink}>
+                {estimate.customer?.email ? <a href={`mailto:${estimate.customer?.email}`}>{estimate.customer?.email}</a> : "N/A"}
+              </dd>
             </div>
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Phone</dt>
-              <dd className={cardStyles.detailLink}>{estimate.customer?.phone}</dd>
+              <dd className={cardStyles.detailLink}>
+                {estimate.customer?.phone ? <a href={`tel:${estimate.customer?.phone}`}>{estimate.customer?.phone ?? "N/A"}</a> : "N/A"}
+              </dd>
             </div>
             <div className={cardStyles.detailItem}>
               <dt className={cardStyles.detailLabel}>Address</dt>
